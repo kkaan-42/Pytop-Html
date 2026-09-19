@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="btop">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pyTOP Pro • Terminal Sistem &amp; Süreç Monitörü</title>
+    <!-- Terminal Monospace Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Tam Ekran Terminal Çerçevesi -->
+    <div class="terminal-root">
+
+        <!-- 1. Terminal Üst Bilgi Şeridi -->
+        <header class="top-bar">
+            <div class="bar-left">
+                <span class="app-tag">pyTOP Pro</span>
+                <span class="sep">/</span>
+                <span class="host-info">{{ sys.hostname }}</span>
+                <span class="sep">/</span>
+                <span class="os-info">{{ sys.os }}</span>
+            </div>
+
+            <div class="bar-center">
+                <span>UPTIME: <strong id="val-uptime" class="c-yellow">00:00:00</strong></span>
+                <span class="sep">|</span>
+                <span>TASKS: <strong id="val-tasks" class="c-cyan">0</strong></span>
+                <span class="sep">|</span>
+                <span>BOOT: <span class="c-muted">{{ sys.boot_time }}</span></span>
+            </div>
+
+            <div class="bar-right">
+                <div class="theme-control">
+                    <label for="theme-select">THEME:</label>
+                    <select id="theme-select">
+                        <option value="btop" selected>Btop Slate</option>
+                        <option value="htop">Htop Classic</option>
+                        <option value="monokai">Monokai</option>
+                        <option value="matrix">Matrix Green</option>
+                    </select>
+                </div>
+                <div class="status-badge" id="live-badge">
+                    <span class="status-dot"></span>
+                    <span id="live-text">LIVE</span>
+                </div>
+                <button type="button" id="btn-fullscreen" class="tool-btn" title="Tam Ekran (F11)">[⛶]</button>
+            </div>
+        </header>
+
+        <!-- 2. Donanım Göstergeleri Izgarası (CPU, RAM, Disk, Ağ) -->
+        <section class="hardware-grid">
+
+            <!-- Panel 1: CPU & Çekirdek Matrisi -->
+            <div class="hw-box cpu-box">
+                <div class="box-title">
+                    <span>CPU MATRIX ({{ sys.cores_logical }} THREADS)</span>
+                    <span class="title-right">
+                        TOTAL: <strong id="cpu-total-pct" class="c-green">0.0%</strong>
+                        <span class="sep">|</span>
+                        FREQ: <span id="cpu-freq-val" class="c-cyan">0 MHz</span>
+                    </span>
+                </div>
+                <div class="cpu-times-sub">
+                    <span>usr: <strong id="cpu-usr" class="c-green">0%</strong></span>
+                    <span>sys: <strong id="cpu-sys" class="c-red">0%</strong></span>
+                    <span>idle: <strong id="cpu-idle" class="c-muted">0%</strong></span>
+                </div>
+
+                <!-- 16 Çekirdek Izgarası (2 Kolon) -->
+                <div class="cores-split-wrap">
+                    <div class="core-col" id="cores-left">
+                        <!-- JS ile dolar -->
+                    </div>
+                    <div class="core-col" id="cores-right">
+                        <!-- JS ile dolar -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Bellek & Depolama -->
+            <div class="hw-box mem-box">
+                <div class="box-title">
+                    <span>MEMORY &amp; STORAGE</span>
+                    <span class="title-right" id="mem-status-badge">OK</span>
+                </div>
+
+                <!-- RAM -->
+                <div class="meter-block">
+                    <div class="meter-label-line">
+                        <span>RAM</span>
+                        <span id="ram-text-detail">0.0 / 0.0 GB (0%)</span>
+                    </div>
+                    <div class="block-bar-track">
+                        <div class="block-bar-fill fill-ram" id="ram-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="meter-sub-line">
+                        <span>Avail: <strong id="ram-avail" class="c-green">0 GB</strong></span>
+                        <span>Used: <strong id="ram-used" class="c-purple">0 GB</strong></span>
+                    </div>
+                </div>
+
+                <!-- SWAP / Pagefile -->
+                <div class="meter-block">
+                    <div class="meter-label-line">
+                        <span>SWAP</span>
+                        <span id="swap-text-detail">0.0 / 0.0 GB (0%)</span>
+                    </div>
+                    <div class="block-bar-track">
+                        <div class="block-bar-fill fill-swap" id="swap-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- DISK -->
+                <div class="meter-block">
+                    <div class="meter-label-line">
+                        <span>DISK (<span id="disk-drive-label">C:</span>)</span>
+                        <span id="disk-text-detail">0.0 / 0.0 GB (0%)</span>
+                    </div>
+                    <div class="block-bar-track">
+                        <div class="block-bar-fill fill-disk" id="disk-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="meter-sub-line">
+                        <span>Free: <strong id="disk-free-val" class="c-cyan">0 GB</strong></span>
+                        <span>R/W: <strong id="disk-io-val" class="c-yellow">R: 0 KB/s | W: 0 KB/s</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Ağ & I/O Canlı Trafik -->
+            <div class="hw-box net-box">
+                <div class="box-title">
+                    <span>NETWORK I/O</span>
+                    <span class="title-right">TCP/IP</span>
+                </div>
+
+                <div class="net-speeds-row">
+                    <div class="net-speed-card rx-card">
+                        <span class="speed-dir">▼ DOWNLOAD</span>
+                        <span class="speed-val" id="net-rx-speed">0.0 KB/s</span>
+                        <span class="speed-total" id="net-rx-total">Total: 0 MB</span>
+                    </div>
+                    <div class="net-speed-card tx-card">
+                        <span class="speed-dir">▲ UPLOAD</span>
+                        <span class="speed-val" id="net-tx-speed">0.0 KB/s</span>
+                        <span class="speed-total" id="net-tx-total">Total: 0 MB</span>
+                    </div>
+                </div>
+
+                <!-- Canlı Mini Ağ Grafiği -->
+                <div class="sparkline-wrapper">
+                    <div class="sparkline-title">ACTIVITY GRAPH (LAST 20 SECONDS)</div>
+                    <canvas id="netSparkline"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 3. Süreç Yönetim Paneli (Merkez Alan) -->
+        <section class="processes-section">
+
+            <!-- Kontrol ve Filtre Çubuğu -->
+            <div class="proc-control-bar">
+                <div class="search-wrap">
+                    <span class="prompt-arrow">&gt;</span>
+                    <label for="proc-search">FILTER:</label>
+                    <input type="text" id="proc-search" placeholder="Type to filter process or PID... ('/' to focus)" autocomplete="off">
+                    <button type="button" id="btn-clear-search" class="clear-btn hidden">&times;</button>
+                </div>
+
+                <!-- Hızlı Kategori Seçimi -->
+                <div class="cat-filters">
+                    <button type="button" class="cat-btn active" data-cat="all">ALL</button>
+                    <button type="button" class="cat-btn" data-cat="user">USER</button>
+                    <button type="button" class="cat-btn" data-cat="python">PYTHON</button>
+                    <button type="button" class="cat-btn" data-cat="browser">BROWSERS</button>
+                </div>
+
+                <!-- Sıralama Butonları -->
+                <div class="sort-controls">
+                    <span class="sort-lbl">SORT:</span>
+                    <button type="button" class="sort-key-btn active" data-sort="cpu">CPU%</button>
+                    <button type="button" class="sort-key-btn" data-sort="mem">MEM%</button>
+                    <button type="button" class="sort-key-btn" data-sort="rss">RES_MB</button>
+                    <button type="button" class="sort-key-btn" data-sort="pid">PID</button>
+                    <button type="button" class="sort-key-btn" data-sort="threads">THR</button>
+                </div>
+
+                <!-- Hız & Duraklatma -->
+                <div class="proc-right-actions">
+                    <select id="rate-select" class="term-dropdown">
+                        <option value="1000">1s</option>
+                        <option value="2000" selected>2s</option>
+                        <option value="5000">5s</option>
+                    </select>
+                    <button type="button" id="btn-pause-toggle" class="term-action-btn">PAUSE</button>
+                </div>
+            </div>
+
+            <!-- Süreç Tablosu -->
+            <div class="proc-table-wrap">
+                <table class="proc-table" id="main-proc-table">
+                    <thead>
+                        <tr>
+                            <th class="col-pid sortable" data-sort="pid">PID</th>
+                            <th class="col-user">USER</th>
+                            <th class="col-status">STATUS</th>
+                            <th class="col-cpu sortable active-sort text-right" data-sort="cpu">CPU%</th>
+                            <th class="col-mem sortable text-right" data-sort="mem">MEM%</th>
+                            <th class="col-rss sortable text-right" data-sort="rss">RES (MB)</th>
+                            <th class="col-vms text-right">VIRT (MB)</th>
+                            <th class="col-thr sortable text-center" data-sort="threads">THR</th>
+                            <th class="col-time">UPTIME</th>
+                            <th class="col-name sortable" data-sort="name">COMMAND / PROCESS</th>
+                            <th class="col-ops text-center">MANAGE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="proc-tbody">
+                        <tr>
+                            <td colspan="11" class="text-center c-muted py-4">Süreçler taranıyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- 4. Fonksiyon Tuşları Alt Çubuğu (htop F-Keys) -->
+        <footer class="bottom-fkeys">
+            <div class="fkey" id="fk-help"><span class="f-num">F1</span><span class="f-txt">Help</span></div>
+            <div class="fkey" id="fk-theme"><span class="f-num">F2</span><span class="f-txt">Theme</span></div>
+            <div class="fkey" id="fk-search"><span class="f-num">F3</span><span class="f-txt">Search [/]</span></div>
+            <div class="fkey" id="fk-sort-cpu"><span class="f-num">F4</span><span class="f-txt">Sort CPU</span></div>
+            <div class="fkey" id="fk-sort-mem"><span class="f-num">F5</span><span class="f-txt">Sort MEM</span></div>
+            <div class="fkey" id="fk-kill"><span class="f-num">F9</span><span class="f-txt">Kill</span></div>
+            <div class="fkey" id="fk-pause"><span class="f-num">Space</span><span class="f-txt">Pause</span></div>
+        </footer>
+
+    </div>
+
+    <!-- 5. Süreç Denetleyicisi (Process Inspector Side-Drawer) -->
+    <div id="inspector-drawer" class="inspector-drawer hidden">
+        <div class="drawer-header">
+            <div>
+                <h3>PROCESS INSPECTOR</h3>
+                <span class="c-muted" id="insp-pid-name">PID: 0 &mdash; process.exe</span>
+            </div>
+            <button type="button" id="btn-close-inspector" class="drawer-close-btn">&times;</button>
+        </div>
+
+        <div class="drawer-content">
+            <div class="insp-section">
+                <span class="insp-label">EXECUTABLE PATH:</span>
+                <code class="insp-code" id="insp-exe">-</code>
+            </div>
+
+            <div class="insp-section">
+                <span class="insp-label">FULL COMMAND LINE:</span>
+                <pre class="insp-code-block" id="insp-cmdline">-</pre>
+            </div>
+
+            <div class="insp-section">
+                <span class="insp-label">WORKING DIRECTORY (CWD):</span>
+                <code class="insp-code" id="insp-cwd">-</code>
+            </div>
+
+            <div class="insp-grid">
+                <div class="insp-tile">
+                    <span class="tile-key">USER</span>
+                    <span class="tile-val" id="insp-user">-</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">STATUS</span>
+                    <span class="tile-val" id="insp-status">-</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">THREADS</span>
+                    <span class="tile-val" id="insp-threads">0</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">STARTED AT</span>
+                    <span class="tile-val" id="insp-created">-</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">RESIDENT MEM</span>
+                    <span class="tile-val c-purple" id="insp-rss">0 MB</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">VIRTUAL MEM</span>
+                    <span class="tile-val" id="insp-vms">0 MB</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">CPU USAGE</span>
+                    <span class="tile-val c-green" id="insp-cpu">0.0%</span>
+                </div>
+                <div class="insp-tile">
+                    <span class="tile-key">NETWORK CONN</span>
+                    <span class="tile-val c-cyan" id="insp-conns">0</span>
+                </div>
+            </div>
+
+            <div class="insp-actions">
+                <button type="button" id="btn-insp-term" class="drawer-btn btn-term">Terminate (SIGTERM)</button>
+                <button type="button" id="btn-insp-kill" class="drawer-btn btn-kill">Force Kill (SIGKILL)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Yardım Modalı -->
+    <div id="help-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal">
+            <div class="modal-top">
+                <h3>pyTOP Pro &mdash; Klavye Kısayolları ve Rehber</h3>
+                <button type="button" id="btn-close-help" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>pyTOP Pro, doğrudan işletim sistemi çekirdeğinden gerçek donanım ve süreç verilerini toplayan canlı bir terminal sistem monitörüdür.</p>
+                <table class="shortcuts-table">
+                    <tr><td><kbd>/</kbd></td><td>Arama / Filtreleme kutusuna odaklanır.</td></tr>
+                    <tr><td><kbd>Esc</kbd></td><td>Aramayı temizler, denetleyiciyi veya pencereleri kapatır.</td></tr>
+                    <tr><td><kbd>Space</kbd></td><td>Canlı veri akışını dondurur (PAUSE) / devam ettirir (LIVE).</td></tr>
+                    <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Süreç tablosunda satırlar arasında gezinir.</td></tr>
+                    <tr><td><kbd>Enter</kbd></td><td>Seçili sürecin detaylarını (Process Inspector) açar.</td></tr>
+                    <tr><td><kbd>C</kbd></td><td>İşlemci (CPU) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>M</kbd></td><td>Bellek (RAM) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
