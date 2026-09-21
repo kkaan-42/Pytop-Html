@@ -604,9 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (!mobileModal.classList.contains('hidden')) {
-                closeMobileModal();
-            } else if (!reportModal.classList.contains('hidden')) {
+            if (!reportModal.classList.contains('hidden')) {
                 closeReportModal();
             } else if (!alertsModal.classList.contains('hidden')) {
                 closeAlertsModal();
@@ -643,9 +641,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F2') {
             e.preventDefault();
             cycleTheme();
-        } else if (e.key === 'F6') {
-            e.preventDefault();
-            openMobileModal();
         } else if (e.key === 'F7') {
             e.preventDefault();
             openReportModal();
@@ -888,77 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reportModal) {
         reportModal.addEventListener('click', (e) => {
             if (e.target === reportModal) closeReportModal();
-        });
-    }
-
-    // ======================================================================
-    // 8.3. Mobil PWA & QR Kod Modalı (Fikir 5)
-    // ======================================================================
-    const mobileModal = document.getElementById('mobile-modal');
-    const btnMobileModal = document.getElementById('btn-mobile-modal');
-    const btnCloseMobile = document.getElementById('btn-close-mobile');
-    const btnCopyUrl = document.getElementById('btn-copy-url');
-    const copyFeedback = document.getElementById('copy-feedback');
-    const mobileLanUrl = document.getElementById('mobile-lan-url');
-    const mobileQrImg = document.getElementById('mobile-qr-img');
-
-    function closeMobileModal() {
-        if (mobileModal) mobileModal.classList.add('hidden');
-        if (copyFeedback) copyFeedback.classList.add('hidden');
-    }
-
-    async function openMobileModal() {
-        if (!mobileModal) return;
-        mobileModal.classList.remove('hidden');
-
-        try {
-            const res = await fetch('/api/network/local_ip');
-            const d = await res.json();
-            if (d && d.url) {
-                if (mobileLanUrl) mobileLanUrl.textContent = d.url;
-                if (mobileQrImg) {
-                    mobileQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(d.url)}`;
-                }
-            }
-        } catch (e) {
-            console.error('Local IP okunamadı:', e);
-        }
-    }
-
-    if (btnMobileModal) btnMobileModal.addEventListener('click', openMobileModal);
-    if (btnCloseMobile) btnCloseMobile.addEventListener('click', closeMobileModal);
-    if (mobileModal) {
-        mobileModal.addEventListener('click', (e) => {
-            if (e.target === mobileModal) closeMobileModal();
-        });
-    }
-
-    if (btnCopyUrl) {
-        btnCopyUrl.addEventListener('click', async () => {
-            const urlText = mobileLanUrl ? mobileLanUrl.textContent.trim() : '';
-            if (!urlText) return;
-            try {
-                await navigator.clipboard.writeText(urlText);
-                if (copyFeedback) {
-                    copyFeedback.classList.remove('hidden');
-                    setTimeout(() => copyFeedback.classList.add('hidden'), 2500);
-                }
-            } catch (err) {
-                prompt('Mobil adresi kopyalayın:', urlText);
-            }
-        });
-    }
-
-    // PWA Service Worker Kaydı
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then((reg) => {
-                    console.log('pyTOP PWA Service Worker hazır. Kapsam:', reg.scope);
-                })
-                .catch((err) => {
-                    console.warn('PWA Service Worker kaydedilemedi:', err);
-                });
         });
     }
 

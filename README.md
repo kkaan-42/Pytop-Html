@@ -68,13 +68,7 @@ Geleneksel terminal monitörlerinin aksine:
 * **Ham JSON Dışa Aktarma:** Sistem envanteri, donanım metrikleri ve en çok kaynak tüketen ilk süreçler tek tıkla indirilebilir `.json` dosyası olarak arşivlenebilir.
 * **Hızlı Erişim:** Üst bardaki `[REPORT]` butonu veya <kbd>F7</kbd> kısayolu ile hızlı rapor önizleme penceresi açılır.
 
-### 8. 📱 PWA Desteği & Mobilden İzleme (QR Kod & Tam Ekran Uygulama)
-* **Telefon ve Tabletten Canlı Takip:** Bilgisayar veya sunucunuzla aynı Wi-Fi / ağda olan herhangi bir telefondan tarayıcıyla anında izlenebilir.
-* **Anında QR Kod ile Bağlanma (<kbd>F6</kbd>):** Arayüzdeki `[📱 MOBILE]` butonuna veya <kbd>F6</kbd> tuşuna basarak ekrandaki QR kodu telefon kamerasıyla okutabilirsiniz.
-* **PWA (Progressive Web App):** iOS Safari veya Android Chrome'da *"Ana Ekrana Ekle"* yapıldığında adres çubuğu olmadan tam ekran, yerel bir mobil uygulama gibi çalışır.
-* **Duyarlı Dokunmatik Arayüz:** Akıllı telefon ekranlarına göre optimize edilmiş kart ve tablo yerleşimi.
-
-### 9. 🎨 4 Farklı Terminal Teması
+### 8. 🎨 4 Farklı Terminal Teması
 * **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
@@ -259,7 +253,6 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F3</kbd> veya <kbd>/</kbd> | **Süreç Arama** | Anında arama çubuğuna odaklanır, filtreleme yapmanızı sağlar. |
 | <kbd>F4</kbd> veya <kbd>C</kbd> | **CPU'ya Göre Sırala** | En çok işlemci tüketen süreçleri en üste taşır. |
 | <kbd>F5</kbd> veya <kbd>M</kbd> | **RAM'e Göre Sırala** | En çok bellek tüketen süreçleri en üste taşır. |
-| <kbd>F6</kbd> | **Mobil Bağlantı &amp; QR Kod** | Telefondan bağlanmak için QR kod ve ağ adresini açar. |
 | <kbd>F7</kbd> | **Sistem Sağlık Raporu** | Teşhis penceresini açar, PDF/JSON rapor oluşturur. |
 | <kbd>F8</kbd> | **Uyarı & Webhook** | Akıllı Alarm & Discord/Telegram ayar penceresini açar. |
 | <kbd>F9</kbd> | **Süreç Öldür (Kill)** | Seçili süreci `SIGKILL` ile anında sonlandırır. |
@@ -268,34 +261,6 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>Enter</kbd> | **Süreç Detayı** | Seçili sürecin derinlemesine detaylarını (Process Inspector) açar. |
 | <kbd>Esc</kbd> | **Kapat / Temizle** | Açık modalları kapatır, filtrelemeyi sıfırlar. |
 | <kbd>F11</kbd> | **Tam Ekran** | Tarayıcıyı tam ekran terminal moduna geçirir. |
-
----
-
-## 📱 Mobilden Nasıl İzlenir? (PWA Kurulum Rehberi)
-
-pyTOP Pro, mobil cihazlardan izlenmek üzere özel PWA (Progressive Web App) desteğine sahiptir. Bilgisayarınızı veya sunucunuzu telefonunuzdan canlı izlemek çok kolaydır:
-
-### 1. Adım: Cihazları Aynı Ağa Bağlayın
-* Telefonunuz ile pyTOP Pro'nun çalıştığı bilgisayarın **aynı Wi-Fi / yerel ağa** bağlı olduğundan emin olun.
-
-### 2. Adım: QR Kodu Okutun veya Adresi Girin
-* Bilgisayar ekranında üst bardaki **`[📱 MOBILE]`** butonuna tıklayın veya <kbd>F6</kbd> tuşuna basın.
-* Ekranda beliren **QR Kodu telefonunuzun kamerasıyla okutun** (veya ekranda yazan `http://192.168.x.x:5000` adresini telefonunuzun tarayıcısına yazın).
-
-### 3. Adım: Ana Ekrana Ekleyin (Tam Ekran Uygulama Deneyimi)
-* 🍏 **iPhone & iPad (Safari):**
-  1. Safari'de sayfayı açın.
-  2. Alttaki **Paylaş** simgesine (kare içinde yukarı ok) dokunun.
-  3. Açılan menüden **"Ana Ekrana Ekle"** seçeneğine basın.
-* 🤖 **Android (Chrome / Brave / Edge):**
-  1. Chrome ile adrese girin.
-  2. Sağ üstteki **3 nokta (Menü)** simgesine dokunun.
-  3. **"Uygulamayı Yükle"** veya **"Ana Ekrana Ekle"** butonuna dokunun.
-
-> [!TIP]
-> Ana ekrana ekledikten sonra simgeye dokunduğunuzda pyTOP Pro, tarayıcı adres çubuğu veya sekme butonları olmadan **tam ekran gerçek bir mobil uygulama gibi** açılır!
-
----
 
 ---
 

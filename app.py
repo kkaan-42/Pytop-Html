@@ -23,22 +23,6 @@ _last_io = {
     "time": time.time()
 }
 
-SERVER_PORT = 5000
-
-def get_local_ip():
-    """Yerel ağ (Wi-Fi / LAN) IP adresini tespit eder."""
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(0.5)
-        s.connect(('10.255.255.255', 1))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except Exception:
-        try:
-            return socket.gethostbyname(socket.gethostname())
-        except Exception:
-            return "127.0.0.1"
 
 def get_detailed_os():
     """Tüm Linux dağıtımlarını, macOS ve Windows sürümlerini detaylı tespit eder."""
@@ -101,9 +85,7 @@ def index():
         "python_version": platform.python_version(),
         "cores_logical": psutil.cpu_count(logical=True) or 1,
         "cores_physical": psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1,
-        "boot_time": boot_str,
-        "local_ip": get_local_ip(),
-        "port": SERVER_PORT
+        "boot_time": boot_str
     }
     return render_template("index.html", sys=system_info)
 
@@ -466,31 +448,6 @@ def api_report_download_json():
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
-# ======================================================================
-# Mobil PWA & Yerel Ağ Bilgisi (Fikir 5)
-# ======================================================================
-@app.route("/manifest.json")
-def pwa_manifest():
-    """PWA kurulum bildirgesi."""
-    return app.send_static_file("manifest.json")
-
-@app.route("/sw.js")
-def pwa_sw():
-    """PWA Service Worker betiği."""
-    res = app.send_static_file("sw.js")
-    res.headers["Content-Type"] = "application/javascript"
-    return res
-
-@app.route("/api/network/local_ip")
-def api_local_ip():
-    """Mobil cihazların bağlanabilmesi için yerel ağ IP adresini ve QR bağlantısını döner."""
-    ip = get_local_ip()
-    return jsonify({
-        "local_ip": ip,
-        "port": SERVER_PORT,
-        "url": f"http://{ip}:{SERVER_PORT}"
-    })
-
 def find_available_port(start_port=5000, max_tries=20):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""
     for p in range(start_port, start_port + max_tries):
@@ -504,12 +461,9 @@ def find_available_port(start_port=5000, max_tries=20):
 
 if __name__ == "__main__":
     port = find_available_port(5000)
-    SERVER_PORT = port
-    local_ip = get_local_ip()
     print("==================================================")
     print(" pyTOP Pro — Terminal Sistem & Süreç Monitörü")
     print(f" Yerel Erişim:  http://127.0.0.1:{port}")
     print(f" Ağ Erişimi:    http://0.0.0.0:{port}")
-    print(f" Mobil / LAN:   http://{local_ip}:{port}")
     print("==================================================")
     app.run(host="0.0.0.0", port=port, debug=False)
