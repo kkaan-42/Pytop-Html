@@ -21,6 +21,50 @@ _last_io = {
     "time": time.time()
 }
 
+def get_detailed_os():
+    """Tüm Linux dağıtımlarını, macOS ve Windows sürümlerini detaylı tespit eder."""
+    sys_name = platform.system()
+    if sys_name == "Linux":
+        if os.path.exists("/etc/os-release"):
+            try:
+                with open("/etc/os-release", encoding="utf-8") as f:
+                    for line in f:
+                        if line.startswith("PRETTY_NAME="):
+                            return line.split("=", 1)[1].strip().strip('"')
+            except Exception:
+                pass
+        return f"Linux {platform.release()}"
+    elif sys_name == "Darwin":
+        mac_ver = platform.mac_ver()[0]
+        arch = platform.machine()
+        chip = "Apple Silicon" if arch.lower() in ("arm64", "aarch64") else "Intel"
+        return f"macOS {mac_ver} ({chip})"
+    elif sys_name == "Windows":
+        return f"Windows {platform.release()} ({platform.machine()})"
+    return sys_name
+
+def get_cpu_model():
+    """İşlemci marka ve modelini platforma göre çeker."""
+    sys_name = platform.system()
+    if sys_name == "Darwin":
+        try:
+            import subprocess
+            res = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True, timeout=1)
+            if res.returncode == 0 and res.stdout.strip():
+                return res.stdout.strip()
+        except Exception:
+            pass
+    elif sys_name == "Linux":
+        if os.path.exists("/proc/cpuinfo"):
+            try:
+                with open("/proc/cpuinfo", encoding="utf-8") as f:
+                    for line in f:
+                        if "model name" in line:
+                            return line.split(":", 1)[1].strip()
+            except Exception:
+                pass
+    return platform.processor() or platform.machine() or "Bilinmiyor"
+
 @app.route("/")
 def index():
     """Terminal arayüzünü sunar."""
@@ -32,9 +76,9 @@ def index():
 
     system_info = {
         "hostname": platform.node(),
-        "os": f"{platform.system()} {platform.release()}",
+        "os": get_detailed_os(),
         "machine": platform.machine(),
-        "processor": platform.processor() or platform.machine() or "Bilinmiyor",
+        "processor": get_cpu_model(),
         "python_version": platform.python_version(),
         "cores_logical": psutil.cpu_count(logical=True) or 1,
         "cores_physical": psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1,
@@ -341,7 +385,7 @@ def kill_process(pid):
     except psutil.NoSuchProcess:
         return jsonify({"success": False, "message": "Süreç zaten kapanmış veya bulunamadı."}), 404
     except psutil.AccessDenied:
-        return jsonify({"success": False, "message": "Erişim engellendi. Bu süreci sonlandırmak için Yönetici (Windows Admin) veya root (Linux sudo) yetkisi gerekir."}), 403
+        return jsonify({"success": False, "message": "Erişim engellendi. Bu süreci sonlandırmak için Yönetici (Windows Admin) veya root (Linux/macOS sudo) yetkisi gerekir."}), 403
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 

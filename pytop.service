@@ -1,0 +1,15 @@
+[Unit]
+Description=pyTOP Pro — Terminal & Web System Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/pytop
+ExecStart=/opt/pytop/baslat.sh
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

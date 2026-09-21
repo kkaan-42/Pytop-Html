@@ -1,0 +1,15 @@
+services:
+  pytop:
+    build: .
+    container_name: pytop-pro
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    # Linux host süreçlerini ve donanımını tam görmek için:
+    pid: "host"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    environment:
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys

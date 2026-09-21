@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-bash "$(dirname "$0")/baslat.sh"
+exec bash "$(dirname "$0")/baslat.sh" "$@"
