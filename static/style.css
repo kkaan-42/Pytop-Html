@@ -1211,6 +1211,194 @@ kbd {
 .text-xs { font-size: 0.68rem; }
 .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Canlı Ağ Bağlantıları & Port Dedektörü Modalı (Fikir 1) */
+.btn-net-trigger {
+    color: var(--c-purple) !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+.btn-net-trigger:hover {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: var(--c-purple) !important;
+}
+
+.net-modal-dialog {
+    max-width: 900px !important;
+    width: 95vw !important;
+}
+
+.modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.net-mode-pill {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--c-purple);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.net-kpi-bar {
+    display: flex;
+    gap: 0.75rem;
+    background: var(--bg-root);
+    border: 1px solid var(--border-subtle);
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
+    flex-wrap: wrap;
+}
+
+.net-kpi-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+}
+
+.kpi-label {
+    color: var(--c-muted);
+}
+
+.net-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.net-tabs {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.net-tab-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--c-muted);
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.3rem 0.65rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.net-tab-btn:hover {
+    color: var(--c-text);
+    border-color: var(--border-strong);
+}
+
+.net-tab-btn.active {
+    background: var(--bg-surface-raised);
+    color: var(--c-cyan);
+    border-color: var(--c-cyan);
+    font-weight: 700;
+}
+
+.net-filter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    max-width: 380px;
+}
+
+.net-table-container {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    background: var(--bg-root);
+}
+
+.net-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.74rem;
+}
+
+.net-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-surface-raised);
+    color: var(--c-muted);
+    text-align: left;
+    padding: 0.45rem 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.net-table td {
+    padding: 0.4rem 0.65rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.net-table tr:hover td {
+    background: var(--bg-surface-hover);
+}
+
+.proto-badge {
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 2px;
+    border: 1px solid transparent;
+}
+.proto-tcp {
+    color: var(--c-cyan);
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+.proto-udp {
+    color: var(--c-yellow);
+    background: rgba(234, 179, 8, 0.12);
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+.net-status-badge {
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 2px;
+}
+.status-listen {
+    color: var(--c-green);
+    background: rgba(34, 197, 94, 0.12);
+}
+.status-est {
+    color: var(--c-cyan);
+    background: rgba(56, 189, 248, 0.12);
+}
+.status-other {
+    color: var(--c-muted);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-detail-sm {
+    padding: 0.15rem 0.45rem !important;
+    font-size: 0.68rem !important;
+    background: transparent !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--c-cyan) !important;
+    cursor: pointer;
+    border-radius: 2px;
+}
+.btn-detail-sm:hover {
+    border-color: var(--c-cyan) !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+}
+
 /* Mobil Ekran İyileştirmeleri (Akıllı Telefonlar & Tabletler) */
 @media (max-width: 768px) {
     .terminal-root {

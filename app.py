@@ -10,6 +10,7 @@ import psutil
 import gpu_monitor
 import alerts
 import report_generator
+import net_monitor
 
 app = Flask(__name__)
 
@@ -447,6 +448,15 @@ def api_report_download_json():
         mimetype="application/json",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+# ======================================================================
+# Canlı Ağ Bağlantıları & Port Dedektörü (Fikir 1)
+# ======================================================================
+@app.route("/api/network/connections")
+def api_network_connections():
+    """Sistemdeki açık portları ve aktif ağ bağlantılarını döner."""
+    data = net_monitor.get_network_connections()
+    return jsonify(data)
 
 def find_available_port(start_port=5000, max_tries=20):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""

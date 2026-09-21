@@ -604,7 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (!reportModal.classList.contains('hidden')) {
+            if (!netModal.classList.contains('hidden')) {
+                closeNetModal();
+            } else if (!reportModal.classList.contains('hidden')) {
                 closeReportModal();
             } else if (!alertsModal.classList.contains('hidden')) {
                 closeAlertsModal();
@@ -641,6 +643,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F2') {
             e.preventDefault();
             cycleTheme();
+        } else if (e.key === 'F6') {
+            e.preventDefault();
+            openNetModal();
         } else if (e.key === 'F7') {
             e.preventDefault();
             openReportModal();
@@ -884,6 +889,217 @@ document.addEventListener('DOMContentLoaded', () => {
         reportModal.addEventListener('click', (e) => {
             if (e.target === reportModal) closeReportModal();
         });
+    }
+
+    // ======================================================================
+    // 8.4. Canlı Ağ Bağlantıları & Açık Port Dedektörü (Fikir 1)
+    // ======================================================================
+    const netModal = document.getElementById('net-modal');
+    const btnNetModal = document.getElementById('btn-net-modal');
+    const btnCloseNet = document.getElementById('btn-close-net');
+    const btnRefreshNet = document.getElementById('btn-refresh-net');
+    const netRefreshSpin = document.getElementById('net-refresh-spin');
+    const tabBtnListening = document.getElementById('tab-btn-listening');
+    const tabBtnEstablished = document.getElementById('tab-btn-established');
+    const netSearchInput = document.getElementById('net-search-input');
+    const netKpiListen = document.getElementById('net-kpi-listen');
+    const netKpiEst = document.getElementById('net-kpi-est');
+    const netKpiTotal = document.getElementById('net-kpi-total');
+    const tabCntListen = document.getElementById('tab-cnt-listen');
+    const tabCntEst = document.getElementById('tab-cnt-est');
+    const netSocketCounter = document.getElementById('net-socket-counter');
+    const netTableHead = document.getElementById('net-table-head');
+    const netTableBody = document.getElementById('net-table-body');
+
+    let currentNetTab = 'listening';
+    let cachedNetData = null;
+
+    function closeNetModal() {
+        if (netModal) netModal.classList.add('hidden');
+    }
+
+    async function fetchNetworkConnections() {
+        if (btnRefreshNet) btnRefreshNet.disabled = true;
+        if (netRefreshSpin) netRefreshSpin.textContent = '⏳ ';
+        try {
+            const res = await fetch('/api/network/connections');
+            const data = await res.json();
+            cachedNetData = data;
+
+            if (netKpiListen) netKpiListen.textContent = data.summary.total_listening;
+            if (netKpiEst) netKpiEst.textContent = data.summary.total_established;
+            if (netKpiTotal) netKpiTotal.textContent = data.summary.total_sockets;
+            if (tabCntListen) tabCntListen.textContent = data.summary.total_listening;
+            if (tabCntEst) tabCntEst.textContent = data.summary.total_established;
+            if (netSocketCounter) netSocketCounter.textContent = `${data.summary.total_sockets} SOKET`;
+
+            renderNetTable();
+        } catch (err) {
+            console.error('Ağ bağlantıları alınamadı:', err);
+            if (netTableBody) {
+                netTableBody.innerHTML = `<tr><td colspan="7" class="c-red text-center">Bağlantılar yüklenirken hata oluştu: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        } finally {
+            if (btnRefreshNet) btnRefreshNet.disabled = false;
+            if (netRefreshSpin) netRefreshSpin.textContent = '';
+        }
+    }
+
+    function renderNetTable() {
+        if (!cachedNetData || !netTableHead || !netTableBody) return;
+
+        const query = (netSearchInput ? netSearchInput.value.trim().toLowerCase() : '');
+
+        if (currentNetTab === 'listening') {
+            netTableHead.innerHTML = `
+                <tr>
+                    <th style="width: 80px;">Port</th>
+                    <th style="width: 70px;">Protokol</th>
+                    <th>Süreç Adı</th>
+                    <th style="width: 80px;">PID</th>
+                    <th>Yerel Adres</th>
+                    <th>Kullanıcı</th>
+                    <th style="width: 70px; text-align: right;">Eylem</th>
+                </tr>
+            `;
+
+            let items = cachedNetData.listening || [];
+            if (query) {
+                items = items.filter(it => 
+                    String(it.port).includes(query) ||
+                    (it.name && it.name.toLowerCase().includes(query)) ||
+                    String(it.pid).includes(query) ||
+                    (it.laddr && it.laddr.toLowerCase().includes(query))
+                );
+            }
+
+            if (items.length === 0) {
+                netTableBody.innerHTML = `<tr><td colspan="7" class="c-muted text-center" style="padding: 1.5rem;">Eşleşen açık port bulunamadı.</td></tr>`;
+                return;
+            }
+
+            netTableBody.innerHTML = items.map(it => {
+                const protoCls = it.proto === 'TCP' ? 'proto-tcp' : 'proto-udp';
+                const pidHtml = it.pid ? `<span class="mono">${it.pid}</span>` : '<span class="c-muted">-</span>';
+                const actionBtn = it.pid ? `<button type="button" class="btn-detail-sm" data-pid="${it.pid}" title="Süreç Detayı">Detay</button>` : '';
+
+                return `
+                    <tr>
+                        <td><strong class="c-green mono">${it.port}</strong></td>
+                        <td><span class="proto-badge ${protoCls}">${it.proto}</span></td>
+                        <td><strong>${escapeHtml(it.name)}</strong></td>
+                        <td>${pidHtml}</td>
+                        <td class="mono c-muted">${escapeHtml(it.laddr)}</td>
+                        <td class="text-truncate" style="max-width: 140px;">${escapeHtml(it.user)}</td>
+                        <td style="text-align: right;">${actionBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+
+        } else {
+            netTableHead.innerHTML = `
+                <tr>
+                    <th>Süreç Adı</th>
+                    <th style="width: 80px;">PID</th>
+                    <th style="width: 70px;">Protokol</th>
+                    <th>Yerel Soket</th>
+                    <th>Uzak Adres (Hedef)</th>
+                    <th style="width: 90px;">Durum</th>
+                    <th>Kullanıcı</th>
+                    <th style="width: 70px; text-align: right;">Eylem</th>
+                </tr>
+            `;
+
+            let items = cachedNetData.established || [];
+            if (query) {
+                items = items.filter(it => 
+                    (it.name && it.name.toLowerCase().includes(query)) ||
+                    String(it.pid).includes(query) ||
+                    (it.raddr && it.raddr.toLowerCase().includes(query)) ||
+                    (it.laddr && it.laddr.toLowerCase().includes(query)) ||
+                    String(it.port).includes(query)
+                );
+            }
+
+            if (items.length === 0) {
+                netTableBody.innerHTML = `<tr><td colspan="8" class="c-muted text-center" style="padding: 1.5rem;">Eşleşen aktif bağlantı bulunamadı.</td></tr>`;
+                return;
+            }
+
+            netTableBody.innerHTML = items.map(it => {
+                const protoCls = it.proto === 'TCP' ? 'proto-tcp' : 'proto-udp';
+                const pidHtml = it.pid ? `<span class="mono">${it.pid}</span>` : '<span class="c-muted">-</span>';
+                const actionBtn = it.pid ? `<button type="button" class="btn-detail-sm" data-pid="${it.pid}" title="Süreç Detayı">Detay</button>` : '';
+                const statusBadge = it.status === 'ESTABLISHED' 
+                    ? '<span class="net-status-badge status-est">ESTABLISHED</span>' 
+                    : `<span class="net-status-badge status-other">${escapeHtml(it.status)}</span>`;
+
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(it.name)}</strong></td>
+                        <td>${pidHtml}</td>
+                        <td><span class="proto-badge ${protoCls}">${it.proto}</span></td>
+                        <td class="mono c-muted">${escapeHtml(it.laddr)}</td>
+                        <td class="mono" style="color: var(--c-cyan); font-weight: 600;">${escapeHtml(it.raddr)}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-truncate" style="max-width: 140px;">${escapeHtml(it.user)}</td>
+                        <td style="text-align: right;">${actionBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        netTableBody.querySelectorAll('.btn-detail-sm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const pid = parseInt(btn.getAttribute('data-pid'), 10);
+                if (pid) {
+                    closeNetModal();
+                    openInspector(pid);
+                }
+            });
+        });
+    }
+
+    function openNetModal() {
+        if (!netModal) return;
+        netModal.classList.remove('hidden');
+        fetchNetworkConnections();
+        if (netSearchInput) {
+            netSearchInput.value = '';
+            netSearchInput.focus();
+        }
+    }
+
+    if (btnNetModal) btnNetModal.addEventListener('click', openNetModal);
+    if (btnCloseNet) btnCloseNet.addEventListener('click', closeNetModal);
+    if (btnRefreshNet) btnRefreshNet.addEventListener('click', fetchNetworkConnections);
+    if (netModal) {
+        netModal.addEventListener('click', (e) => {
+            if (e.target === netModal) closeNetModal();
+        });
+    }
+
+    if (tabBtnListening) {
+        tabBtnListening.addEventListener('click', () => {
+            currentNetTab = 'listening';
+            tabBtnListening.classList.add('active');
+            if (tabBtnEstablished) tabBtnEstablished.classList.remove('active');
+            renderNetTable();
+        });
+    }
+
+    if (tabBtnEstablished) {
+        tabBtnEstablished.addEventListener('click', () => {
+            currentNetTab = 'established';
+            tabBtnEstablished.classList.add('active');
+            if (tabBtnListening) tabBtnListening.classList.remove('active');
+            renderNetTable();
+        });
+    }
+
+    if (netSearchInput) {
+        netSearchInput.addEventListener('input', () => renderNetTable());
     }
 
     // ======================================================================

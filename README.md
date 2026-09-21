@@ -68,11 +68,18 @@ Geleneksel terminal monitörlerinin aksine:
 * **Ham JSON Dışa Aktarma:** Sistem envanteri, donanım metrikleri ve en çok kaynak tüketen ilk süreçler tek tıkla indirilebilir `.json` dosyası olarak arşivlenebilir.
 * **Hızlı Erişim:** Üst bardaki `[REPORT]` butonu veya <kbd>F7</kbd> kısayolu ile hızlı rapor önizleme penceresi açılır.
 
-### 8. 🎨 4 Farklı Terminal Teması
+### 8. 🌐 Canlı Ağ Bağlantıları & Açık Port Dedektörü (`netstat` / `ss`)
+* **Dinlenen Portlar (LISTEN):** Sunucunuzda dışarıya veya yerel ağa açık tüm TCP/UDP portları, hangi PID ve hangi servis (örn: `nginx`, `sshd`, `docker`, `python`) tarafından dinlendiği anında listelenir.
+* **Aktif Bağlantılar (ESTABLISHED):** Sisteme bağlı olan istemciler, dış sunucular ve uzak IP/port çiftleri canlı takip edilir.
+* **Hızlı Port Arama & Süreç Entegrasyonu:** Port numarası, IP, protokol veya servis adına göre anında filtreleme; tek tıkla ilgili sürecin detay kartına (Process Inspector) geçiş imkanı.
+* **Hızlı Erişim:** Üst bardaki `[🌐 PORTS]` butonu veya <kbd>F6</kbd> kısayolu ile anında açılır.
+
+### 9. 🎨 4 Farklı Terminal Teması
 * **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
 * **Matrix Cyberpunk:** Fütüristik terminal yeşili ve koyu siyah.
+
 
 ---
 
@@ -253,6 +260,7 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F3</kbd> veya <kbd>/</kbd> | **Süreç Arama** | Anında arama çubuğuna odaklanır, filtreleme yapmanızı sağlar. |
 | <kbd>F4</kbd> veya <kbd>C</kbd> | **CPU'ya Göre Sırala** | En çok işlemci tüketen süreçleri en üste taşır. |
 | <kbd>F5</kbd> veya <kbd>M</kbd> | **RAM'e Göre Sırala** | En çok bellek tüketen süreçleri en üste taşır. |
+| <kbd>F6</kbd> | **Canlı Ağ Bağlantıları & Portlar** | Dinlenen açık portları ve aktif dış bağlantıları (`netstat` / `ss`) listeler. |
 | <kbd>F7</kbd> | **Sistem Sağlık Raporu** | Teşhis penceresini açar, PDF/JSON rapor oluşturur. |
 | <kbd>F8</kbd> | **Uyarı & Webhook** | Akıllı Alarm & Discord/Telegram ayar penceresini açar. |
 | <kbd>F9</kbd> | **Süreç Öldür (Kill)** | Seçili süreci `SIGKILL` ile anında sonlandırır. |
@@ -287,6 +295,7 @@ pyTOP Pro, sunucunuz başında değilken bile donanımınızı korur.
 ```
 Pytop-Html/
 ├── app.py                 # Flask çekirdek sunucusu, donanım API uçları, port yönetimi
+├── net_monitor.py         # Çapraz platform canlı ağ bağlantıları, port tarama ve PID servis eşleştirici
 ├── gpu_monitor.py         # Çapraz platform GPU (NVIDIA, Apple Silicon, AMD/Intel DRM) & batarya
 ├── alerts.py              # Eşik kontrol motoru, cooldown yöneticisi, Discord & Telegram entegrasyonu
 ├── report_generator.py    # Sistem sağlık skoru motoru, donanım teşhisi ve raporlayıcı
@@ -299,8 +308,8 @@ Pytop-Html/
 ├── docker-compose.yml     # Docker compose yapılandırması
 ├── requirements.txt       # Python bağımlılıkları (flask, psutil)
 ├── static/
-│   ├── css/style.css      # Glassmorphism terminal temaları & animasyonlar
-│   └── js/app.js          # Saniyelik WebSocket/polling, klavye yönetimi, süreç motoru
+│   ├── style.css          # Glassmorphism terminal temaları & animasyonlar
+│   └── app.js             # Saniyelik WebSocket/polling, klavye yönetimi, süreç & port motoru
 └── templates/
     ├── index.html         # Terminal Dashboard arayüz şablonu
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
