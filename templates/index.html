@@ -8,8 +8,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ sys.cache_bust }}">
+    <script>
+        // PWA ve Service Worker kalıntılarını anında temizle
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                for (var r of regs) { r.unregister(); }
+            });
+        }
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (var n of names) { caches.delete(n); }
+            });
+        }
+        // Olası eski önbellekten gelen mobile butonunu zorla yok et
+        document.addEventListener('DOMContentLoaded', function() {
+            var mBtn = document.getElementById('btn-mobile-modal');
+            if (mBtn) mBtn.remove();
+            var mMod = document.getElementById('mobile-modal');
+            if (mMod) mMod.remove();
+            document.querySelectorAll('.btn-mobile-trigger').forEach(function(el) { el.remove(); });
+        });
+    </script>
 </head>
+
 <body>
 
     <!-- Tam Ekran Terminal Çerçevesi -->
@@ -566,6 +588,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='app.js') }}?v={{ sys.cache_bust }}"></script>
 </body>
 </html>

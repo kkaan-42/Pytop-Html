@@ -86,7 +86,8 @@ def index():
         "python_version": platform.python_version(),
         "cores_logical": psutil.cpu_count(logical=True) or 1,
         "cores_physical": psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1,
-        "boot_time": boot_str
+        "boot_time": boot_str,
+        "cache_bust": int(time.time())
     }
     return render_template("index.html", sys=system_info)
 
@@ -457,6 +458,29 @@ def api_network_connections():
     """Sistemdeki açık portları ve aktif ağ bağlantılarını döner."""
     data = net_monitor.get_network_connections()
     return jsonify(data)
+
+@app.after_request
+def add_cache_control_headers(response):
+    """Tarayıcının eski HTML, CSS veya JS dosyalarını önbellekte tutmasını engeller."""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@app.route("/sw.js")
+def cleanup_service_worker():
+    """Eski PWA Service Worker kalıntılarını yok eder ve istemci önbelleklerini temizler."""
+    code = """self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+        .then(() => self.registration.unregister())
+        .then(() => self.clients.claim())
+    );
+});
+"""
+    return Response(code, mimetype="application/javascript")
+
 
 def find_available_port(start_port=5000, max_tries=20):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""

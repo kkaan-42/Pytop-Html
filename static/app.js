@@ -2,7 +2,40 @@
  * pyTOP Pro — Terminal & Sistem Monitörü İstemci Mantığı
  */
 
+// ======================================================================
+// 0. Eski PWA Service Worker ve Cache Storage Kalıntılarını Temizle
+// ======================================================================
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+            registration.unregister();
+        }
+    }).catch(() => {});
+}
+if (typeof window !== 'undefined' && 'caches' in window) {
+    caches.keys().then((names) => {
+        for (const name of names) {
+            caches.delete(name);
+        }
+    }).catch(() => {});
+}
+
+// Eski mobil buton ve modal kalıntılarını DOM'dan tamamen söküp at
+function purgeLegacyMobile() {
+    const btn = document.getElementById('btn-mobile-modal');
+    if (btn) btn.remove();
+    const modal = document.getElementById('mobile-modal');
+    if (modal) modal.remove();
+    document.querySelectorAll('.btn-mobile-trigger, #btn-mobile-modal, #mobile-modal').forEach((el) => el.remove());
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', purgeLegacyMobile);
+} else {
+    purgeLegacyMobile();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+
 
     // ======================================================================
     // 1. Durum Değişkenleri

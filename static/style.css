@@ -1467,3 +1467,17 @@ kbd {
         padding: 0.25rem;
     }
 }
+
+/* Eski Mobil Butonu & Modalı Kesin Olarak Gizleme ve Yok Etme */
+#btn-mobile-modal,
+.btn-mobile-trigger,
+#mobile-modal {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    overflow: hidden !important;
+}
