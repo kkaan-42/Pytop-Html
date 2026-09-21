@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Sağlık ve Performans Raporu &bull; {{ r.metadata.hostname }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f111a;
+            --card-bg: #161926;
+            --border-color: #262c45;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --orange: #f97316;
+            --red: #ef4444;
+            --purple: #a855f7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 50px;
+        }
+
+        code, pre, .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Üst Eylem Çubuğu */
+        .action-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 17, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .action-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Rapor Konteyneri */
+        .report-container {
+            max-width: 1080px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Başlık & Sağlık Skoru */
+        .header-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-info h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 4px solid {{ r.health_score.color }};
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .score-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: {{ r.health_score.color }};
+            line-height: 1;
+        }
+
+        .score-lbl {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .score-status-badge {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 12px;
+            color: #fff;
+            background: {{ r.health_score.color }};
+        }
+
+        /* Üst Özet Izgarası */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .summary-box .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .summary-box .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .summary-box .sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Teşhis ve Öneriler Kartı */
+        .findings-card {
+            background: rgba(30, 41, 59, 0.4);
+            border-left: 4px solid {{ r.health_score.color }};
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .findings-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .findings-list {
+            list-style-type: none;
+        }
+
+        .findings-list li {
+            padding: 5px 0;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        /* Bölüm Kartları */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tablolar */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .report-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .report-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .report-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* İlerleme Çubukları */
+        .progress-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .fill-green { background: var(--green); }
+        .fill-yellow { background: var(--yellow); }
+        .fill-red { background: var(--red); }
+
+        /* Çekirdek Matrisi Izgarası */
+        .cores-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .core-badge {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 0.78rem;
+        }
+
+        .core-badge-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+
+        /* Altbilgi */
+        .report-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* YAZDIRMA (PRINT) STİLLERİ */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                padding: 0 !important;
+            }
+
+            .action-bar {
+                display: none !important;
+            }
+
+            .report-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
+            }
+
+            .header-card, .summary-box, .section-card, .findings-card {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #0f172a !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+
+            .header-info p, .summary-box .label, .summary-box .sub, .report-table th, .report-footer {
+                color: #64748b !important;
+            }
+
+            .report-table th {
+                background: #f8fafc !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+            }
+
+            .report-table td {
+                border-bottom: 1px solid #e2e8f0 !important;
+                color: #0f172a !important;
+            }
+
+            .core-badge {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+
+            .score-circle {
+                background: #f8fafc !important;
+            }
+
+            @page {
+                margin: 1.5cm;
+                size: A4 portrait;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Üst Eylem Butonları (Yazdırmada Gizlenir) -->
+    <div class="action-bar">
+        <div class="action-title">
+            <span>⚡ pyTOP Pro Sistem Sağlık Raporu</span>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">({{ r.metadata.generated_at }})</span>
+        </div>
+        <div class="action-buttons">
+            <a href="/" class="btn btn-secondary">&larr; Monitöre Dön</a>
+            <a href="/api/report/download/json" class="btn btn-secondary">💾 JSON İndir</a>
+            <button type="button" onclick="window.print()" class="btn btn-primary">🖨️ PDF Kaydet / Yazdır</button>
+        </div>
+    </div>
+
+    <div class="report-container">
+
+        <!-- 1. Rapor Başlığı & Sağlık Skoru -->
+        <div class="header-card">
+            <div class="header-info">
+                <h1>
+                    <span>🖥️ {{ r.metadata.hostname }}</span>
+                    <span class="score-status-badge">{{ r.health_score.status }}</span>
+                </h1>
+                <p>
+                    <strong>OS:</strong> {{ r.metadata.os }} &bull; 
+                    <strong>İşlemci:</strong> {{ r.metadata.processor }} &bull; 
+                    <strong>Mimari:</strong> {{ r.metadata.architecture }}
+                </p>
+                <p style="margin-top: 4px;">
+                    <strong>Rapor Tarihi:</strong> {{ r.metadata.generated_at }} &bull; 
+                    <strong>Uptime:</strong> {{ r.metadata.uptime }} &bull; 
+                    <strong>Çalışan Süreç:</strong> {{ r.metadata.total_tasks }} adet
+                </p>
+            </div>
+            <div class="score-circle">
+                <span class="score-val">{{ r.health_score.score }}</span>
+                <span class="score-lbl">SAĞLIK SKORU</span>
+            </div>
+        </div>
+
+        <!-- 2. Teşhis ve Öneriler Kutusu -->
+        <div class="findings-card">
+            <h3>🔍 Sistem Teşhisi &amp; Bulgular</h3>
+            <ul class="findings-list">
+                {% for finding in r.health_score.findings %}
+                <li>&bull; {{ finding }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- 3. Hızlı Metrik Özeti -->
+        <div class="summary-grid">
+            <div class="summary-box">
+                <div class="label">İşlemci (CPU) Yükü</div>
+                <div class="value" style="color: {% if r.cpu.total_percent > 80 %}var(--red){% elif r.cpu.total_percent > 50 %}var(--yellow){% else %}var(--green){% endif %}">
+                    %{{ r.cpu.total_percent }}
+                </div>
+                <div class="sub">{{ r.cpu.cores_logical }} Çekirdek &bull; {{ r.cpu.frequency_mhz }} MHz</div>
+            </div>
+
+            <div class="summary-box">
+                <div class="label">Bellek (RAM) Kullanımı</div>
+                <div class="value" style="color: {% if r.memory.percent > 85 %}var(--red){% elif r.memory.percent > 65 %}var(--yellow){% else %}var(--green){% endif %}">
+                    %{{ r.memory.percent }}
+                </div>
+                <div class="sub">{{ r.memory.used_gb }} GB / {{ r.memory.total_gb }} GB</div>
+            </div>
+
+            <div class="summary-box">
+                <div class="label">Takas Alanı (SWAP)</div>
+                <div class="value">
+                    %{{ r.memory.swap_percent }}
+                </div>
+                <div class="sub">{{ r.memory.swap_used_gb }} GB / {{ r.memory.swap_total_gb }} GB</div>
+            </div>
+
+            <div class="summary-box">
+                <div class="label">Toplam Ağ Trafiği</div>
+                <div class="value mono">
+                    &darr; {{ r.network.io.bytes_recv_mb }} MB
+                </div>
+                <div class="sub mono">&uarr; {{ r.network.io.bytes_sent_mb }} MB</div>
+            </div>
+        </div>
+
+        <!-- 4. Donanım Detayları: CPU & GPU -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">⚡ İşlemci (CPU) ve Çekirdek Dağılımı</span>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Model: {{ r.cpu.model }}</span>
+            </div>
+
+            <div class="cores-matrix">
+                {% for pct in r.cpu.per_core_percent %}
+                <div class="core-badge">
+                    <div class="core-badge-top">
+                        <span>CPU {{ loop.index0 }}</span>
+                        <strong style="color: {% if pct > 80 %}var(--red){% elif pct > 50 %}var(--yellow){% else %}var(--green){% endif %};">%{{ pct }}</strong>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill {% if pct > 80 %}fill-red{% elif pct > 50 %}fill-yellow{% else %}fill-green{% endif %}" style="width: {{ pct }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- GPU & Batarya (Varsa) -->
+        {% if r.gpus or r.battery %}
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">🎮 Ekran Kartı (GPU) ve Güç Durumu</span>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Bileşen</th>
+                        <th>Tür</th>
+                        <th>Yük (%)</th>
+                        <th>Sıcaklık</th>
+                        <th>VRAM / Bellek Durumu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in r.gpus %}
+                    <tr>
+                        <td><strong>{{ g.name }}</strong></td>
+                        <td><span class="mono">{{ g.type }}</span></td>
+                        <td>%{{ g.load }}</td>
+                        <td>{{ g.temp }}°C</td>
+                        <td>
+                            {% if g.total_mb > 0 %}
+                            {{ g.used_mb }} MB / {{ g.total_mb }} MB (%{{ g.percent }})
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if r.battery %}
+                    <tr>
+                        <td><strong>Laptop Bataryası</strong></td>
+                        <td>Pil / Güç</td>
+                        <td>%{{ r.battery.percent }}</td>
+                        <td>-</td>
+                        <td>{{ r.battery.status }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- 5. Disk Sürücüleri -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">💾 Disk Bölümleri ve Depolama Alanı</span>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Sürücü / Bağlantı</th>
+                        <th>Dosya Sistemi</th>
+                        <th>Doluluk</th>
+                        <th>Kullanılan</th>
+                        <th>Boş Alan</th>
+                        <th>Toplam Boyut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in r.disks.partitions %}
+                    <tr>
+                        <td><strong>{{ d.mountpoint }}</strong> ({{ d.device }})</td>
+                        <td><span class="mono">{{ d.fstype }}</span></td>
+                        <td style="width: 180px;">
+                            <div class="progress-bar-wrap">
+                                <span style="min-width: 40px; font-weight: 600;">%{{ d.percent }}</span>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill {% if d.percent > 85 %}fill-red{% elif d.percent > 65 %}fill-yellow{% else %}fill-green{% endif %}" style="width: {{ d.percent }}%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ d.used_gb }} GB</td>
+                        <td style="color: {% if d.percent > 85 %}var(--red){% else %}var(--green){% endif %}; font-weight: 600;">{{ d.free_gb }} GB</td>
+                        <td>{{ d.total_gb }} GB</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 6. En Çok İşlemci (CPU) Tüketen İlk 10 Süreç -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">🔥 En Çok CPU Tüketen İlk 10 Süreç</span>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Süreç Adı</th>
+                        <th>Kullanıcı</th>
+                        <th>CPU (%)</th>
+                        <th>RAM (%)</th>
+                        <th>RSS Bellek</th>
+                        <th>İş Parçacığı (Threads)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in r.top_processes.by_cpu %}
+                    <tr>
+                        <td class="mono">{{ p.pid }}</td>
+                        <td><strong>{{ p.name }}</strong></td>
+                        <td>{{ p.username or '-' }}</td>
+                        <td style="color: var(--accent); font-weight: 700;">%{{ p.cpu_percent }}</td>
+                        <td>%{{ "%.1f"|format(p.memory_percent) }}</td>
+                        <td class="mono">{{ p.memory_rss_mb }} MB</td>
+                        <td>{{ p.num_threads or 1 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 7. En Çok Bellek (RAM) Tüketen İlk 10 Süreç -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">🧠 En Çok Bellek (RAM) Tüketen İlk 10 Süreç</span>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Süreç Adı</th>
+                        <th>Kullanıcı</th>
+                        <th>RAM (%)</th>
+                        <th>RSS Bellek</th>
+                        <th>CPU (%)</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in r.top_processes.by_memory %}
+                    <tr>
+                        <td class="mono">{{ p.pid }}</td>
+                        <td><strong>{{ p.name }}</strong></td>
+                        <td>{{ p.username or '-' }}</td>
+                        <td style="color: var(--purple); font-weight: 700;">%{{ "%.1f"|format(p.memory_percent) }}</td>
+                        <td class="mono"><strong>{{ p.memory_rss_mb }} MB</strong></td>
+                        <td>%{{ p.cpu_percent }}</td>
+                        <td><span class="mono">{{ p.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="report-footer">
+            <p>Bu rapor <strong>pyTOP Pro Sistem Monitörü</strong> tarafından otomatik olarak üretilmiştir.</p>
+            <p style="margin-top: 4px; font-size: 0.75rem;">© 2026 Kaan Çimen &bull; MIT Lisansı</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Sayfa '?print=1' parametresiyle açılırsa otomatik yazdırma diyaloğunu başlatır
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('print') === '1') {
+            window.addEventListener('load', () => {
+                setTimeout(() => window.print(), 300);
+            });
+        }
+    </script>
+</body>
+</html>

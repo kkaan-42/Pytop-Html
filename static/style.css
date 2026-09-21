@@ -1127,6 +1127,84 @@ kbd {
     color: var(--c-text);
 }
 
+.btn-report-trigger {
+    color: var(--c-cyan) !important;
+    border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.btn-report-trigger:hover {
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: var(--c-cyan) !important;
+}
+
+/* Sistem Sağlık Raporu Modalı */
+.report-preview-box {
+    background: var(--bg-root);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.85rem;
+}
+
+.report-score-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.report-score-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--c-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--c-green);
+    background: rgba(34, 197, 94, 0.1);
+    flex-shrink: 0;
+}
+
+.report-score-info h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.modal-findings-preview {
+    font-size: 0.72rem;
+    color: var(--c-text);
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.5rem;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.modal-findings-preview ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-findings-preview li {
+    padding: 0.15rem 0;
+}
+
+.modal-actions-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.modal-actions-stacked .term-action-btn {
+    text-decoration: none;
+    display: block;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.78rem;
+}
+
+.text-center { text-align: center; }
 .mt-1 { margin-top: 0.25rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-3 { margin-top: 0.75rem; }

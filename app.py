@@ -3,11 +3,13 @@ import time
 import platform
 import datetime
 import socket
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
+import json
 import psutil
 
 import gpu_monitor
 import alerts
+import report_generator
 
 app = Flask(__name__)
 
@@ -414,6 +416,36 @@ def alert_test():
     """Seçili kanala test bildirimi tetikler."""
     success, msg = alerts.send_test_alert()
     return jsonify({"success": success, "message": msg})
+
+# ======================================================================
+# Sistem Sağlık Raporu Uç Noktaları (Fikir 6)
+# ======================================================================
+@app.route("/report")
+def system_report():
+    """Gelişmiş, yazdırılabilir (Print/PDF) sistem sağlık raporunu görüntüler."""
+    rep = report_generator.generate_health_report()
+    return render_template("report.html", r=rep)
+
+@app.route("/api/report/data")
+def api_report_data():
+    """Sistem sağlık raporunun anlık JSON verisini döner."""
+    rep = report_generator.generate_health_report()
+    return jsonify(rep)
+
+@app.route("/api/report/download/json")
+def api_report_download_json():
+    """Sistem sağlık raporunu indirilebilir JSON dosyası olarak sunar."""
+    rep = report_generator.generate_health_report()
+    hostname = rep["metadata"]["hostname"]
+    now_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"pytop_report_{hostname}_{now_str}.json"
+
+    json_bytes = json.dumps(rep, ensure_ascii=False, indent=2).encode("utf-8")
+    return Response(
+        json_bytes,
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 def find_available_port(start_port=5000, max_tries=20):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""

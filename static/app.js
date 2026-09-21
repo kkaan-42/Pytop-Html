@@ -604,7 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (!alertsModal.classList.contains('hidden')) {
+            if (!reportModal.classList.contains('hidden')) {
+                closeReportModal();
+            } else if (!alertsModal.classList.contains('hidden')) {
                 closeAlertsModal();
             } else if (!inspectorDrawer.classList.contains('hidden')) {
                 closeInspector();
@@ -639,6 +641,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F2') {
             e.preventDefault();
             cycleTheme();
+        } else if (e.key === 'F7') {
+            e.preventDefault();
+            openReportModal();
         } else if (e.key === 'F8') {
             e.preventDefault();
             openAlertsModal();
@@ -808,6 +813,78 @@ document.addEventListener('DOMContentLoaded', () => {
             testAlertSpin.textContent = '';
         }
     });
+
+    // ======================================================================
+    // 8.2. Sistem Sağlık Raporu Modalı (Fikir 6)
+    // ======================================================================
+    const reportModal = document.getElementById('report-modal');
+    const btnReportModal = document.getElementById('btn-report-modal');
+    const btnCloseReport = document.getElementById('btn-close-report');
+    const modalScoreBadge = document.getElementById('modal-score-badge');
+    const modalScoreStatus = document.getElementById('modal-score-status');
+    const modalScoreDesc = document.getElementById('modal-score-desc');
+    const modalFindingsPreview = document.getElementById('modal-findings-preview');
+
+    function closeReportModal() {
+        if (reportModal) reportModal.classList.add('hidden');
+    }
+
+    async function openReportModal() {
+        if (!reportModal) return;
+        reportModal.classList.remove('hidden');
+        if (modalScoreBadge) {
+            modalScoreBadge.textContent = '...';
+            modalScoreBadge.style.color = 'var(--c-cyan)';
+            modalScoreBadge.style.borderColor = 'var(--c-cyan)';
+            modalScoreBadge.style.background = 'rgba(56, 189, 248, 0.1)';
+        }
+        if (modalScoreStatus) modalScoreStatus.textContent = 'Analiz Ediliyor...';
+        if (modalFindingsPreview) modalFindingsPreview.innerHTML = '<p class="c-muted">Donanım, bellek ve süreç yükü hesaplanıyor...</p>';
+
+        try {
+            const res = await fetch('/api/report/data');
+            const data = await res.json();
+            const hs = data.health_score;
+
+            if (modalScoreBadge) {
+                modalScoreBadge.textContent = hs.score;
+                modalScoreBadge.style.color = hs.color;
+                modalScoreBadge.style.borderColor = hs.color;
+                modalScoreBadge.style.background = hs.color + '18';
+            }
+
+            if (modalScoreStatus) {
+                modalScoreStatus.textContent = hs.status;
+                modalScoreStatus.style.color = hs.color;
+            }
+            if (modalScoreDesc) {
+                modalScoreDesc.textContent = `${data.metadata.hostname} • ${data.metadata.os} • ${data.metadata.total_tasks} Süreç`;
+            }
+
+            if (modalFindingsPreview) {
+                if (hs.findings && hs.findings.length > 0) {
+                    modalFindingsPreview.innerHTML = '<ul>' + hs.findings.map(f => `<li>• ${escapeHtml(f)}</li>`).join('') + '</ul>';
+                } else {
+                    modalFindingsPreview.innerHTML = '<p class="c-green">Herhangi bir donanım darboğazı tespit edilmedi.</p>';
+                }
+            }
+        } catch (err) {
+            if (modalScoreStatus) modalScoreStatus.textContent = 'Hata';
+            if (modalFindingsPreview) modalFindingsPreview.innerHTML = `<p class="c-red">Rapor verisi alınamadı: ${escapeHtml(err.message)}</p>`;
+        }
+    }
+
+    if (btnReportModal) {
+        btnReportModal.addEventListener('click', openReportModal);
+    }
+    if (btnCloseReport) {
+        btnCloseReport.addEventListener('click', closeReportModal);
+    }
+    if (reportModal) {
+        reportModal.addEventListener('click', (e) => {
+            if (e.target === reportModal) closeReportModal();
+        });
+    }
 
     // ======================================================================
     // 9. Ana Döngü

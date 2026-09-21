@@ -62,7 +62,13 @@ Geleneksel terminal monitörlerinin aksine:
 * **Spam Koruması (Cooldown):** Aynı alarm belirlenen süre boyunca (örn: 15 dakika) tekrarlanmaz.
 * **Canlı Arayüz Şeridi:** Eşik aşımı olduğunda tarayıcı üstünde kırmızı yanıp sönen şerit belirir.
 
-### 7. 🎨 4 Farklı Terminal Teması
+### 7. 📄 Tek Tıkla Sistem Sağlık & Performans Raporu (PDF & JSON)
+* **Otomatik Teşhis & Sağlık Skoru (0-100):** Donanım yükü, bellek baskısı, disk doluluğu ve süreçler analiz edilerek anlık bir sistem puanı (örn: `98/100 Mükemmel`) üretilir.
+* **Yazdırılabilir / PDF Kaydetme:** `@media print` uyumlu şık rapor sayfası (`/report`) üzerinden tek tıkla A4 formatında PDF olarak kaydedilebilir veya doğrudan yazdırılabilir.
+* **Ham JSON Dışa Aktarma:** Sistem envanteri, donanım metrikleri ve en çok kaynak tüketen ilk süreçler tek tıkla indirilebilir `.json` dosyası olarak arşivlenebilir.
+* **Hızlı Erişim:** Üst bardaki `[REPORT]` butonu veya <kbd>F7</kbd> kısayolu ile hızlı rapor önizleme penceresi açılır.
+
+### 8. 🎨 4 Farklı Terminal Teması
 * **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
@@ -247,6 +253,7 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F3</kbd> veya <kbd>/</kbd> | **Süreç Arama** | Anında arama çubuğuna odaklanır, filtreleme yapmanızı sağlar. |
 | <kbd>F4</kbd> veya <kbd>C</kbd> | **CPU'ya Göre Sırala** | En çok işlemci tüketen süreçleri en üste taşır. |
 | <kbd>F5</kbd> veya <kbd>M</kbd> | **RAM'e Göre Sırala** | En çok bellek tüketen süreçleri en üste taşır. |
+| <kbd>F7</kbd> | **Sistem Sağlık Raporu** | Teşhis penceresini açar, PDF/JSON rapor oluşturur. |
 | <kbd>F8</kbd> | **Uyarı & Webhook** | Akıllı Alarm & Discord/Telegram ayar penceresini açar. |
 | <kbd>F9</kbd> | **Süreç Öldür (Kill)** | Seçili süreci `SIGKILL` ile anında sonlandırır. |
 | <kbd>Space</kbd> | **Akışı Duraklat** | Canlı metrik akışını dondurur (`PAUSE`) veya devam ettirir (`LIVE`). |
@@ -282,6 +289,7 @@ Pytop-Html/
 ├── app.py                 # Flask çekirdek sunucusu, donanım API uçları, port yönetimi
 ├── gpu_monitor.py         # Çapraz platform GPU (NVIDIA, Apple Silicon, AMD/Intel DRM) & batarya
 ├── alerts.py              # Eşik kontrol motoru, cooldown yöneticisi, Discord & Telegram entegrasyonu
+├── report_generator.py    # Sistem sağlık skoru motoru, donanım teşhisi ve raporlayıcı
 ├── database.py            # SQLite geçmiş metrik kaydı
 ├── baslat.sh              # Evrensel Linux (tüm dağıtımlar) & macOS başlatıcı
 ├── start.sh               # Kısayol başlatıcı betiği
@@ -294,7 +302,8 @@ Pytop-Html/
 │   ├── css/style.css      # Glassmorphism terminal temaları & animasyonlar
 │   └── js/app.js          # Saniyelik WebSocket/polling, klavye yönetimi, süreç motoru
 └── templates/
-    └── index.html         # Terminal Dashboard arayüz şablonu
+    ├── index.html         # Terminal Dashboard arayüz şablonu
+    └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
 ---

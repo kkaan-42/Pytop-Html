@@ -34,7 +34,10 @@
             </div>
 
             <div class="bar-right">
-                <button type="button" id="btn-alerts-modal" class="tool-btn btn-alert-trigger" title="Discord / Telegram Uyarı Ayarları">
+                <button type="button" id="btn-report-modal" class="tool-btn btn-report-trigger" title="Sistem Sağlık Raporu (F7)">
+                    <span>📄</span> REPORT
+                </button>
+                <button type="button" id="btn-alerts-modal" class="tool-btn btn-alert-trigger" title="Discord / Telegram Uyarı Ayarları (F8)">
                     <span id="alerts-status-icon">🔔</span> ALERTS
                 </button>
                 <div class="theme-control">
@@ -435,6 +438,42 @@
         </div>
     </div>
 
+    <!-- 8. Sistem Sağlık Raporu Modalı (Fikir 6) -->
+    <div id="report-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal" style="max-width: 520px;">
+            <div class="modal-top">
+                <h3>📄 Sistem Sağlık &amp; Teşhis Raporu</h3>
+                <button type="button" id="btn-close-report" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="report-preview-box" class="report-preview-box">
+                    <div class="report-score-row">
+                        <div class="report-score-badge" id="modal-score-badge">--</div>
+                        <div class="report-score-info">
+                            <h4 id="modal-score-status">Hesaplanıyor...</h4>
+                            <p id="modal-score-desc" class="c-muted text-xs">Sistem donanım, bellek ve süreç analizi yapılıyor.</p>
+                        </div>
+                    </div>
+                    <div id="modal-findings-preview" class="modal-findings-preview mt-2">
+                        <!-- JS ile bulgular gelecek -->
+                    </div>
+                </div>
+
+                <div class="modal-actions-stacked mt-3">
+                    <a href="/report?print=1" target="_blank" class="term-action-btn btn-primary text-center">
+                        🖨️ Raporu Aç &amp; PDF Olarak Kaydet
+                    </a>
+                    <a href="/report" target="_blank" class="term-action-btn btn-secondary text-center mt-1">
+                        👁️ Raporu Yeni Sekmede İncele
+                    </a>
+                    <a href="/api/report/download/json" class="term-action-btn btn-secondary text-center mt-1">
+                        💾 Ham Raporu İndir (JSON)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
@@ -452,6 +491,7 @@
                     <tr><td><kbd>Enter</kbd></td><td>Seçili sürecin detaylarını (Process Inspector) açar.</td></tr>
                     <tr><td><kbd>C</kbd></td><td>İşlemci (CPU) kullanımına göre sıralar.</td></tr>
                     <tr><td><kbd>M</kbd></td><td>Bellek (RAM) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>F7</kbd></td><td>Sistem Sağlık Raporu penceresini açar (PDF &amp; JSON).</td></tr>
                     <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>
                     <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
                 </table>
