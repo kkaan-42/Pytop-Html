@@ -229,25 +229,32 @@ body {
    ========================================================================== */
 .hardware-grid {
     display: grid;
-    grid-template-columns: 1.25fr 1fr 1fr 1fr;
+    grid-template-columns: 1.15fr 1fr 1fr 1fr 1.05fr;
     gap: 0.5rem;
     flex-shrink: 0;
     max-height: 250px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1350px) {
     .hardware-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
         max-height: none;
         overflow-y: auto;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 950px) {
+    .hardware-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 650px) {
     .hardware-grid {
         grid-template-columns: 1fr;
     }
 }
+
 
 .hw-box {
     background: var(--bg-surface);
@@ -1399,7 +1406,136 @@ kbd {
     background: rgba(56, 189, 248, 0.15) !important;
 }
 
+/* ==========================================================================
+   Bilgisayar & Donanım Bilgileri Bölmesi (sys-box)
+   ========================================================================== */
+.sys-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.sys-specs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    padding-top: 0.2rem;
+    overflow-y: auto;
+}
+
+.sys-spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.71rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    padding-bottom: 0.18rem;
+}
+
+.sys-spec-item:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
+    color: var(--c-muted);
+    font-weight: 600;
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    width: 60px;
+}
+
+.spec-value {
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 175px;
+}
+
+/* ==========================================================================
+   Detaylı Bilgisayar Donanım Modalı (sys-modal)
+   ========================================================================== */
+.sys-modal-dialog {
+    max-width: 780px !important;
+    width: 95% !important;
+}
+
+.modal-badge-sys {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--c-cyan);
+    letter-spacing: 0.5px;
+}
+
+.sys-modal-subtitle {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--c-muted);
+    margin-top: 2px;
+}
+
+.sys-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 700px) {
+    .sys-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sys-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sys-card-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--c-purple);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.2rem;
+}
+
+.sys-kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+    gap: 0.5rem;
+}
+
+.sys-kv .k {
+    color: var(--c-muted);
+    flex-shrink: 0;
+}
+
+.sys-kv .v {
+    text-align: right;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sys-footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
 /* Mobil Ekran İyileştirmeleri (Akıllı Telefonlar & Tabletler) */
+
 @media (max-width: 768px) {
     .terminal-root {
         padding: 0.25rem;

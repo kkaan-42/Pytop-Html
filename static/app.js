@@ -637,7 +637,9 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (!netModal.classList.contains('hidden')) {
+            if (sysModal && !sysModal.classList.contains('hidden')) {
+                closeSysModal();
+            } else if (!netModal.classList.contains('hidden')) {
                 closeNetModal();
             } else if (!reportModal.classList.contains('hidden')) {
                 closeReportModal();
@@ -685,6 +687,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F8') {
             e.preventDefault();
             openAlertsModal();
+        } else if (e.key === 'F10') {
+            e.preventDefault();
+            toggleSysModal();
         }
     });
 
@@ -1136,8 +1141,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ======================================================================
+    // 8.5. Bilgisayar & Donanım Bilgileri Modalı (F10)
+    // ======================================================================
+    const sysModal = document.getElementById('sys-modal');
+    const btnSysModal = document.getElementById('btn-sys-modal');
+    const btnSysDetail = document.getElementById('btn-sys-detail');
+    const btnCloseSys = document.getElementById('btn-close-sys');
+    const btnRefreshSysInfo = document.getElementById('btn-refresh-sys-info');
+
+    function openSysModal() {
+        if (!sysModal) return;
+        sysModal.classList.remove('hidden');
+        fetchSystemInfo();
+    }
+
+    function closeSysModal() {
+        if (sysModal) sysModal.classList.add('hidden');
+    }
+
+    function toggleSysModal() {
+        if (!sysModal) return;
+        if (sysModal.classList.contains('hidden')) {
+            openSysModal();
+        } else {
+            closeSysModal();
+        }
+    }
+
+    async function fetchSystemInfo() {
+        try {
+            const res = await fetch('/api/system/info');
+            if (!res.ok) return;
+            const data = await res.json();
+
+            // Modal elemanlarını güncelle
+            const setTxt = (id, txt) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = txt;
+            };
+            const setTitle = (id, txt) => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = txt; el.title = txt; }
+            };
+
+            setTxt('spec-mfr', data.manufacturer);
+            setTxt('spec-prod', data.product);
+            setTxt('spec-bios', data.bios_version);
+            setTxt('spec-host', data.hostname);
+            setTitle('spec-cpu', data.processor);
+            setTxt('spec-cores', `${data.cores_physical} Fiziksel / ${data.cores_logical} Mantıksal`);
+            setTxt('spec-arch', data.architecture);
+            setTxt('spec-freq', `${data.cpu_freq_max} MHz`);
+            setTitle('spec-gpu', data.gpu_detail);
+            setTxt('spec-gpu-count', `${(data.gpus || []).length} Adet`);
+            setTxt('spec-ram', `${data.ram_total_gb} GB`);
+            setTxt('spec-swap', `${data.swap_total_gb} GB`);
+            setTxt('spec-disk', `${data.disk_total_gb} GB (${data.disk_free_gb} GB Boş)`);
+            setTxt('spec-os', data.os);
+            setTxt('spec-os-ver', data.os_version);
+            setTxt('spec-uptime', data.uptime);
+            setTxt('spec-boot', data.boot_time);
+            setTxt('spec-ip', data.local_ip);
+            setTxt('spec-user', data.username);
+            setTxt('spec-py', `v${data.python_version}`);
+
+            // Dashboard panelini de senkronize et
+            setTitle('dash-sys-model', data.display_model);
+            setTitle('dash-sys-cpu', data.processor);
+            setTitle('dash-sys-gpu', data.gpu_name);
+            setTitle('dash-sys-os', data.os);
+            setTxt('dash-sys-ip', data.local_ip);
+            setTxt('dash-sys-user', `${data.username}@${data.hostname}`);
+        } catch (err) {
+            console.error('Sistem bilgileri alınamadı:', err);
+        }
+    }
+
+    if (btnSysModal) btnSysModal.addEventListener('click', openSysModal);
+    if (btnSysDetail) btnSysDetail.addEventListener('click', openSysModal);
+    if (btnCloseSys) btnCloseSys.addEventListener('click', closeSysModal);
+    if (btnRefreshSysInfo) btnRefreshSysInfo.addEventListener('click', fetchSystemInfo);
+    if (sysModal) {
+        sysModal.addEventListener('click', (e) => {
+            if (e.target === sysModal) closeSysModal();
+        });
+    }
+
+    // ======================================================================
     // 9. Ana Döngü
     // ======================================================================
+
     function tick() {
         fetchHardwareStats();
         fetchProcesses();

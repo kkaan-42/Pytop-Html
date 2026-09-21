@@ -56,9 +56,13 @@
             </div>
 
             <div class="bar-right">
+                <button type="button" id="btn-sys-modal" class="tool-btn btn-sys-trigger" title="Bilgisayar Donanım &amp; Sistem Bilgileri (F10)">
+                    <span>💻</span> SYSTEM
+                </button>
                 <button type="button" id="btn-net-modal" class="tool-btn btn-net-trigger" title="Canlı Ağ Bağlantıları &amp; Açık Portlar (F6)">
                     <span>🌐</span> PORTS
                 </button>
+
                 <button type="button" id="btn-report-modal" class="tool-btn btn-report-trigger" title="Sistem Sağlık Raporu (F7)">
                     <span>📄</span> REPORT
                 </button>
@@ -230,7 +234,44 @@
                 </div>
             </div>
 
+            <!-- Panel 5: Bilgisayar Donanım & Sistem Bilgileri Bölmesi -->
+            <div class="hw-box sys-box">
+                <div class="box-title">
+                    <span>HOST &amp; SPECS</span>
+                    <span class="title-right">
+                        <button type="button" id="btn-sys-detail" class="btn-detail-sm" title="Detaylı Donanım Özellikleri (F10)">DETAY</button>
+                    </span>
+                </div>
+                <div class="sys-specs-list">
+                    <div class="sys-spec-item">
+                        <span class="spec-label">MODEL</span>
+                        <span class="spec-value text-truncate" id="dash-sys-model" title="{{ sys.display_model }}">{{ sys.display_model }}</span>
+                    </div>
+                    <div class="sys-spec-item">
+                        <span class="spec-label">CPU</span>
+                        <span class="spec-value text-truncate c-green" id="dash-sys-cpu" title="{{ sys.processor }}">{{ sys.processor }}</span>
+                    </div>
+                    <div class="sys-spec-item">
+                        <span class="spec-label">GPU</span>
+                        <span class="spec-value text-truncate c-cyan" id="dash-sys-gpu" title="{{ sys.gpu_name }}">{{ sys.gpu_name }}</span>
+                    </div>
+                    <div class="sys-spec-item">
+                        <span class="spec-label">OS</span>
+                        <span class="spec-value text-truncate" id="dash-sys-os" title="{{ sys.os }}">{{ sys.os }}</span>
+                    </div>
+                    <div class="sys-spec-item">
+                        <span class="spec-label">IP (LAN)</span>
+                        <span class="spec-value mono c-yellow" id="dash-sys-ip">{{ sys.local_ip }}</span>
+                    </div>
+                    <div class="sys-spec-item">
+                        <span class="spec-label">USER</span>
+                        <span class="spec-value text-truncate" id="dash-sys-user">{{ sys.username }}@{{ sys.hostname }}</span>
+                    </div>
+                </div>
+            </div>
+
         </section>
+
 
         <!-- 3. Süreç Yönetim Paneli (Merkez Alan) -->
         <section class="processes-section">
@@ -562,6 +603,81 @@
         </div>
     </div>
 
+    <!-- 8. Detaylı Bilgisayar Donanım & Sistem Bilgileri Modalı -->
+    <div id="sys-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal sys-modal-dialog">
+            <div class="modal-top">
+                <div class="modal-top-left">
+                    <span class="modal-badge-sys">💻 BİLGİSAYAR DONANIM ÖZELLİKLERİ</span>
+                    <span class="sys-modal-subtitle">{{ sys.display_model }}</span>
+                </div>
+                <button type="button" id="btn-close-sys" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="sys-detail-grid">
+                    <!-- Kart 1: Cihaz & Anakart -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">🏷️ Cihaz &amp; Anakart</div>
+                        <div class="sys-kv"><span class="k">Üretici:</span><span class="v" id="spec-mfr">{{ sys.manufacturer }}</span></div>
+                        <div class="sys-kv"><span class="k">Model:</span><span class="v" id="spec-prod">{{ sys.product }}</span></div>
+                        <div class="sys-kv"><span class="k">BIOS Sürümü:</span><span class="v mono c-yellow" id="spec-bios">{{ sys.bios_version }}</span></div>
+                        <div class="sys-kv"><span class="k">Bilgisayar Adı:</span><span class="v mono" id="spec-host">{{ sys.hostname }}</span></div>
+                    </div>
+
+                    <!-- Kart 2: İşlemci (CPU) -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">⚡ İşlemci (CPU)</div>
+                        <div class="sys-kv"><span class="k">Model:</span><span class="v c-green text-truncate" id="spec-cpu" title="{{ sys.processor }}">{{ sys.processor }}</span></div>
+                        <div class="sys-kv"><span class="k">Çekirdekler:</span><span class="v" id="spec-cores">{{ sys.cores_physical }} Fiziksel / {{ sys.cores_logical }} Mantıksal</span></div>
+                        <div class="sys-kv"><span class="k">Mimari:</span><span class="v mono" id="spec-arch">{{ sys.architecture }}</span></div>
+                        <div class="sys-kv"><span class="k">Maks Frekans:</span><span class="v mono c-cyan" id="spec-freq">{{ sys.cpu_freq_max }} MHz</span></div>
+                    </div>
+
+                    <!-- Kart 3: Grafik Kartı (GPU) -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">🎮 Grafik &amp; Ekran Kartı</div>
+                        <div class="sys-kv"><span class="k">Grafik Birimi:</span><span class="v c-cyan text-truncate" id="spec-gpu" title="{{ sys.gpu_detail }}">{{ sys.gpu_detail }}</span></div>
+                        <div class="sys-kv"><span class="k">Kart Sayısı:</span><span class="v" id="spec-gpu-count">{{ sys.gpus|length if sys.gpus else 0 }} Adet</span></div>
+                    </div>
+
+                    <!-- Kart 4: Bellek & Depolama -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">💾 Bellek &amp; Disk</div>
+                        <div class="sys-kv"><span class="k">Toplam RAM:</span><span class="v c-purple" id="spec-ram">{{ sys.ram_total_gb }} GB</span></div>
+                        <div class="sys-kv"><span class="k">Sanal Bellek / Swap:</span><span class="v" id="spec-swap">{{ sys.swap_total_gb }} GB</span></div>
+                        <div class="sys-kv"><span class="k">Sistem Diski ({{ sys.disk_drive }}):</span><span class="v" id="spec-disk">{{ sys.disk_total_gb }} GB ({{ sys.disk_free_gb }} GB Boş)</span></div>
+                    </div>
+
+                    <!-- Kart 5: İşletim Sistemi -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">🖥️ İşletim Sistemi &amp; Çekirdek</div>
+                        <div class="sys-kv"><span class="k">Dağıtım:</span><span class="v" id="spec-os">{{ sys.os }}</span></div>
+                        <div class="sys-kv"><span class="k">Kernel / Build:</span><span class="v mono" id="spec-os-ver">{{ sys.os_version }}</span></div>
+                        <div class="sys-kv"><span class="k">Çalışma Süresi:</span><span class="v c-yellow" id="spec-uptime">{{ sys.uptime }}</span></div>
+                        <div class="sys-kv"><span class="k">Son Başlatma:</span><span class="v c-muted" id="spec-boot">{{ sys.boot_time }}</span></div>
+                    </div>
+
+                    <!-- Kart 6: Kullanıcı & Ağ -->
+                    <div class="sys-card">
+                        <div class="sys-card-header">🌐 Ağ &amp; Ortam</div>
+                        <div class="sys-kv"><span class="k">Yerel IP (LAN):</span><span class="v mono c-yellow" id="spec-ip">{{ sys.local_ip }}</span></div>
+                        <div class="sys-kv"><span class="k">Aktif Kullanıcı:</span><span class="v" id="spec-user">{{ sys.username }}</span></div>
+                        <div class="sys-kv"><span class="k">Python Çekirdeği:</span><span class="v mono" id="spec-py">v{{ sys.python_version }}</span></div>
+                    </div>
+                </div>
+
+                <div class="sys-footer-actions mt-3">
+                    <button type="button" id="btn-refresh-sys-info" class="term-action-btn btn-secondary">
+                        🔄 Bilgileri Yenile
+                    </button>
+                    <a href="/report" target="_blank" class="term-action-btn btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        📄 Tam Performans Raporunu Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
@@ -582,11 +698,13 @@
                     <tr><td><kbd>F6</kbd></td><td>Canlı Ağ Bağlantıları ve Açık Portlar penceresini açar.</td></tr>
                     <tr><td><kbd>F7</kbd></td><td>Sistem Sağlık Raporu penceresini açar (PDF &amp; JSON).</td></tr>
                     <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>
+                    <tr><td><kbd>F10</kbd></td><td>Bilgisayar Donanım &amp; Sistem Bilgileri penceresini açar.</td></tr>
                     <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
                 </table>
             </div>
         </div>
     </div>
+
 
     <script src="{{ url_for('static', filename='app.js') }}?v={{ sys.cache_bust }}"></script>
 </body>

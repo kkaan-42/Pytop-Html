@@ -74,11 +74,17 @@ Geleneksel terminal monitörlerinin aksine:
 * **Hızlı Port Arama & Süreç Entegrasyonu:** Port numarası, IP, protokol veya servis adına göre anında filtreleme; tek tıkla ilgili sürecin detay kartına (Process Inspector) geçiş imkanı.
 * **Hızlı Erişim:** Üst bardaki `[🌐 PORTS]` butonu veya <kbd>F6</kbd> kısayolu ile anında açılır.
 
-### 9. 🎨 4 Farklı Terminal Teması
+### 9. 💻 Bilgisayar & Donanım Bilgileri Bölmesi (Host & Specs)
+* **Özel Donanım Bölmesi (Dashboard):** Bilgisayarın üreticisi, model adı, tam işlemci ismi, ekran kartı, işletim sistemi dağıtımı, yerel IP ve oturum açan kullanıcı ana ekranda bağımsız bir donanım kartı olarak sunulur.
+* **Detaylı Sistem Özellikleri Modalı (<kbd>F10</kbd>):** Anakart üreticisi, model adı, BIOS sürümü, CPU çekirdekleri (fiziksel/mantıksal), mimari (x86_64 / ARM64), maksimum frekans, toplam RAM, Swap ve disk kapasitesi tek ekranda incelenebilir.
+* **Hızlı Erişim:** Üst bardaki `[💻 SYSTEM]` butonu veya <kbd>F10</kbd> kısayolu ile anında açılır.
+
+### 10. 🎨 4 Farklı Terminal Teması
 * **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
 * **Matrix Cyberpunk:** Fütüristik terminal yeşili ve koyu siyah.
+
 
 
 ---
@@ -264,6 +270,7 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F7</kbd> | **Sistem Sağlık Raporu** | Teşhis penceresini açar, PDF/JSON rapor oluşturur. |
 | <kbd>F8</kbd> | **Uyarı & Webhook** | Akıllı Alarm & Discord/Telegram ayar penceresini açar. |
 | <kbd>F9</kbd> | **Süreç Öldür (Kill)** | Seçili süreci `SIGKILL` ile anında sonlandırır. |
+| <kbd>F10</kbd> | **Bilgisayar Donanım Özellikleri** | Cihaz modeli, anakart, BIOS, CPU, RAM ve donanım envanterini açar. |
 | <kbd>Space</kbd> | **Akışı Duraklat** | Canlı metrik akışını dondurur (`PAUSE`) veya devam ettirir (`LIVE`). |
 | <kbd>↑</kbd> / <kbd>↓</kbd> | **Satır Gezinme** | Süreç listesinde yukarı/aşağı seçim yapar. |
 | <kbd>Enter</kbd> | **Süreç Detayı** | Seçili sürecin derinlemesine detaylarını (Process Inspector) açar. |
@@ -295,6 +302,7 @@ pyTOP Pro, sunucunuz başında değilken bile donanımınızı korur.
 ```
 Pytop-Html/
 ├── app.py                 # Flask çekirdek sunucusu, donanım API uçları, port yönetimi
+├── sys_info.py            # Çapraz platform bilgisayar üretici, model, BIOS, CPU ve donanım envanteri
 ├── net_monitor.py         # Çapraz platform canlı ağ bağlantıları, port tarama ve PID servis eşleştirici
 ├── gpu_monitor.py         # Çapraz platform GPU (NVIDIA, Apple Silicon, AMD/Intel DRM) & batarya
 ├── alerts.py              # Eşik kontrol motoru, cooldown yöneticisi, Discord & Telegram entegrasyonu
@@ -309,9 +317,9 @@ Pytop-Html/
 ├── requirements.txt       # Python bağımlılıkları (flask, psutil)
 ├── static/
 │   ├── style.css          # Glassmorphism terminal temaları & animasyonlar
-│   └── app.js             # Saniyelik WebSocket/polling, klavye yönetimi, süreç & port motoru
+│   └── app.js             # Saniyelik WebSocket/polling, klavye yönetimi, süreç, port & donanım motoru
 └── templates/
-    ├── index.html         # Terminal Dashboard arayüz şablonu
+    ├── index.html         # Terminal Dashboard arayüz şablonu (5 panelli donanım ızgarası)
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 

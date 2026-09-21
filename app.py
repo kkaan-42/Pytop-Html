@@ -11,6 +11,7 @@ import gpu_monitor
 import alerts
 import report_generator
 import net_monitor
+import sys_info
 
 app = Flask(__name__)
 
@@ -72,24 +73,10 @@ def get_cpu_model():
 @app.route("/")
 def index():
     """Terminal arayüzünü sunar."""
-    try:
-        boot_ts = psutil.boot_time()
-        boot_str = datetime.datetime.fromtimestamp(boot_ts).strftime("%Y-%m-%d %H:%M")
-    except Exception:
-        boot_str = "Bilinmiyor"
-
-    system_info = {
-        "hostname": platform.node(),
-        "os": get_detailed_os(),
-        "machine": platform.machine(),
-        "processor": get_cpu_model(),
-        "python_version": platform.python_version(),
-        "cores_logical": psutil.cpu_count(logical=True) or 1,
-        "cores_physical": psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1,
-        "boot_time": boot_str,
-        "cache_bust": int(time.time())
-    }
+    system_info = sys_info.get_system_specifications()
+    system_info["cache_bust"] = int(time.time())
     return render_template("index.html", sys=system_info)
+
 
 @app.route("/api/stats")
 def get_stats():
@@ -458,6 +445,16 @@ def api_network_connections():
     """Sistemdeki açık portları ve aktif ağ bağlantılarını döner."""
     data = net_monitor.get_network_connections()
     return jsonify(data)
+
+# ======================================================================
+# Bilgisayar & Donanım Bilgileri API Ucu
+# ======================================================================
+@app.route("/api/system/info")
+def api_system_info():
+    """Detaylı bilgisayar donanım, model ve sistem özelliklerini döner."""
+    data = sys_info.get_system_specifications()
+    return jsonify(data)
+
 
 @app.after_request
 def add_cache_control_headers(response):
