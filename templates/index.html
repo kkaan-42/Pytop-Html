@@ -8,6 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PWA & Mobile Web App Meta -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0c0e14">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="pyTOP Pro">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -34,6 +43,9 @@
             </div>
 
             <div class="bar-right">
+                <button type="button" id="btn-mobile-modal" class="tool-btn btn-mobile-trigger" title="Mobil Uygulama &amp; QR Kod (F6)">
+                    <span>📱</span> MOBILE
+                </button>
                 <button type="button" id="btn-report-modal" class="tool-btn btn-report-trigger" title="Sistem Sağlık Raporu (F7)">
                     <span>📄</span> REPORT
                 </button>
@@ -474,6 +486,58 @@
         </div>
     </div>
 
+    <!-- 9. Mobil Bağlantı & QR Kod Modalı (Fikir 5) -->
+    <div id="mobile-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal" style="max-width: 480px;">
+            <div class="modal-top">
+                <h3>📱 Mobilden İzleme &amp; PWA Kurulumu</h3>
+                <button type="button" id="btn-close-mobile" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="mobile-qr-card text-center">
+                    <p class="text-xs c-muted" style="margin-bottom: 8px;">Telefonunuzun kamerasıyla okutun veya adresi tarayıcınıza yazın:</p>
+                    <div class="qr-wrapper">
+                        <img id="mobile-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;margin=8&amp;data=http://{{ sys.local_ip }}:{{ sys.port }}" alt="QR Kod" width="180" height="180" class="qr-img">
+                    </div>
+                    <div class="mobile-url-box mt-2">
+                        <span class="mono" id="mobile-lan-url">http://{{ sys.local_ip }}:{{ sys.port }}</span>
+                        <button type="button" id="btn-copy-url" class="term-action-btn btn-secondary" title="Adresi Kopyala">
+                            📋 Kopyala
+                        </button>
+                    </div>
+                    <div id="copy-feedback" class="c-green text-xs mt-1 hidden">✓ Adres panoya kopyalandı!</div>
+                </div>
+
+                <!-- Adım Adım Rehber -->
+                <div class="mobile-guide mt-2">
+                    <div class="guide-platform">
+                        <div class="guide-title">🍏 iPhone &amp; iPad (Safari)</div>
+                        <ol class="guide-steps">
+                            <li>Bilgisayar ile telefonun <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</li>
+                            <li>Safari'de QR kodu okutun veya yukarıdaki adrese girin.</li>
+                            <li>Alttaki <strong>Paylaş</strong> simgesine dokunun (kare içinde yukarı ok).</li>
+                            <li>Menüden <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-platform mt-2">
+                        <div class="guide-title">🤖 Android (Chrome / Brave / Edge)</div>
+                        <ol class="guide-steps">
+                            <li>Bilgisayar ile telefonun <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</li>
+                            <li>Chrome ile adrese girin.</li>
+                            <li>Sağ üstteki <strong>3 nokta (Menü)</strong> simgesine dokunun.</li>
+                            <li><strong>"Uygulamayı Yükle"</strong> veya <strong>"Ana Ekrana Ekle"</strong>ye basın.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="mobile-info-note mt-2">
+                    💡 <em>Ana ekrana eklendikten sonra tarayıcı adres çubuğu olmadan tam ekran yerel bir mobil uygulama gibi açılır!</em>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
@@ -491,6 +555,7 @@
                     <tr><td><kbd>Enter</kbd></td><td>Seçili sürecin detaylarını (Process Inspector) açar.</td></tr>
                     <tr><td><kbd>C</kbd></td><td>İşlemci (CPU) kullanımına göre sıralar.</td></tr>
                     <tr><td><kbd>M</kbd></td><td>Bellek (RAM) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>F6</kbd></td><td>Mobil Bağlantı &amp; QR Kod penceresini açar.</td></tr>
                     <tr><td><kbd>F7</kbd></td><td>Sistem Sağlık Raporu penceresini açar (PDF &amp; JSON).</td></tr>
                     <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>
                     <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
