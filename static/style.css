@@ -229,17 +229,23 @@ body {
    ========================================================================== */
 .hardware-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns: 1.25fr 1fr 1fr 1fr;
     gap: 0.5rem;
     flex-shrink: 0;
     max-height: 250px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
     .hardware-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         max-height: none;
         overflow-y: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .hardware-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -981,3 +987,148 @@ kbd {
 .hidden {
     display: none !important;
 }
+
+/* ==========================================================================
+   7. GPU, Batarya ve Akıllı Uyarı Stilleri
+   ========================================================================== */
+.fill-gpu { background: var(--c-green); }
+.fill-battery { background: var(--c-yellow); }
+
+.alert-banner {
+    background: rgba(248, 113, 113, 0.15);
+    border: 1px solid var(--c-red);
+    color: #ffffff;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: alertPulse 2s infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+}
+
+.btn-alert-trigger {
+    color: var(--c-yellow);
+    border-color: rgba(250, 204, 21, 0.4);
+}
+
+.btn-alert-trigger:hover {
+    background: rgba(250, 204, 21, 0.15);
+}
+
+.modal-alerts {
+    max-width: 540px;
+}
+
+.alert-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.clean-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+}
+
+.clean-check-label input {
+    accent-color: var(--c-cyan);
+    width: 15px;
+    height: 15px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+}
+
+.channel-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.term-input {
+    background: var(--bg-root);
+    border: 1px solid var(--border-subtle);
+    color: var(--c-text);
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 2px;
+    outline: none;
+    width: 100%;
+}
+
+.term-input:focus {
+    border-color: var(--c-cyan);
+}
+
+.thresholds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.thresh-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.term-input-sm {
+    background: var(--bg-root);
+    border: 1px solid var(--border-subtle);
+    color: var(--c-text);
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.45rem;
+    border-radius: 2px;
+    outline: none;
+    width: 100%;
+}
+
+.modal-actions-split {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--c-cyan) !important;
+    color: #000 !important;
+    border-color: var(--c-cyan) !important;
+    font-weight: 700;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: var(--bg-surface-raised);
+    border-color: var(--border-strong);
+    color: var(--c-text);
+}
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.text-xs { font-size: 0.68rem; }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

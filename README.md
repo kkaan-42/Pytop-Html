@@ -6,6 +6,22 @@ Hem **Linux**, hem **Windows**, hem de **macOS** üzerinde tam uyumlu olarak ça
 
 ---
 
+## 🚀 Yeni Eklenen Özellikler
+
+### 1. 🎮 GPU & Batarya / Güç Takibi
+* **NVIDIA / AMD / Intel GPU Desteği:** Ekran kartınızın anlık sıcaklığı (`°C`), GPU çekirdek yükü (`%`) ve VRAM doluluk oranı (`Kullanılan / Toplam MB`) canlı olarak izlenir.
+* **Laptop Bataryası:** Kalan şarj yüzdesi (`%`), adaptör fişe takılı mı ve tahmini kalan çalışma süresi gösterilir.
+
+### 2. 🔔 Akıllı Eşik Uyarıları & Discord / Telegram Bildirimleri
+* **Otomatik Uyarı Sistemi:** CPU, RAM, Disk doluluğu veya GPU sıcaklığı belirlediğiniz eşik değerlerini (örn: %90 CPU veya 85°C GPU) aştığında otomatik uyarı tetiklenir.
+* **Webhook Entegrasyonu:**
+  * **Discord Webhook:** Discord kanalınıza zengin içerikli (Embed) alarm mesajları gönderir.
+  * **Telegram Bot:** Telegram sohbetinize anında Markdown uyarı mesajı iletir.
+* **Spam Koruması (Cooldown):** Aynı uyarı belirlenen bekleme süresi (örn: 15 dakika) boyunca tekrar gönderilmez.
+* **Arayüzde Canlı Alarm Şeridi:** Eşik aşımı olduğunda tarayıcı üstünde kırmızı yanıp sönen dikkat şeridi çıkar.
+
+---
+
 ## 🐧 Linux Desteği ve Çalıştırma
 
 Linux (Ubuntu, Debian, Arch, Fedora, Raspberry Pi veya WSL) üzerinde çalıştırmak için:
@@ -38,11 +54,16 @@ Otomatik olarak tarayıcınız açılacaktır.
 
 ---
 
-## 🛠️ Uygulama Çalışmıyorsa / Olası Sorunlar ve Çözümleri
+## ⌨️ Klavye Kısayolları
 
-1. **Port 5000 Meşgul Uyarısı:**
-   - Yeni güncellemede `app.py`, eğer 5000 portu meşgulse çökmez; otomatik olarak sıradaki boş portu (5001, 5002...) seçer ve konsolda adresi bildirir.
-2. **Kütüphane Eksikliği:**
-   - Terminalde `pip install -r requirements.txt` komutunu çalıştırarak `flask` ve `psutil` paketlerinin kurulu olduğundan emin olun.
-3. **Linux İzinleri:**
-   - Bazı sistem süreçlerinin detaylarını ve bellek dökümünü görmek için Linux'ta `sudo python3 app.py` olarak çalıştırabilirsiniz.
+* `F1`: Yardım rehberi
+* `F2`: Terminal temaları arasında geçiş (Btop, Htop, Monokai, Matrix)
+* `F3` / `/`: Süreç arama ve filtreleme kutusuna odaklan
+* `F4` / `C`: CPU'ya göre sırala
+* `F5` / `M`: Belleğe (RAM) göre sırala
+* `F8`: Akıllı Uyarı & Webhook ayarları penceresini aç
+* `F9`: Seçili süreci sonlandır (Kill)
+* `Space`: Canlı akışı dondur (PAUSE) / devam ettir (LIVE)
+* `↑` / `↓`: Tablo satırları arasında gezin
+* `Enter`: Seçili sürecin derinlemesine detaylarını (Process Inspector) aç
+* `F11`: Tam ekran modu

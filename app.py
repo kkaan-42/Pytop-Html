@@ -6,6 +6,9 @@ import socket
 from flask import Flask, render_template, jsonify, request
 import psutil
 
+import gpu_monitor
+import alerts
+
 app = Flask(__name__)
 
 # Başlangıç donanım ölçümünü ısıt
@@ -41,7 +44,7 @@ def index():
 
 @app.route("/api/stats")
 def get_stats():
-    """Çekirdek bazlı CPU, RAM, Disk, Ağ ve sistem özetini anlık hızlarla döndürür."""
+    """Çekirdek bazlı CPU, RAM, Disk, Ağ, GPU, Batarya ve sistem özetini anlık hızlarla döndürür."""
     global _last_io
 
     now = time.time()
@@ -113,7 +116,12 @@ def get_stats():
     else:
         uptime_str = f"{hours:02d}:{mins:02d}:{secs:02d}"
 
-    return jsonify({
+    # 6. GPU & Batarya & Sıcaklıklar (Fikir 1)
+    gpus = gpu_monitor.get_gpu_stats()
+    battery = gpu_monitor.get_battery_stats()
+    cpu_temps = gpu_monitor.get_cpu_temperatures()
+
+    stats_payload = {
         "timestamp": time.strftime("%H:%M:%S"),
         "uptime": uptime_str,
         "cpu": {
@@ -150,8 +158,18 @@ def get_stats():
             "total_rx_mb": round((current_net.bytes_recv if current_net else 0) / (1024 ** 2), 1),
             "total_tx_mb": round((current_net.bytes_sent if current_net else 0) / (1024 ** 2), 1)
         },
+        "gpus": gpus,
+        "battery": battery,
+        "cpu_temps": cpu_temps,
         "tasks_total": len(psutil.pids())
-    })
+    }
+
+    # 7. Akıllı Eşik & Webhook Uyarı Kontrolü (Fikir 2)
+    active_warnings = alerts.check_and_trigger_alerts(stats_payload, platform.node())
+    stats_payload["active_warnings"] = active_warnings
+    stats_payload["alerts_enabled"] = alerts.load_config().get("enabled", False)
+
+    return jsonify(stats_payload)
 
 @app.route("/api/processes")
 def get_processes():
@@ -326,6 +344,32 @@ def kill_process(pid):
         return jsonify({"success": False, "message": "Erişim engellendi. Bu süreci sonlandırmak için Yönetici (Windows Admin) veya root (Linux sudo) yetkisi gerekir."}), 403
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+# ======================================================================
+# Uyarı & Webhook API Uç Noktaları (Fikir 2)
+# ======================================================================
+@app.route("/api/alerts/config", methods=["GET", "POST"])
+def alert_config():
+    """Uyarı ayarlarını okur veya günceller."""
+    if request.method == "POST":
+        data = request.get_json() or {}
+        success, msg = alerts.save_config(data)
+        return jsonify({"success": success, "message": msg})
+    else:
+        cfg = alerts.load_config()
+        # Güvenlik için tokenları kısmen maskeleme
+        safe_cfg = cfg.copy()
+        if safe_cfg.get("discord_webhook"):
+            safe_cfg["discord_webhook_masked"] = safe_cfg["discord_webhook"][:28] + "..."
+        if safe_cfg.get("telegram_token"):
+            safe_cfg["telegram_token_masked"] = safe_cfg["telegram_token"][:8] + "..."
+        return jsonify(safe_cfg)
+
+@app.route("/api/alerts/test", methods=["POST"])
+def alert_test():
+    """Seçili kanala test bildirimi tetikler."""
+    success, msg = alerts.send_test_alert()
+    return jsonify({"success": success, "message": msg})
 
 def find_available_port(start_port=5000, max_tries=20):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""

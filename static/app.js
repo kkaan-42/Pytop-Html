@@ -168,6 +168,57 @@ document.addEventListener('DOMContentLoaded', () => {
             netHistory.tx.push(data.net.tx_kbs);
             drawNetSparkline();
 
+            // GPU & POWER (Fikir 1)
+            const gpuNameLabel = document.getElementById('gpu-name-label');
+            const gpuTempBadge = document.getElementById('gpu-temp-badge');
+            const gpuLoadLabel = document.getElementById('gpu-load-label');
+            const vramTextDetail = document.getElementById('vram-text-detail');
+            const vramBarFill = document.getElementById('vram-bar-fill');
+
+            if (data.gpus && data.gpus.length > 0) {
+                const gpu = data.gpus[0];
+                gpuNameLabel.textContent = gpu.name;
+                gpuTempBadge.textContent = `${gpu.temp}°C`;
+                gpuLoadLabel.textContent = `${gpu.load}% LOAD`;
+                vramTextDetail.textContent = `${gpu.used_mb} / ${gpu.total_mb} MB (${gpu.percent}%)`;
+                vramBarFill.style.width = `${gpu.percent}%`;
+            } else {
+                gpuNameLabel.textContent = "Standart GPU / Sensör Yok";
+                gpuTempBadge.textContent = "N/A";
+                gpuLoadLabel.textContent = "-";
+                vramTextDetail.textContent = "Sensör verisi okunamadı";
+                vramBarFill.style.width = "0%";
+            }
+
+            // Batarya
+            const batteryBlock = document.getElementById('battery-block');
+            const batteryStatusText = document.getElementById('battery-status-text');
+            const batteryBarFill = document.getElementById('battery-bar-fill');
+
+            if (data.battery) {
+                batteryBlock.classList.remove('hidden');
+                batteryStatusText.textContent = `${data.battery.percent}% (${data.battery.status})`;
+                batteryBarFill.style.width = `${data.battery.percent}%`;
+            } else {
+                batteryBlock.classList.add('hidden');
+            }
+
+            // Akıllı Uyarı Şeridi (Fikir 2)
+            const alertBanner = document.getElementById('active-alert-banner');
+            const alertBannerText = document.getElementById('alert-banner-text');
+            const alertsStatusIcon = document.getElementById('alerts-status-icon');
+
+            if (data.active_warnings && data.active_warnings.length > 0) {
+                alertBanner.classList.remove('hidden');
+                alertBannerText.textContent = "DİKKAT: " + data.active_warnings.join("  |  ");
+            } else {
+                alertBanner.classList.add('hidden');
+            }
+
+            if (alertsStatusIcon) {
+                alertsStatusIcon.textContent = data.alerts_enabled ? '🔔' : '🔕';
+            }
+
             liveText.textContent = 'LIVE';
             liveBadge.style.opacity = '1';
         } catch (err) {
@@ -553,7 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (!inspectorDrawer.classList.contains('hidden')) {
+            if (!alertsModal.classList.contains('hidden')) {
+                closeAlertsModal();
+            } else if (!inspectorDrawer.classList.contains('hidden')) {
                 closeInspector();
             } else if (!helpModal.classList.contains('hidden')) {
                 helpModal.classList.add('hidden');
@@ -586,6 +639,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F2') {
             e.preventDefault();
             cycleTheme();
+        } else if (e.key === 'F8') {
+            e.preventDefault();
+            openAlertsModal();
         }
     });
 
@@ -632,6 +688,126 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     btnCloseHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
+
+    // ======================================================================
+    // 8.1. Akıllı Uyarı & Webhook Ayarları (Fikir 2)
+    // ======================================================================
+    const alertsModal = document.getElementById('alerts-modal');
+    const btnAlertsModal = document.getElementById('btn-alerts-modal');
+    const btnCloseAlerts = document.getElementById('btn-close-alerts');
+    const btnSaveAlerts = document.getElementById('btn-save-alerts');
+    const btnTestAlert = document.getElementById('btn-test-alert');
+    const testAlertSpin = document.getElementById('test-alert-spin');
+    const chkAlertsEnabled = document.getElementById('chk-alerts-enabled');
+    const radioChannels = document.querySelectorAll('input[name="alert_channel"]');
+    const discordFields = document.getElementById('discord-fields');
+    const telegramFields = document.getElementById('telegram-fields');
+    const cfgDiscordWebhook = document.getElementById('cfg-discord-webhook');
+    const cfgTelegramToken = document.getElementById('cfg-telegram-token');
+    const cfgTelegramChat = document.getElementById('cfg-telegram-chat');
+    const cfgCpuThresh = document.getElementById('cfg-cpu-thresh');
+    const cfgRamThresh = document.getElementById('cfg-ram-thresh');
+    const cfgDiskThresh = document.getElementById('cfg-disk-thresh');
+    const cfgGpuThresh = document.getElementById('cfg-gpu-thresh');
+    const cfgCooldown = document.getElementById('cfg-cooldown');
+
+    function toggleChannelFields(channel) {
+        if (channel === 'discord') {
+            discordFields.classList.remove('hidden');
+            telegramFields.classList.add('hidden');
+        } else {
+            discordFields.classList.add('hidden');
+            telegramFields.classList.remove('hidden');
+        }
+    }
+
+    radioChannels.forEach(r => {
+        r.addEventListener('change', () => toggleChannelFields(r.value));
+    });
+
+    async function openAlertsModal() {
+        alertsModal.classList.remove('hidden');
+        try {
+            const res = await fetch('/api/alerts/config');
+            const cfg = await res.json();
+            chkAlertsEnabled.checked = !!cfg.enabled;
+            const channel = cfg.channel || 'discord';
+            const radio = document.querySelector(`input[name="alert_channel"][value="${channel}"]`);
+            if (radio) radio.checked = true;
+            toggleChannelFields(channel);
+
+            if (cfg.discord_webhook) cfgDiscordWebhook.value = cfg.discord_webhook;
+            if (cfg.telegram_token) cfgTelegramToken.value = cfg.telegram_token;
+            if (cfg.telegram_chat_id) cfgTelegramChat.value = cfg.telegram_chat_id;
+
+            cfgCpuThresh.value = cfg.cpu_threshold || 90;
+            cfgRamThresh.value = cfg.ram_threshold || 90;
+            cfgDiskThresh.value = cfg.disk_threshold || 90;
+            cfgGpuThresh.value = cfg.gpu_temp_threshold || 85;
+            cfgCooldown.value = cfg.cooldown_minutes || 15;
+        } catch (err) {
+            console.error('Uyarı ayarları okunamadı:', err);
+        }
+    }
+
+    function closeAlertsModal() {
+        alertsModal.classList.add('hidden');
+    }
+
+    if (btnAlertsModal) btnAlertsModal.addEventListener('click', openAlertsModal);
+    if (btnCloseAlerts) btnCloseAlerts.addEventListener('click', closeAlertsModal);
+    const fkAlerts = document.getElementById('fk-alerts');
+    if (fkAlerts) fkAlerts.addEventListener('click', openAlertsModal);
+
+    btnSaveAlerts.addEventListener('click', async () => {
+        const selectedChannel = document.querySelector('input[name="alert_channel"]:checked').value;
+        const payload = {
+            enabled: chkAlertsEnabled.checked,
+            channel: selectedChannel,
+            discord_webhook: cfgDiscordWebhook.value.trim(),
+            telegram_token: cfgTelegramToken.value.trim(),
+            telegram_chat_id: cfgTelegramChat.value.trim(),
+            cpu_threshold: parseFloat(cfgCpuThresh.value) || 90,
+            ram_threshold: parseFloat(cfgRamThresh.value) || 90,
+            disk_threshold: parseFloat(cfgDiskThresh.value) || 90,
+            gpu_temp_threshold: parseFloat(cfgGpuThresh.value) || 85,
+            cooldown_minutes: parseInt(cfgCooldown.value, 10) || 15
+        };
+
+        btnSaveAlerts.disabled = true;
+        btnSaveAlerts.textContent = 'Kaydediliyor...';
+        try {
+            const res = await fetch('/api/alerts/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const d = await res.json();
+            alert(d.message || 'Ayarlar kaydedildi.');
+            closeAlertsModal();
+            fetchHardwareStats();
+        } catch (err) {
+            alert('Hata: ' + err.message);
+        } finally {
+            btnSaveAlerts.disabled = false;
+            btnSaveAlerts.textContent = 'Ayarları Kaydet';
+        }
+    });
+
+    btnTestAlert.addEventListener('click', async () => {
+        btnTestAlert.disabled = true;
+        testAlertSpin.textContent = '⏳ ';
+        try {
+            const res = await fetch('/api/alerts/test', { method: 'POST' });
+            const d = await res.json();
+            alert(d.message);
+        } catch (err) {
+            alert('Test başarısız: ' + err.message);
+        } finally {
+            btnTestAlert.disabled = false;
+            testAlertSpin.textContent = '';
+        }
+    });
 
     // ======================================================================
     // 9. Ana Döngü

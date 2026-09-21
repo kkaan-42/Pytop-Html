@@ -34,6 +34,9 @@
             </div>
 
             <div class="bar-right">
+                <button type="button" id="btn-alerts-modal" class="tool-btn btn-alert-trigger" title="Discord / Telegram Uyarı Ayarları">
+                    <span id="alerts-status-icon">🔔</span> ALERTS
+                </button>
                 <div class="theme-control">
                     <label for="theme-select">THEME:</label>
                     <select id="theme-select">
@@ -51,7 +54,13 @@
             </div>
         </header>
 
-        <!-- 2. Donanım Göstergeleri Izgarası (CPU, RAM, Disk, Ağ) -->
+        <!-- Canlı Eşik Aşımı Uyarı Şeridi (Varsa görünür) -->
+        <div id="active-alert-banner" class="alert-banner hidden">
+            <span class="banner-icon">🚨</span>
+            <span id="alert-banner-text" class="banner-text">UYARI: Donanım eşik değeri aşıldı!</span>
+        </div>
+
+        <!-- 2. Donanım Göstergeleri Izgarası (CPU, GPU & Güç, RAM, Ağ) -->
         <section class="hardware-grid">
 
             <!-- Panel 1: CPU & Çekirdek Matrisi -->
@@ -81,7 +90,43 @@
                 </div>
             </div>
 
-            <!-- Panel 2: Bellek & Depolama -->
+            <!-- Panel 2: GPU & Batarya / Güç (Fikir 1) -->
+            <div class="hw-box gpu-box">
+                <div class="box-title">
+                    <span>GPU &amp; POWER</span>
+                    <span class="title-right" id="gpu-temp-badge">50°C</span>
+                </div>
+
+                <!-- GPU Bilgileri -->
+                <div id="gpu-container">
+                    <div class="meter-block">
+                        <div class="meter-label-line">
+                            <span id="gpu-name-label" class="c-cyan text-truncate">NVIDIA GPU</span>
+                            <span id="gpu-load-label" class="c-green">0% LOAD</span>
+                        </div>
+                        <div class="meter-label-line mt-1">
+                            <span class="c-muted">VRAM</span>
+                            <span id="vram-text-detail">0 / 0 MB (0%)</span>
+                        </div>
+                        <div class="block-bar-track">
+                            <div class="block-bar-fill fill-gpu" id="vram-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batarya Durumu -->
+                <div class="meter-block mt-2" id="battery-block">
+                    <div class="meter-label-line">
+                        <span>BATTERY</span>
+                        <span id="battery-status-text" class="c-yellow">99% (Fişe Takılı)</span>
+                    </div>
+                    <div class="block-bar-track">
+                        <div class="block-bar-fill fill-battery" id="battery-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Bellek & Depolama -->
             <div class="hw-box mem-box">
                 <div class="box-title">
                     <span>MEMORY &amp; STORAGE</span>
@@ -130,7 +175,7 @@
                 </div>
             </div>
 
-            <!-- Panel 3: Ağ & I/O Canlı Trafik -->
+            <!-- Panel 4: Ağ & I/O Canlı Trafik -->
             <div class="hw-box net-box">
                 <div class="box-title">
                     <span>NETWORK I/O</span>
@@ -152,7 +197,7 @@
 
                 <!-- Canlı Mini Ağ Grafiği -->
                 <div class="sparkline-wrapper">
-                    <div class="sparkline-title">ACTIVITY GRAPH (LAST 20 SECONDS)</div>
+                    <div class="sparkline-title">ACTIVITY GRAPH (LAST 25s)</div>
                     <canvas id="netSparkline"></canvas>
                 </div>
             </div>
@@ -235,6 +280,7 @@
             <div class="fkey" id="fk-search"><span class="f-num">F3</span><span class="f-txt">Search [/]</span></div>
             <div class="fkey" id="fk-sort-cpu"><span class="f-num">F4</span><span class="f-txt">Sort CPU</span></div>
             <div class="fkey" id="fk-sort-mem"><span class="f-num">F5</span><span class="f-txt">Sort MEM</span></div>
+            <div class="fkey" id="fk-alerts"><span class="f-num">F8</span><span class="f-txt">Alerts</span></div>
             <div class="fkey" id="fk-kill"><span class="f-num">F9</span><span class="f-txt">Kill</span></div>
             <div class="fkey" id="fk-pause"><span class="f-num">Space</span><span class="f-txt">Pause</span></div>
         </footer>
@@ -309,7 +355,87 @@
         </div>
     </div>
 
-    <!-- 6. Yardım Modalı -->
+    <!-- 6. Akıllı Uyarı & Webhook Ayarları Modalı (Fikir 2) -->
+    <div id="alerts-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal modal-alerts">
+            <div class="modal-top">
+                <h3>🔔 Akıllı Uyarı &amp; Webhook Bildirimleri</h3>
+                <button type="button" id="btn-close-alerts" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert-form-group">
+                    <label class="clean-check-label">
+                        <input type="checkbox" id="chk-alerts-enabled">
+                        <strong>Otomatik Eşik Bildirimlerini Aktif Et</strong>
+                    </label>
+                    <span class="c-muted text-xs">Donanım eşikleri aşıldığında Discord veya Telegram'a anlık mesaj atar.</span>
+                </div>
+
+                <div class="alert-form-group mt-2">
+                    <label>Bildirim Kanalı:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="alert_channel" value="discord" checked> Discord Webhook
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="alert_channel" value="telegram"> Telegram Bot
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Discord Ayarları -->
+                <div id="discord-fields" class="channel-fields">
+                    <label for="cfg-discord-webhook">Discord Webhook URL:</label>
+                    <input type="password" id="cfg-discord-webhook" class="term-input" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+
+                <!-- Telegram Ayarları -->
+                <div id="telegram-fields" class="channel-fields hidden">
+                    <label for="cfg-telegram-token">Telegram Bot Token:</label>
+                    <input type="password" id="cfg-telegram-token" class="term-input" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ...">
+                    <label for="cfg-telegram-chat" class="mt-1">Telegram Chat ID:</label>
+                    <input type="text" id="cfg-telegram-chat" class="term-input" placeholder="Örn: 987654321">
+                </div>
+
+                <!-- Eşik Değerleri -->
+                <div class="thresholds-grid mt-2">
+                    <div class="thresh-item">
+                        <label>CPU Eşiği (%):</label>
+                        <input type="number" id="cfg-cpu-thresh" min="50" max="100" value="90" class="term-input-sm">
+                    </div>
+                    <div class="thresh-item">
+                        <label>RAM Eşiği (%):</label>
+                        <input type="number" id="cfg-ram-thresh" min="50" max="100" value="90" class="term-input-sm">
+                    </div>
+                    <div class="thresh-item">
+                        <label>Disk Eşiği (%):</label>
+                        <input type="number" id="cfg-disk-thresh" min="50" max="100" value="90" class="term-input-sm">
+                    </div>
+                    <div class="thresh-item">
+                        <label>GPU Sıcaklık (°C):</label>
+                        <input type="number" id="cfg-gpu-thresh" min="60" max="105" value="85" class="term-input-sm">
+                    </div>
+                </div>
+
+                <div class="alert-form-group mt-2">
+                    <label>Tekrar Uyarı Bekleme Süresi (Cooldown - Dakika):</label>
+                    <input type="number" id="cfg-cooldown" min="1" max="180" value="15" class="term-input-sm">
+                    <span class="c-muted text-xs">Spam engellemek için aynı uyarı bu süre dolmadan tekrar gönderilmez.</span>
+                </div>
+
+                <div class="modal-actions-split mt-3">
+                    <button type="button" id="btn-test-alert" class="term-action-btn btn-secondary">
+                        <span id="test-alert-spin"></span> Test Bildirimi Gönder
+                    </button>
+                    <button type="button" id="btn-save-alerts" class="term-action-btn btn-primary">
+                        Ayarları Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
             <div class="modal-top">
@@ -317,7 +443,7 @@
                 <button type="button" id="btn-close-help" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <p>pyTOP Pro, doğrudan işletim sistemi çekirdeğinden gerçek donanım ve süreç verilerini toplayan canlı bir terminal sistem monitörüdür.</p>
+                <p>pyTOP Pro, doğrudan işletim sistemi çekirdeğinden gerçek donanım, GPU ve süreç verilerini toplayan canlı bir terminal sistem monitörüdür.</p>
                 <table class="shortcuts-table">
                     <tr><td><kbd>/</kbd></td><td>Arama / Filtreleme kutusuna odaklanır.</td></tr>
                     <tr><td><kbd>Esc</kbd></td><td>Aramayı temizler, denetleyiciyi veya pencereleri kapatır.</td></tr>
@@ -326,6 +452,7 @@
                     <tr><td><kbd>Enter</kbd></td><td>Seçili sürecin detaylarını (Process Inspector) açar.</td></tr>
                     <tr><td><kbd>C</kbd></td><td>İşlemci (CPU) kullanımına göre sıralar.</td></tr>
                     <tr><td><kbd>M</kbd></td><td>Bellek (RAM) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>
                     <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
                 </table>
             </div>
