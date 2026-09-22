@@ -73,6 +73,9 @@
                 <button type="button" id="btn-alerts-modal" class="tool-btn btn-alert-trigger" title="Discord / Telegram Uyarı Ayarları (F8)">
                     <span id="alerts-status-icon">🔔</span> ALERTS
                 </button>
+                <button type="button" id="btn-layout-modal" class="tool-btn btn-layout-trigger" title="Panel Düzenini &amp; Görünümünü Özelleştir (L)">
+                    <span>🎛️</span> LAYOUT
+                </button>
                 <div class="theme-control">
                     <label for="theme-select">THEME:</label>
                     <select id="theme-select">
@@ -96,180 +99,232 @@
             <span id="alert-banner-text" class="banner-text">UYARI: Donanım eşik değeri aşıldı!</span>
         </div>
 
-        <!-- 2. Donanım Göstergeleri Izgarası (CPU, GPU & Güç, RAM, Ağ) -->
-        <section class="hardware-grid">
+        <!-- 2. Donanım Göstergeleri Izgarası (CPU, GPU & Güç, RAM, Ağ, Specs - Sürükle Bırak) -->
+        <section class="hardware-grid" id="main-hardware-grid">
 
             <!-- Panel 1: CPU & Çekirdek Matrisi -->
-            <div class="hw-box cpu-box">
+            <div class="hw-box cpu-box" data-widget-id="cpu" draggable="true">
                 <div class="box-title">
-                    <span>CPU MATRIX ({{ sys.cores_logical }} THREADS)</span>
-                    <span class="title-right">
+                    <div class="title-left">
+                        <span class="drag-handle" title="Sürükleyip Bırakarak Yer Değiştirin">⠿</span>
+                        <span class="widget-name">CPU MATRIX ({{ sys.cores_logical }} THREADS)</span>
+                    </div>
+                    <div class="title-right">
                         TOTAL: <strong id="cpu-total-pct" class="c-green">0.0%</strong>
                         <span class="sep">|</span>
                         FREQ: <span id="cpu-freq-val" class="c-cyan">0 MHz</span>
-                    </span>
-                </div>
-                <div class="cpu-times-sub">
-                    <span>usr: <strong id="cpu-usr" class="c-green">0%</strong></span>
-                    <span>sys: <strong id="cpu-sys" class="c-red">0%</strong></span>
-                    <span>idle: <strong id="cpu-idle" class="c-muted">0%</strong></span>
-                </div>
-
-                <!-- 16 Çekirdek Izgarası (2 Kolon) -->
-                <div class="cores-split-wrap">
-                    <div class="core-col" id="cores-left">
-                        <!-- JS ile dolar -->
+                        <div class="widget-actions">
+                            <button type="button" class="btn-widget-action btn-widget-collapse" title="Daralt / Genişlet" data-target="cpu">—</button>
+                            <button type="button" class="btn-widget-action btn-widget-close" title="Paneli Gizle" data-target="cpu">&times;</button>
+                        </div>
                     </div>
-                    <div class="core-col" id="cores-right">
-                        <!-- JS ile dolar -->
+                </div>
+                <div class="hw-box-body">
+                    <div class="cpu-times-sub">
+                        <span>usr: <strong id="cpu-usr" class="c-green">0%</strong></span>
+                        <span>sys: <strong id="cpu-sys" class="c-red">0%</strong></span>
+                        <span>idle: <strong id="cpu-idle" class="c-muted">0%</strong></span>
+                    </div>
+
+                    <!-- 16 Çekirdek Izgarası (2 Kolon) -->
+                    <div class="cores-split-wrap">
+                        <div class="core-col" id="cores-left">
+                            <!-- JS ile dolar -->
+                        </div>
+                        <div class="core-col" id="cores-right">
+                            <!-- JS ile dolar -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel 2: GPU & Batarya / Güç (Fikir 1) -->
-            <div class="hw-box gpu-box">
+            <!-- Panel 2: GPU & Batarya / Güç -->
+            <div class="hw-box gpu-box" data-widget-id="gpu" draggable="true">
                 <div class="box-title">
-                    <span>GPU &amp; POWER</span>
-                    <span class="title-right" id="gpu-temp-badge">50°C</span>
+                    <div class="title-left">
+                        <span class="drag-handle" title="Sürükleyip Bırakarak Yer Değiştirin">⠿</span>
+                        <span class="widget-name">GPU &amp; POWER</span>
+                    </div>
+                    <div class="title-right">
+                        <span id="gpu-temp-badge" class="badge-status-sub">50°C</span>
+                        <div class="widget-actions">
+                            <button type="button" class="btn-widget-action btn-widget-collapse" title="Daralt / Genişlet" data-target="gpu">—</button>
+                            <button type="button" class="btn-widget-action btn-widget-close" title="Paneli Gizle" data-target="gpu">&times;</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- GPU Bilgileri -->
-                <div id="gpu-container">
-                    <div class="meter-block">
-                        <div class="meter-label-line">
-                            <span id="gpu-name-label" class="c-cyan text-truncate">NVIDIA GPU</span>
-                            <span id="gpu-load-label" class="c-green">0% LOAD</span>
+                <div class="hw-box-body">
+                    <!-- GPU Bilgileri -->
+                    <div id="gpu-container">
+                        <div class="meter-block">
+                            <div class="meter-label-line">
+                                <span id="gpu-name-label" class="c-cyan text-truncate">NVIDIA GPU</span>
+                                <span id="gpu-load-label" class="c-green">0% LOAD</span>
+                            </div>
+                            <div class="meter-label-line mt-1">
+                                <span class="c-muted">VRAM</span>
+                                <span id="vram-text-detail">0 / 0 MB (0%)</span>
+                            </div>
+                            <div class="block-bar-track">
+                                <div class="block-bar-fill fill-gpu" id="vram-bar-fill" style="width: 0%"></div>
+                            </div>
                         </div>
-                        <div class="meter-label-line mt-1">
-                            <span class="c-muted">VRAM</span>
-                            <span id="vram-text-detail">0 / 0 MB (0%)</span>
+                    </div>
+
+                    <!-- Batarya Durumu -->
+                    <div class="meter-block mt-2" id="battery-block">
+                        <div class="meter-label-line">
+                            <span>BATTERY</span>
+                            <span id="battery-status-text" class="c-yellow">99% (Fişe Takılı)</span>
                         </div>
                         <div class="block-bar-track">
-                            <div class="block-bar-fill fill-gpu" id="vram-bar-fill" style="width: 0%"></div>
+                            <div class="block-bar-fill fill-battery" id="battery-bar-fill" style="width: 0%"></div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Batarya Durumu -->
-                <div class="meter-block mt-2" id="battery-block">
-                    <div class="meter-label-line">
-                        <span>BATTERY</span>
-                        <span id="battery-status-text" class="c-yellow">99% (Fişe Takılı)</span>
-                    </div>
-                    <div class="block-bar-track">
-                        <div class="block-bar-fill fill-battery" id="battery-bar-fill" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Panel 3: Bellek & Depolama -->
-            <div class="hw-box mem-box">
+            <div class="hw-box mem-box" data-widget-id="mem" draggable="true">
                 <div class="box-title">
-                    <span>MEMORY &amp; STORAGE</span>
-                    <span class="title-right" id="mem-status-badge">OK</span>
-                </div>
-
-                <!-- RAM -->
-                <div class="meter-block">
-                    <div class="meter-label-line">
-                        <span>RAM</span>
-                        <span id="ram-text-detail">0.0 / 0.0 GB (0%)</span>
+                    <div class="title-left">
+                        <span class="drag-handle" title="Sürükleyip Bırakarak Yer Değiştirin">⠿</span>
+                        <span class="widget-name">MEMORY &amp; STORAGE</span>
                     </div>
-                    <div class="block-bar-track">
-                        <div class="block-bar-fill fill-ram" id="ram-bar-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="meter-sub-line">
-                        <span>Avail: <strong id="ram-avail" class="c-green">0 GB</strong></span>
-                        <span>Used: <strong id="ram-used" class="c-purple">0 GB</strong></span>
+                    <div class="title-right">
+                        <span id="mem-status-badge" class="badge-status-sub">OK</span>
+                        <div class="widget-actions">
+                            <button type="button" class="btn-widget-action btn-widget-collapse" title="Daralt / Genişlet" data-target="mem">—</button>
+                            <button type="button" class="btn-widget-action btn-widget-close" title="Paneli Gizle" data-target="mem">&times;</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- SWAP / Pagefile -->
-                <div class="meter-block">
-                    <div class="meter-label-line">
-                        <span>SWAP</span>
-                        <span id="swap-text-detail">0.0 / 0.0 GB (0%)</span>
+                <div class="hw-box-body">
+                    <!-- RAM -->
+                    <div class="meter-block">
+                        <div class="meter-label-line">
+                            <span>RAM</span>
+                            <span id="ram-text-detail">0.0 / 0.0 GB (0%)</span>
+                        </div>
+                        <div class="block-bar-track">
+                            <div class="block-bar-fill fill-ram" id="ram-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="meter-sub-line">
+                            <span>Avail: <strong id="ram-avail" class="c-green">0 GB</strong></span>
+                            <span>Used: <strong id="ram-used" class="c-purple">0 GB</strong></span>
+                        </div>
                     </div>
-                    <div class="block-bar-track">
-                        <div class="block-bar-fill fill-swap" id="swap-bar-fill" style="width: 0%"></div>
-                    </div>
-                </div>
 
-                <!-- DISK -->
-                <div class="meter-block">
-                    <div class="meter-label-line">
-                        <span>DISK (<span id="disk-drive-label">C:</span>)</span>
-                        <span id="disk-text-detail">0.0 / 0.0 GB (0%)</span>
+                    <!-- SWAP / Pagefile -->
+                    <div class="meter-block">
+                        <div class="meter-label-line">
+                            <span>SWAP</span>
+                            <span id="swap-text-detail">0.0 / 0.0 GB (0%)</span>
+                        </div>
+                        <div class="block-bar-track">
+                            <div class="block-bar-fill fill-swap" id="swap-bar-fill" style="width: 0%"></div>
+                        </div>
                     </div>
-                    <div class="block-bar-track">
-                        <div class="block-bar-fill fill-disk" id="disk-bar-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="meter-sub-line">
-                        <span>Free: <strong id="disk-free-val" class="c-cyan">0 GB</strong></span>
-                        <span>R/W: <strong id="disk-io-val" class="c-yellow">R: 0 KB/s | W: 0 KB/s</strong></span>
+
+                    <!-- DISK -->
+                    <div class="meter-block">
+                        <div class="meter-label-line">
+                            <span>DISK (<span id="disk-drive-label">C:</span>)</span>
+                            <span id="disk-text-detail">0.0 / 0.0 GB (0%)</span>
+                        </div>
+                        <div class="block-bar-track">
+                            <div class="block-bar-fill fill-disk" id="disk-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="meter-sub-line">
+                            <span>Free: <strong id="disk-free-val" class="c-cyan">0 GB</strong></span>
+                            <span>R/W: <strong id="disk-io-val" class="c-yellow">R: 0 KB/s | W: 0 KB/s</strong></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Panel 4: Ağ & I/O Canlı Trafik -->
-            <div class="hw-box net-box">
+            <div class="hw-box net-box" data-widget-id="net" draggable="true">
                 <div class="box-title">
-                    <span>NETWORK I/O</span>
-                    <span class="title-right">TCP/IP</span>
-                </div>
-
-                <div class="net-speeds-row">
-                    <div class="net-speed-card rx-card">
-                        <span class="speed-dir">▼ DOWNLOAD</span>
-                        <span class="speed-val" id="net-rx-speed">0.0 KB/s</span>
-                        <span class="speed-total" id="net-rx-total">Total: 0 MB</span>
+                    <div class="title-left">
+                        <span class="drag-handle" title="Sürükleyip Bırakarak Yer Değiştirin">⠿</span>
+                        <span class="widget-name">NETWORK I/O</span>
                     </div>
-                    <div class="net-speed-card tx-card">
-                        <span class="speed-dir">▲ UPLOAD</span>
-                        <span class="speed-val" id="net-tx-speed">0.0 KB/s</span>
-                        <span class="speed-total" id="net-tx-total">Total: 0 MB</span>
+                    <div class="title-right">
+                        <span class="badge-status-sub">TCP/IP</span>
+                        <div class="widget-actions">
+                            <button type="button" class="btn-widget-action btn-widget-collapse" title="Daralt / Genişlet" data-target="net">—</button>
+                            <button type="button" class="btn-widget-action btn-widget-close" title="Paneli Gizle" data-target="net">&times;</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Canlı Mini Ağ Grafiği -->
-                <div class="sparkline-wrapper">
-                    <div class="sparkline-title">ACTIVITY GRAPH (LAST 25s)</div>
-                    <canvas id="netSparkline"></canvas>
+                <div class="hw-box-body">
+                    <div class="net-speeds-row">
+                        <div class="net-speed-card rx-card">
+                            <span class="speed-dir">▼ DOWNLOAD</span>
+                            <span class="speed-val" id="net-rx-speed">0.0 KB/s</span>
+                            <span class="speed-total" id="net-rx-total">Total: 0 MB</span>
+                        </div>
+                        <div class="net-speed-card tx-card">
+                            <span class="speed-dir">▲ UPLOAD</span>
+                            <span class="speed-val" id="net-tx-speed">0.0 KB/s</span>
+                            <span class="speed-total" id="net-tx-total">Total: 0 MB</span>
+                        </div>
+                    </div>
+
+                    <!-- Canlı Mini Ağ Grafiği -->
+                    <div class="sparkline-wrapper">
+                        <div class="sparkline-title">ACTIVITY GRAPH (LAST 25s)</div>
+                        <canvas id="netSparkline"></canvas>
+                    </div>
                 </div>
             </div>
 
             <!-- Panel 5: Bilgisayar Donanım & Sistem Bilgileri Bölmesi -->
-            <div class="hw-box sys-box">
+            <div class="hw-box sys-box" data-widget-id="sys" draggable="true">
                 <div class="box-title">
-                    <span>HOST &amp; SPECS</span>
-                    <span class="title-right">
+                    <div class="title-left">
+                        <span class="drag-handle" title="Sürükleyip Bırakarak Yer Değiştirin">⠿</span>
+                        <span class="widget-name">HOST &amp; SPECS</span>
+                    </div>
+                    <div class="title-right">
                         <button type="button" id="btn-sys-detail" class="btn-detail-sm" title="Detaylı Donanım Özellikleri (F10)">DETAY</button>
-                    </span>
+                        <div class="widget-actions">
+                            <button type="button" class="btn-widget-action btn-widget-collapse" title="Daralt / Genişlet" data-target="sys">—</button>
+                            <button type="button" class="btn-widget-action btn-widget-close" title="Paneli Gizle" data-target="sys">&times;</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="sys-specs-list">
-                    <div class="sys-spec-item">
-                        <span class="spec-label">MODEL</span>
-                        <span class="spec-value text-truncate" id="dash-sys-model" title="{{ sys.display_model }}">{{ sys.display_model }}</span>
-                    </div>
-                    <div class="sys-spec-item">
-                        <span class="spec-label">CPU</span>
-                        <span class="spec-value text-truncate c-green" id="dash-sys-cpu" title="{{ sys.processor }}">{{ sys.processor }}</span>
-                    </div>
-                    <div class="sys-spec-item">
-                        <span class="spec-label">GPU</span>
-                        <span class="spec-value text-truncate c-cyan" id="dash-sys-gpu" title="{{ sys.gpu_name }}">{{ sys.gpu_name }}</span>
-                    </div>
-                    <div class="sys-spec-item">
-                        <span class="spec-label">OS</span>
-                        <span class="spec-value text-truncate" id="dash-sys-os" title="{{ sys.os }}">{{ sys.os }}</span>
-                    </div>
-                    <div class="sys-spec-item">
-                        <span class="spec-label">IP (LAN)</span>
-                        <span class="spec-value mono c-yellow" id="dash-sys-ip">{{ sys.local_ip }}</span>
-                    </div>
-                    <div class="sys-spec-item">
-                        <span class="spec-label">USER</span>
-                        <span class="spec-value text-truncate" id="dash-sys-user">{{ sys.username }}@{{ sys.hostname }}</span>
+
+                <div class="hw-box-body">
+                    <div class="sys-specs-list">
+                        <div class="sys-spec-item">
+                            <span class="spec-label">MODEL</span>
+                            <span class="spec-value text-truncate" id="dash-sys-model" title="{{ sys.display_model }}">{{ sys.display_model }}</span>
+                        </div>
+                        <div class="sys-spec-item">
+                            <span class="spec-label">CPU</span>
+                            <span class="spec-value text-truncate c-green" id="dash-sys-cpu" title="{{ sys.processor }}">{{ sys.processor }}</span>
+                        </div>
+                        <div class="sys-spec-item">
+                            <span class="spec-label">GPU</span>
+                            <span class="spec-value text-truncate c-cyan" id="dash-sys-gpu" title="{{ sys.gpu_name }}">{{ sys.gpu_name }}</span>
+                        </div>
+                        <div class="sys-spec-item">
+                            <span class="spec-label">OS</span>
+                            <span class="spec-value text-truncate" id="dash-sys-os" title="{{ sys.os }}">{{ sys.os }}</span>
+                        </div>
+                        <div class="sys-spec-item">
+                            <span class="spec-label">IP (LAN)</span>
+                            <span class="spec-value mono c-yellow" id="dash-sys-ip">{{ sys.local_ip }}</span>
+                        </div>
+                        <div class="sys-spec-item">
+                            <span class="spec-label">USER</span>
+                            <span class="spec-value text-truncate" id="dash-sys-user">{{ sys.username }}@{{ sys.hostname }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -793,6 +848,106 @@
         </div>
     </div>
 
+    <!-- 11. Panel Düzeni & Özelleştirme Modalı -->
+    <div id="layout-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal layout-modal-dialog">
+            <div class="modal-top">
+                <div class="modal-top-left">
+                    <span class="modal-badge-layout">🎛️ PANEL DÜZENİ &amp; GÖRÜNÜM</span>
+                    <span class="layout-modal-subtitle">Dashboard Widget Özelleştirici</span>
+                </div>
+                <button type="button" id="btn-close-layout" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="layout-intro-note">
+                    <span class="text-xs c-muted">Panelleri fare ile <strong class="c-cyan">sürükleyip bırakarak</strong> sıralayabilir veya aşağıdaki anahtarlarla görünürlüklerini açıp kapatabilirsiniz. Tüm tercihleriniz tarayıcınızda otomatik saklanır.</span>
+                </div>
+
+                <div class="layout-section-title mt-3">GÖRÜNÜR PANELLER</div>
+                <div class="layout-widgets-list">
+                    <div class="layout-widget-item" data-id="cpu">
+                        <div class="widget-item-info">
+                            <span class="widget-icon">⚡</span>
+                            <div class="widget-text">
+                                <strong>İşlemci Matrisi (CPU)</strong>
+                                <small class="c-muted">Çekirdek yükleri, frekans ve CPU süreleri</small>
+                            </div>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-widget-cpu" data-widget="cpu" checked>
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+
+                    <div class="layout-widget-item" data-id="gpu">
+                        <div class="widget-item-info">
+                            <span class="widget-icon">🎮</span>
+                            <div class="widget-text">
+                                <strong>GPU &amp; Batarya / Güç</strong>
+                                <small class="c-muted">Ekran kartı, VRAM ve pil durumu</small>
+                            </div>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-widget-gpu" data-widget="gpu" checked>
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+
+                    <div class="layout-widget-item" data-id="mem">
+                        <div class="widget-item-info">
+                            <span class="widget-icon">🧠</span>
+                            <div class="widget-text">
+                                <strong>Bellek &amp; Depolama (RAM / Disk)</strong>
+                                <small class="c-muted">RAM, Swap, Disk doluluğu ve I/O hızları</small>
+                            </div>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-widget-mem" data-widget="mem" checked>
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+
+                    <div class="layout-widget-item" data-id="net">
+                        <div class="widget-item-info">
+                            <span class="widget-icon">🌐</span>
+                            <div class="widget-text">
+                                <strong>Ağ Trafiği &amp; Sparkline Grafiği</strong>
+                                <small class="c-muted">Canlı download/upload ve mini aktivite grafiği</small>
+                            </div>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-widget-net" data-widget="net" checked>
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+
+                    <div class="layout-widget-item" data-id="sys">
+                        <div class="widget-item-info">
+                            <span class="widget-icon">💻</span>
+                            <div class="widget-text">
+                                <strong>Host &amp; Donanım Bilgileri</strong>
+                                <small class="c-muted">Cihaz modeli, işlemci, IP adresi ve kullanıcı</small>
+                            </div>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-widget-sys" data-widget="sys" checked>
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="layout-modal-actions mt-3">
+                    <button type="button" id="btn-reset-layout" class="term-action-btn btn-secondary">
+                        🔄 Varsayılan Düzene Sıfırla
+                    </button>
+                    <button type="button" id="btn-save-layout" class="term-action-btn btn-primary">
+                        ✓ Tamam
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
@@ -810,6 +965,7 @@
                     <tr><td><kbd>Enter</kbd></td><td>Seçili sürecin detaylarını (Process Inspector) açar.</td></tr>
                     <tr><td><kbd>C</kbd></td><td>İşlemci (CPU) kullanımına göre sıralar.</td></tr>
                     <tr><td><kbd>M</kbd></td><td>Bellek (RAM) kullanımına göre sıralar.</td></tr>
+                    <tr><td><kbd>L</kbd></td><td>Panel Düzeni &amp; Görünüm Ayarları penceresini açar.</td></tr>
                     <tr><td><kbd>F6</kbd></td><td>Canlı Ağ Bağlantıları ve Açık Portlar penceresini açar.</td></tr>
                     <tr><td><kbd>F7</kbd></td><td>Sistem Sağlık Raporu penceresini açar (PDF &amp; JSON).</td></tr>
                     <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>

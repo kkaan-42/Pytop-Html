@@ -40,6 +40,8 @@ pyTOP Pro v2.1-beta sürümü, her işletim sistemi için özel olarak optimize 
 ## 🚀 v2.1-beta Sürümü Yenilikleri
 
 Bu sürümle birlikte pyTOP Pro'ya eklenen önemli özellikler:
+* 🎛️ **Özelleştirilebilir Sürükle-Bırak Panel Düzeni (<kbd>L</kbd>):** CPU, GPU, RAM/Disk, Ağ ve Host panellerini fare ile tutarak istediğiniz sıraya sürükleyin, tek tıkla gövdelerini daraltın (`—`) veya gizleyin. Tüm tercihleriniz tarayıcınızda (`localStorage`) otomatik saklanır.
+* ✨ **Yeni Nesil Siber & Cam Tasarım (Glassmorphism & Cyber Tech UI):** Yarı saydam cam efektli paneller, siber ızgara arka planı, canlı neon gradyan ilerleme çubukları, pulsing durum rozetleri ve modern mikro-etkileşimler.
 * 🐳 **Canlı Docker & Konteyner Yöneticisi (<kbd>F12</kbd>):** Konteynerlerin anlık CPU/RAM tüketimi, durumları, web üzerinden Start/Stop/Restart yönetimi ve son 150 satırlık canlı log çıktısı.
 * 💻 **Bilgisayar Donanım & Sistem Bilgileri Bölmesi (<kbd>F10</kbd>):** Cihaz üreticisi, model adı, BIOS sürümü, tam işlemci ticari adı ve yerel ağ IP adresi.
 * 🌐 **Canlı Ağ Bağlantıları & Port Dedektörü (<kbd>F6</kbd>):** Dinlenen açık TCP/UDP portları (`LISTEN`) ve aktif dış bağlantılar (`ESTABLISHED`).
@@ -312,6 +314,7 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F10</kbd> | **Bilgisayar Donanım Özellikleri** | Cihaz modeli, anakart, BIOS, CPU, RAM ve donanım envanterini açar. |
 | <kbd>F11</kbd> | **Tam Ekran** | Tarayıcıyı tam ekran terminal moduna geçirir. |
 | <kbd>F12</kbd> | **Docker & Konteyner Yöneticisi** | Konteyner listesi, kaynak kullanımı, start/stop/restart ve canlı logları açar. |
+| <kbd>L</kbd> | **Panel Düzeni &amp; Özelleştirme** | Dashboard widget panellerinin yerleşim ve görünüm penceresini açar. |
 | <kbd>Space</kbd> | **Akışı Duraklat** | Canlı metrik akışını dondurur (`PAUSE`) veya devam ettirir (`LIVE`). |
 | <kbd>↑</kbd> / <kbd>↓</kbd> | **Satır Gezinme** | Süreç listesinde yukarı/aşağı seçim yapar. |
 | <kbd>Enter</kbd> | **Süreç Detayı** | Seçili sürecin derinlemesine detaylarını (Process Inspector) açar. |

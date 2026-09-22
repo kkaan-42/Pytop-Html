@@ -126,6 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModal = document.getElementById('help-modal');
     const btnCloseHelp = document.getElementById('btn-close-help');
 
+    // Layout Customizer Modal
+    const layoutModal = document.getElementById('layout-modal');
+    const btnLayoutModal = document.getElementById('btn-layout-modal');
+    const btnCloseLayout = document.getElementById('btn-close-layout');
+    const btnSaveLayout = document.getElementById('btn-save-layout');
+    const btnResetLayout = document.getElementById('btn-reset-layout');
+    const hardwareGrid = document.getElementById('main-hardware-grid');
+
     // ======================================================================
     // 3. Tema ve Tam Ekran Yönetimi
     // ======================================================================
@@ -146,6 +154,210 @@ document.addEventListener('DOMContentLoaded', () => {
             document.exitFullscreen().catch(() => {});
         }
     });
+
+    // ======================================================================
+    // 3.5 Sürükle-Bırak & Özelleştirilebilir Panel Düzeni (Customizable Widget Grid)
+    // ======================================================================
+    const DEFAULT_LAYOUT = {
+        order: ['cpu', 'gpu', 'mem', 'net', 'sys'],
+        collapsed: { cpu: false, gpu: false, mem: false, net: false, sys: false },
+        hidden: { cpu: false, gpu: false, mem: false, net: false, sys: false }
+    };
+
+    let currentLayout = loadLayout();
+
+    function loadLayout() {
+        try {
+            const raw = localStorage.getItem('pytop_dashboard_layout_v1');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                return {
+                    order: Array.isArray(parsed.order) && parsed.order.length ? parsed.order : [...DEFAULT_LAYOUT.order],
+                    collapsed: Object.assign({}, DEFAULT_LAYOUT.collapsed, parsed.collapsed || {}),
+                    hidden: Object.assign({}, DEFAULT_LAYOUT.hidden, parsed.hidden || {})
+                };
+            }
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+    }
+
+    function saveLayout(layout) {
+        try {
+            localStorage.setItem('pytop_dashboard_layout_v1', JSON.stringify(layout));
+        } catch (e) {}
+    }
+
+    function applyLayout(layout) {
+        if (!hardwareGrid) return;
+
+        // 1. Panel Sıralamasını Uygula
+        layout.order.forEach(id => {
+            const box = hardwareGrid.querySelector(`.hw-box[data-widget-id="${id}"]`);
+            if (box) hardwareGrid.appendChild(box);
+        });
+
+        // 2. Daraltma (Collapsed) Durumlarını Uygula
+        hardwareGrid.querySelectorAll('.hw-box[data-widget-id]').forEach(box => {
+            const id = box.getAttribute('data-widget-id');
+            const isCol = !!layout.collapsed[id];
+            box.classList.toggle('collapsed', isCol);
+            const btn = box.querySelector('.btn-widget-collapse');
+            if (btn) btn.textContent = isCol ? '+' : '—';
+        });
+
+        // 3. Gizleme (Hidden) Durumlarını Uygula
+        hardwareGrid.querySelectorAll('.hw-box[data-widget-id]').forEach(box => {
+            const id = box.getAttribute('data-widget-id');
+            const isHid = !!layout.hidden[id];
+            box.classList.toggle('hidden-widget', isHid);
+            const chk = document.getElementById(`toggle-widget-${id}`);
+            if (chk) chk.checked = !isHid;
+        });
+
+        // Ağ grafiği çizimini tetikle
+        if (typeof drawNetSparkline === 'function') {
+            setTimeout(drawNetSparkline, 80);
+        }
+    }
+
+    // HTML5 Sürükle ve Bırak (Drag & Drop) Mekanizması
+    let draggedWidget = null;
+
+    function initDragAndDrop() {
+        if (!hardwareGrid) return;
+        const boxes = hardwareGrid.querySelectorAll('.hw-box[data-widget-id]');
+
+        boxes.forEach(box => {
+            box.addEventListener('dragstart', (e) => {
+                draggedWidget = box;
+                box.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', box.getAttribute('data-widget-id'));
+            });
+
+            box.addEventListener('dragend', () => {
+                box.classList.remove('dragging');
+                boxes.forEach(b => b.classList.remove('drag-over'));
+                // Yeni sıralamayı kaydet
+                const newOrder = Array.from(hardwareGrid.querySelectorAll('.hw-box[data-widget-id]'))
+                    .map(b => b.getAttribute('data-widget-id'));
+                currentLayout.order = newOrder;
+                saveLayout(currentLayout);
+                if (typeof drawNetSparkline === 'function') drawNetSparkline();
+            });
+
+            box.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            box.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                if (draggedWidget && box !== draggedWidget) {
+                    box.classList.add('drag-over');
+                }
+            });
+
+            box.addEventListener('dragleave', () => {
+                box.classList.remove('drag-over');
+            });
+
+            box.addEventListener('drop', (e) => {
+                e.preventDefault();
+                box.classList.remove('drag-over');
+                if (draggedWidget && box !== draggedWidget) {
+                    const allBoxes = Array.from(hardwareGrid.querySelectorAll('.hw-box[data-widget-id]'));
+                    const fromIdx = allBoxes.indexOf(draggedWidget);
+                    const toIdx = allBoxes.indexOf(box);
+                    if (fromIdx < toIdx) {
+                        box.after(draggedWidget);
+                    } else {
+                        box.before(draggedWidget);
+                    }
+                }
+            });
+        });
+
+        // Panel Aksiyon Butonları (Daralt / Kapat)
+        hardwareGrid.addEventListener('click', (e) => {
+            const collapseBtn = e.target.closest('.btn-widget-collapse');
+            if (collapseBtn) {
+                const box = collapseBtn.closest('.hw-box');
+                if (box) {
+                    const id = box.getAttribute('data-widget-id');
+                    box.classList.toggle('collapsed');
+                    const isCol = box.classList.contains('collapsed');
+                    collapseBtn.textContent = isCol ? '+' : '—';
+                    currentLayout.collapsed[id] = isCol;
+                    saveLayout(currentLayout);
+                }
+                return;
+            }
+
+            const closeBtn = e.target.closest('.btn-widget-close');
+            if (closeBtn) {
+                const box = closeBtn.closest('.hw-box');
+                if (box) {
+                    const id = box.getAttribute('data-widget-id');
+                    box.classList.add('hidden-widget');
+                    currentLayout.hidden[id] = true;
+                    saveLayout(currentLayout);
+                    const chk = document.getElementById(`toggle-widget-${id}`);
+                    if (chk) chk.checked = false;
+                }
+                return;
+            }
+        });
+    }
+
+    // Layout Modalı Kontrolleri
+    function openLayoutModal() {
+        if (layoutModal) {
+            DEFAULT_LAYOUT.order.forEach(id => {
+                const chk = document.getElementById(`toggle-widget-${id}`);
+                if (chk) chk.checked = !currentLayout.hidden[id];
+            });
+            layoutModal.classList.remove('hidden');
+        }
+    }
+
+    function closeLayoutModal() {
+        if (layoutModal) layoutModal.classList.add('hidden');
+    }
+
+    if (btnLayoutModal) btnLayoutModal.addEventListener('click', openLayoutModal);
+    if (btnCloseLayout) btnCloseLayout.addEventListener('click', closeLayoutModal);
+    if (btnSaveLayout) btnSaveLayout.addEventListener('click', closeLayoutModal);
+
+    if (layoutModal) {
+        layoutModal.addEventListener('click', (e) => {
+            if (e.target === layoutModal) closeLayoutModal();
+        });
+
+        // Anahtarların (Toggle switches) değişimini dinle
+        layoutModal.querySelectorAll('.switch-toggle input').forEach(input => {
+            input.addEventListener('change', () => {
+                const id = input.getAttribute('data-widget');
+                const isVisible = input.checked;
+                currentLayout.hidden[id] = !isVisible;
+                const box = hardwareGrid.querySelector(`.hw-box[data-widget-id="${id}"]`);
+                if (box) box.classList.toggle('hidden-widget', !isVisible);
+                saveLayout(currentLayout);
+            });
+        });
+    }
+
+    if (btnResetLayout) {
+        btnResetLayout.addEventListener('click', () => {
+            currentLayout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+            saveLayout(currentLayout);
+            applyLayout(currentLayout);
+        });
+    }
+
+    // Başlangıç Düzenini Uygula & Sürükleme Olaylarını Başlat
+    applyLayout(currentLayout);
+    initDragAndDrop();
 
     // ======================================================================
     // 4. Donanım İstatistiklerini Çekme & Render (CPU, RAM, Disk, Ağ)
@@ -637,7 +849,9 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (dockerLogModal && !dockerLogModal.classList.contains('hidden')) {
+            if (layoutModal && !layoutModal.classList.contains('hidden')) {
+                closeLayoutModal();
+            } else if (dockerLogModal && !dockerLogModal.classList.contains('hidden')) {
                 closeDockerLog();
             } else if (dockerModal && !dockerModal.classList.contains('hidden')) {
                 closeDockerModal();
@@ -666,6 +880,13 @@ document.addEventListener('DOMContentLoaded', () => {
             setSort('cpu');
         } else if (e.key === 'm' || e.key === 'M') {
             setSort('mem');
+        } else if (e.key === 'l' || e.key === 'L') {
+            e.preventDefault();
+            if (layoutModal && !layoutModal.classList.contains('hidden')) {
+                closeLayoutModal();
+            } else {
+                openLayoutModal();
+            }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             navigateRow(1);
