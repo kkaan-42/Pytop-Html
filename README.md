@@ -1,20 +1,35 @@
-# 🖥️ pyTOP Pro — Modern Web & Terminal Sistem Monitörü
+# 🖥️ pyTOP Pro (Beta v2.1) — Modern Web & Terminal Sistem Monitörü
 
 <div align="center">
 
+![Version](https://img.shields.io/badge/Version-v2.1--beta-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Edition-BETA-f59e0b?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=for-the-badge&logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Release-v2.1--beta%20(Beta%20Edition)-orange?style=for-the-badge)
 
 **Linux'un efsanevi `btop++` ve `htop` araçlarının web üzerinde çalışan, ultra hafif ve modern sürümü.**  
-
 *Tüm Linux dağıtımları, macOS (Apple Silicon & Intel) ve Windows ile %100 uyumludur.*
 
-[Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Alarmlar & Webhook](#-akıllı-uyarılar--webhook-kurulumu) • [Docker](#-docker--docker-compose-ile-çalıştırma) • [Systemd](#-linux-servisi-systemd-olarak-çalıştırma)
+[Yenilikler](#-v21-beta-sürümü-yenilikleri) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
 
 </div>
+
+> [!IMPORTANT]
+> 🚀 **pyTOP Pro v2.1-beta (Beta Sürümü)**  
+> pyTOP Pro resmi olarak **Beta** aşamasına geçmiştir! Bu sürüm ile birlikte sisteme **Canlı Docker & Konteyner Yöneticisi (<kbd>F12</kbd>)**, **HOST & SPECS Donanım Envanteri (<kbd>F10</kbd>)**, **Canlı Açık Port / Soket Dedektörü (<kbd>F6</kbd>)** ve yeni nesil performans optimizasyonları eklenmiştir.
+
+---
+
+## 🚀 v2.1-beta Sürümü Yenilikleri
+
+Bu sürümle birlikte pyTOP Pro'ya eklenen önemli özellikler:
+* 🐳 **Canlı Docker & Konteyner Yöneticisi (<kbd>F12</kbd>):** Konteynerlerin anlık CPU/RAM tüketimi, durumları, web üzerinden Start/Stop/Restart yönetimi ve son 150 satırlık canlı log çıktısı.
+* 💻 **Bilgisayar Donanım & Sistem Bilgileri Bölmesi (<kbd>F10</kbd>):** Cihaz üreticisi, model adı, BIOS sürümü, tam işlemci ticari adı ve yerel ağ IP adresi.
+* 🌐 **Canlı Ağ Bağlantıları & Port Dedektörü (<kbd>F6</kbd>):** Dinlenen açık TCP/UDP portları (`LISTEN`) ve aktif dış bağlantılar (`ESTABLISHED`).
+* ⚡ **Önbellek & Performans Optimizasyonları:** HTTP No-Cache başlıkları, dinamik cache buster ve anında yenilenen arayüz mimarisi.
+
 
 ---
 
