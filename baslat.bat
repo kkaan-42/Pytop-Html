@@ -1,48 +1,81 @@
 @echo off
-title pyTOP Pro (Beta v2.1) - Terminal Sistem ve Surec Monitoru
+setlocal EnableDelayedExpansion
+title pyTOP Pro (Beta v2.1) - Sistem ve Surec Monitoru
 color 0A
-chcp 65001 >nul
-cls
+cd /d "%~dp0"
+
 echo ========================================================
-echo   🚀 pyTOP Pro (Beta v2.1) - Windows Baslatici
+echo   [*] pyTOP Pro (Beta v2.1) - Windows Baslatici
 echo ========================================================
 echo.
 
 set "PY_CMD="
-python --version >nul 2>&1 && set "PY_CMD=python"
-if not defined PY_CMD (
-    python3.12 --version >nul 2>&1 && set "PY_CMD=python3.12"
+
+:: 1. py launcher kontrol et
+py -c "import sys" >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=py"
+    goto :python_found
 )
-if not defined PY_CMD (
-    py --version >nul 2>&1 && set "PY_CMD=py"
+
+:: 2. python3.12 kontrol et
+python3.12 -c "import sys" >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=python3.12"
+    goto :python_found
 )
-if not defined PY_CMD (
-    if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.12.exe" (
+
+:: 3. python kontrol et
+python -c "import sys" >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=python"
+    goto :python_found
+)
+
+:: 4. WindowsApps ozel yolu
+if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.12.exe" (
+    "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.12.exe" -c "import sys" >nul 2>&1
+    if not errorlevel 1 (
         set "PY_CMD=%LOCALAPPDATA%\Microsoft\WindowsApps\python3.12.exe"
+        goto :python_found
     )
 )
 
-if not defined PY_CMD (
-    echo [HATA] Sistemde Python bulunamadi!
-    echo Lutfen python.org adresinden Python 3.8+ kurun.
-    echo (Kurulum sirasinda "Add Python to PATH" secenegini isaretleyin).
-    pause
-    exit /b 1
-)
+:no_python
+echo [HATA] Sisteminizde calisan bir Python surumu bulunamadi!
+echo Lutfen https://python.org adresinden Python 3.8+ yukleyin.
+echo Kurulum ekraninda "Add Python to PATH" secenegini isaretleyin.
+echo.
+pause
+exit /b 1
 
-echo [OK] Python bulundu: %PY_CMD%
+:python_found
+echo [+] Python bulundu: !PY_CMD!
 
 :: Gerekli kutuphaneleri kontrol et
-"%PY_CMD%" -c "import flask, psutil" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [BILGI] Gerekli kutuphaneler eksik, requirements.txt otomatik yukleniyor...
-    "%PY_CMD%" -m pip install -r requirements.txt
+!PY_CMD! -c "import flask, psutil" >nul 2>&1
+if errorlevel 1 (
+    echo [!] Gerekli kutuphaneler eksik, requirements.txt yukleniyor...
+    !PY_CMD! -m pip install -r requirements.txt
+    if errorlevel 1 (
+        echo [HATA] Kutuphaneler yuklenemedi. Lutfen internet baglantinizi kontrol edin.
+        pause
+        exit /b 1
+    )
 )
 
-echo [BILGI] Terminal ekrani aciliyor: http://127.0.0.1:5000
+echo [+] Sunucu baslatiliyor...
+echo [i] Web arayuzu aciliyor: http://127.0.0.1:5000
 echo.
 
+:: Tarayiciyi 2 saniye sonra otomatik ac
 start "" cmd /c "timeout /t 2 /nobreak >nul && start http://127.0.0.1:5000"
 
-"%PY_CMD%" app.py
-pause
+:: Flask uygulamasini calistir
+!PY_CMD! app.py
+
+if errorlevel 1 (
+    echo.
+    echo [!] pyTOP Pro kapandi veya bir hata olustu.
+    pause
+)
