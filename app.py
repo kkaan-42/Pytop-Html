@@ -12,8 +12,12 @@ import alerts
 import report_generator
 import net_monitor
 import sys_info
+import docker_monitor
+
+APP_VERSION = "v2.1-beta"
 
 app = Flask(__name__)
+
 
 # Başlangıç donanım ölçümünü ısıt
 psutil.cpu_percent(interval=None, percpu=True)
@@ -75,7 +79,9 @@ def index():
     """Terminal arayüzünü sunar."""
     system_info = sys_info.get_system_specifications()
     system_info["cache_bust"] = int(time.time())
+    system_info["app_version"] = APP_VERSION
     return render_template("index.html", sys=system_info)
+
 
 
 @app.route("/api/stats")
@@ -455,6 +461,30 @@ def api_system_info():
     data = sys_info.get_system_specifications()
     return jsonify(data)
 
+# ======================================================================
+# Docker & Konteyner Yöneticisi API Uç Noktaları (Fikir 1)
+# ======================================================================
+@app.route("/api/docker/containers")
+def api_docker_containers():
+    """Tüm Docker konteynerlerini, kaynak tüketimini ve daemon durumunu döner."""
+    data = docker_monitor.get_containers_summary()
+    return jsonify(data)
+
+@app.route("/api/docker/action/<container_id>/<action>", methods=["POST"])
+def api_docker_action(container_id, action):
+    """Konteyner üzerinde start, stop, restart, pause, unpause işlemlerini yürütür."""
+    res = docker_monitor.execute_container_action(container_id, action)
+    status_code = 200 if res.get("success") else 400
+    return jsonify(res), status_code
+
+@app.route("/api/docker/logs/<container_id>")
+def api_docker_logs(container_id):
+    """Konteynerin son konsol loglarını döner."""
+    tail = request.args.get("tail", 150, type=int)
+    res = docker_monitor.get_container_logs(container_id, tail=tail)
+    return jsonify(res)
+
+
 
 @app.after_request
 def add_cache_control_headers(response):
@@ -493,7 +523,7 @@ def find_available_port(start_port=5000, max_tries=20):
 if __name__ == "__main__":
     port = find_available_port(5000)
     print("==================================================")
-    print(" pyTOP Pro — Terminal Sistem & Süreç Monitörü")
+    print(f" pyTOP Pro ({APP_VERSION}) — Terminal Sistem & Süreç Monitörü")
     print(f" Yerel Erişim:  http://127.0.0.1:{port}")
     print(f" Ağ Erişimi:    http://0.0.0.0:{port}")
     print("==================================================")

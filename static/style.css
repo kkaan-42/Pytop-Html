@@ -148,6 +148,21 @@ body {
     letter-spacing: 0.5px;
 }
 
+.badge-beta {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #0c0e14;
+    background: #f59e0b;
+    padding: 0.05rem 0.35rem;
+    border-radius: 2px;
+    margin-left: 0.35rem;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+
 .host-info {
     color: var(--c-text);
     font-weight: 600;
@@ -1534,7 +1549,222 @@ kbd {
     flex-wrap: wrap;
 }
 
+/* ==========================================================================
+   Docker & Konteyner Yöneticisi Stilleri (docker-modal)
+   ========================================================================== */
+.docker-modal-dialog {
+    max-width: 960px !important;
+    width: 95% !important;
+}
+
+.docker-log-dialog {
+    max-width: 860px !important;
+    width: 95% !important;
+}
+
+.modal-badge-docker {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #38bdf8;
+    letter-spacing: 0.5px;
+}
+
+.docker-modal-subtitle {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--c-muted);
+    margin-top: 2px;
+}
+
+.docker-kpi-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    padding: 0.5rem 0.75rem;
+}
+
+.docker-kpi-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.docker-alert-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 3px;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.6rem;
+    color: #fca5a5;
+    font-size: 0.78rem;
+}
+
+.docker-alert-banner .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.docker-alert-banner .alert-icon {
+    font-size: 1.1rem;
+}
+
+.docker-controls-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.docker-table-container {
+    max-height: 420px;
+    overflow-y: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.docker-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.74rem;
+}
+
+.docker-table th {
+    background: var(--bg-surface-raised);
+    color: var(--c-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.docker-table td {
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+}
+
+.docker-table tr:hover td {
+    background: var(--bg-surface-hover);
+}
+
+/* Durum Rozetleri */
+.c-state-badge {
+    display: inline-block;
+    padding: 0.12rem 0.4rem;
+    border-radius: 2px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.state-running {
+    color: var(--c-green);
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.state-exited, .state-dead {
+    color: var(--c-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+}
+
+.state-paused {
+    color: var(--c-yellow);
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+/* Docker Eylem Butonları */
+.docker-actions-group {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: flex-end;
+}
+
+.docker-btn {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.68rem;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+.btn-docker-start {
+    color: var(--c-green);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+.btn-docker-start:hover {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: var(--c-green);
+}
+
+.btn-docker-stop {
+    color: var(--c-red);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+.btn-docker-stop:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--c-red);
+}
+
+.btn-docker-restart {
+    color: var(--c-yellow);
+    border-color: rgba(234, 179, 8, 0.3);
+}
+.btn-docker-restart:hover {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: var(--c-yellow);
+}
+
+.btn-docker-logs {
+    color: var(--c-cyan);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+.btn-docker-logs:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--c-cyan);
+}
+
+/* Log Görüntüleyici */
+.log-viewer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.docker-log-box {
+    background: #080a0f;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    padding: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #e2e8f0;
+    max-height: 480px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
 /* Mobil Ekran İyileştirmeleri (Akıllı Telefonlar & Tabletler) */
+
 
 @media (max-width: 768px) {
     .terminal-root {

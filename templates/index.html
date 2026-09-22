@@ -40,7 +40,7 @@
         <!-- 1. Terminal Üst Bilgi Şeridi -->
         <header class="top-bar">
             <div class="bar-left">
-                <span class="app-tag">pyTOP Pro</span>
+                <span class="app-tag">pyTOP Pro <span class="badge-beta">BETA</span></span>
                 <span class="sep">/</span>
                 <span class="host-info">{{ sys.hostname }}</span>
                 <span class="sep">/</span>
@@ -59,9 +59,13 @@
                 <button type="button" id="btn-sys-modal" class="tool-btn btn-sys-trigger" title="Bilgisayar Donanım &amp; Sistem Bilgileri (F10)">
                     <span>💻</span> SYSTEM
                 </button>
+                <button type="button" id="btn-docker-modal" class="tool-btn btn-docker-trigger" title="Docker Konteyner Yöneticisi (F12)">
+                    <span>🐳</span> DOCKER
+                </button>
                 <button type="button" id="btn-net-modal" class="tool-btn btn-net-trigger" title="Canlı Ağ Bağlantıları &amp; Açık Portlar (F6)">
                     <span>🌐</span> PORTS
                 </button>
+
 
                 <button type="button" id="btn-report-modal" class="tool-btn btn-report-trigger" title="Sistem Sağlık Raporu (F7)">
                     <span>📄</span> REPORT
@@ -678,6 +682,117 @@
         </div>
     </div>
 
+    <!-- 9. Docker & Konteyner Yöneticisi Modalı -->
+    <div id="docker-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal docker-modal-dialog">
+            <div class="modal-top">
+                <div class="modal-top-left">
+                    <span class="modal-badge-docker">🐳 DOCKER &amp; KONTEYNER YÖNETİCİSİ</span>
+                    <span class="docker-modal-subtitle" id="docker-status-subtitle">Canlı Konteyner Durumu &amp; Kaynak Tüketimi</span>
+                </div>
+                <button type="button" id="btn-close-docker" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- KPI Şeridi -->
+                <div class="docker-kpi-bar">
+                    <div class="docker-kpi-item">
+                        <span class="kpi-label">TOPLAM KONTEYNER</span>
+                        <strong id="docker-kpi-total" class="kpi-val c-purple">0</strong>
+                    </div>
+                    <div class="docker-kpi-item">
+                        <span class="kpi-label">ÇALIŞAN (RUNNING)</span>
+                        <strong id="docker-kpi-running" class="kpi-val c-green">0</strong>
+                    </div>
+                    <div class="docker-kpi-item">
+                        <span class="kpi-label">DURDURULAN (STOPPED)</span>
+                        <strong id="docker-kpi-stopped" class="kpi-val c-red">0</strong>
+                    </div>
+                    <div class="docker-kpi-item">
+                        <span class="kpi-label">DURAKLATILAN (PAUSED)</span>
+                        <strong id="docker-kpi-paused" class="kpi-val c-yellow">0</strong>
+                    </div>
+                    <div class="docker-kpi-item">
+                        <span class="kpi-label">DOCKER SÜRÜMÜ</span>
+                        <strong id="docker-kpi-version" class="kpi-val c-cyan">v--</strong>
+                    </div>
+                </div>
+
+                <!-- Daemon Çalışmıyor / Hata Bildirimi -->
+                <div id="docker-daemon-alert" class="docker-alert-banner hidden">
+                    <div class="alert-content">
+                        <span class="alert-icon">⚠️</span>
+                        <div>
+                            <strong>Docker Daemon Çalışmıyor:</strong>
+                            <span id="docker-alert-msg" class="text-xs">Sistemde Docker servisine veya Docker Desktop soketine bağlanılamadı.</span>
+                        </div>
+                    </div>
+                    <button type="button" id="btn-retry-docker" class="term-action-btn btn-secondary">
+                        🔄 Yeniden Dene
+                    </button>
+                </div>
+
+                <!-- Filtreleme & Aksiyonlar -->
+                <div class="docker-controls-row mt-2">
+                    <input type="text" id="docker-search-input" class="term-input" placeholder="Konteyner adı, imaj veya ID ile ara...">
+                    <button type="button" id="btn-refresh-docker" class="term-action-btn btn-secondary" title="Konteynerleri Yenile">
+                        🔄 <span id="docker-refresh-spin"></span>Yenile
+                    </button>
+                </div>
+
+                <!-- Konteyner Tablosu -->
+                <div class="docker-table-container mt-2">
+                    <table class="docker-table" id="docker-containers-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 90px;">Durum</th>
+                                <th>Konteyner Adı</th>
+                                <th>İmaj</th>
+                                <th>Port Eşleşmeleri</th>
+                                <th style="width: 80px;">CPU %</th>
+                                <th style="width: 100px;">RAM (MB)</th>
+                                <th style="width: 175px; text-align: right;">Eylemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docker-table-body">
+                            <!-- JS ile render edilir -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="docker-footer-note mt-2">
+                    <span class="c-muted text-xs">💡 Konteynerleri tek tıkla <strong>Başlatabilir</strong>, <strong>Durdurabilir</strong> veya son konsol çıktılarını <strong>[Loglar]</strong> butonu ile izleyebilirsiniz.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Konteyner Canlı Log Görüntüleyici Modalı -->
+    <div id="docker-log-modal" class="term-modal-backdrop hidden">
+        <div class="term-modal docker-log-dialog">
+            <div class="modal-top">
+                <div class="modal-top-left">
+                    <span class="modal-badge-docker">📜 KONTEYNER LOGLARI</span>
+                    <span class="docker-modal-subtitle" id="log-container-name">Konteyner: --</span>
+                </div>
+                <button type="button" id="btn-close-docker-log" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="log-viewer-actions">
+                    <span class="text-xs c-muted">Son 150 konsol çıktısı (stdout / stderr):</span>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" id="btn-copy-docker-log" class="term-action-btn btn-secondary text-xs">
+                            📋 Kopyala
+                        </button>
+                        <button type="button" id="btn-refresh-docker-log" class="term-action-btn btn-secondary text-xs">
+                            🔄 Yenile
+                        </button>
+                    </div>
+                </div>
+                <pre class="docker-log-box" id="docker-log-text">Loglar yükleniyor...</pre>
+            </div>
+        </div>
+    </div>
+
     <!-- 7. Yardım Modalı -->
     <div id="help-modal" class="term-modal-backdrop hidden">
         <div class="term-modal">
@@ -700,10 +815,12 @@
                     <tr><td><kbd>F8</kbd></td><td>Discord / Telegram uyarı ayarları penceresini açar.</td></tr>
                     <tr><td><kbd>F10</kbd></td><td>Bilgisayar Donanım &amp; Sistem Bilgileri penceresini açar.</td></tr>
                     <tr><td><kbd>F11</kbd></td><td>Tam ekran moduna geçer.</td></tr>
+                    <tr><td><kbd>F12</kbd></td><td>Docker &amp; Konteyner Yöneticisi penceresini açar.</td></tr>
                 </table>
             </div>
         </div>
     </div>
+
 
 
     <script src="{{ url_for('static', filename='app.js') }}?v={{ sys.cache_bust }}"></script>

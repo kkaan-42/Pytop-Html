@@ -6,9 +6,10 @@
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=for-the-badge&logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Release-Pro%20v2.0-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Release-v2.1--beta%20(Beta%20Edition)-orange?style=for-the-badge)
 
 **Linux'un efsanevi `btop++` ve `htop` araçlarının web üzerinde çalışan, ultra hafif ve modern sürümü.**  
+
 *Tüm Linux dağıtımları, macOS (Apple Silicon & Intel) ve Windows ile %100 uyumludur.*
 
 [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Alarmlar & Webhook](#-akıllı-uyarılar--webhook-kurulumu) • [Docker](#-docker--docker-compose-ile-çalıştırma) • [Systemd](#-linux-servisi-systemd-olarak-çalıştırma)
@@ -79,11 +80,19 @@ Geleneksel terminal monitörlerinin aksine:
 * **Detaylı Sistem Özellikleri Modalı (<kbd>F10</kbd>):** Anakart üreticisi, model adı, BIOS sürümü, CPU çekirdekleri (fiziksel/mantıksal), mimari (x86_64 / ARM64), maksimum frekans, toplam RAM, Swap ve disk kapasitesi tek ekranda incelenebilir.
 * **Hızlı Erişim:** Üst bardaki `[💻 SYSTEM]` butonu veya <kbd>F10</kbd> kısayolu ile anında açılır.
 
-### 10. 🎨 4 Farklı Terminal Teması
+### 10. 🐳 Canlı Docker & Konteyner Yöneticisi
+* **Konteyner Durumu & Envanteri:** Çalışan (`RUNNING`), durdurulmuş (`EXITED`) veya duraklatılmış (`PAUSED`) tüm Docker ve Podman konteynerlerini anında listeler.
+* **Canlı Kaynak Tüketimi:** Konteyner bazında anlık CPU (%) ve bellek (RAM MB) kullanımını gösterir.
+* **Tek Tıkla Konteyner Yönetimi:** Konteynerleri doğrudan web arayüzünden Başlatma (`Start`), Durdurma (`Stop`) ve Yeniden Başlatma (`Restart`) imkanı.
+* **Canlı Log İzleyici:** Konteynerin son 150 satırlık konsol çıktılarını (`stdout`/`stderr`) terminal görünümünde izleme ve panoya kopyalama.
+* **Hızlı Erişim:** Üst bardaki `[🐳 DOCKER]` butonu veya <kbd>F12</kbd> kısayolu ile anında açılır.
+
+### 11. 🎨 4 Farklı Terminal Teması
 * **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
 * **Matrix Cyberpunk:** Fütüristik terminal yeşili ve koyu siyah.
+
 
 
 
@@ -271,11 +280,12 @@ pyTOP Pro, fareye ihtiyaç duymadan saf terminal hızıyla kontrol edilebilir:
 | <kbd>F8</kbd> | **Uyarı & Webhook** | Akıllı Alarm & Discord/Telegram ayar penceresini açar. |
 | <kbd>F9</kbd> | **Süreç Öldür (Kill)** | Seçili süreci `SIGKILL` ile anında sonlandırır. |
 | <kbd>F10</kbd> | **Bilgisayar Donanım Özellikleri** | Cihaz modeli, anakart, BIOS, CPU, RAM ve donanım envanterini açar. |
+| <kbd>F11</kbd> | **Tam Ekran** | Tarayıcıyı tam ekran terminal moduna geçirir. |
+| <kbd>F12</kbd> | **Docker & Konteyner Yöneticisi** | Konteyner listesi, kaynak kullanımı, start/stop/restart ve canlı logları açar. |
 | <kbd>Space</kbd> | **Akışı Duraklat** | Canlı metrik akışını dondurur (`PAUSE`) veya devam ettirir (`LIVE`). |
 | <kbd>↑</kbd> / <kbd>↓</kbd> | **Satır Gezinme** | Süreç listesinde yukarı/aşağı seçim yapar. |
 | <kbd>Enter</kbd> | **Süreç Detayı** | Seçili sürecin derinlemesine detaylarını (Process Inspector) açar. |
 | <kbd>Esc</kbd> | **Kapat / Temizle** | Açık modalları kapatır, filtrelemeyi sıfırlar. |
-| <kbd>F11</kbd> | **Tam Ekran** | Tarayıcıyı tam ekran terminal moduna geçirir. |
 
 ---
 
@@ -302,6 +312,7 @@ pyTOP Pro, sunucunuz başında değilken bile donanımınızı korur.
 ```
 Pytop-Html/
 ├── app.py                 # Flask çekirdek sunucusu, donanım API uçları, port yönetimi
+├── docker_monitor.py      # Çapraz platform Docker CLI / Daemon denetimi, konteyner yönetimi & log akışı
 ├── sys_info.py            # Çapraz platform bilgisayar üretici, model, BIOS, CPU ve donanım envanteri
 ├── net_monitor.py         # Çapraz platform canlı ağ bağlantıları, port tarama ve PID servis eşleştirici
 ├── gpu_monitor.py         # Çapraz platform GPU (NVIDIA, Apple Silicon, AMD/Intel DRM) & batarya
@@ -317,9 +328,9 @@ Pytop-Html/
 ├── requirements.txt       # Python bağımlılıkları (flask, psutil)
 ├── static/
 │   ├── style.css          # Glassmorphism terminal temaları & animasyonlar
-│   └── app.js             # Saniyelik WebSocket/polling, klavye yönetimi, süreç, port & donanım motoru
+│   └── app.js             # Saniyelik WebSocket/polling, klavye yönetimi, süreç, port & docker motoru
 └── templates/
-    ├── index.html         # Terminal Dashboard arayüz şablonu (5 panelli donanım ızgarası)
+    ├── index.html         # Terminal Dashboard arayüz şablonu (Beta Edition)
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 

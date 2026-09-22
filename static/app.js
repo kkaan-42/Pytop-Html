@@ -637,7 +637,11 @@ document.addEventListener('DOMContentLoaded', () => {
             procSearch.focus();
             procSearch.select();
         } else if (e.key === 'Escape') {
-            if (sysModal && !sysModal.classList.contains('hidden')) {
+            if (dockerLogModal && !dockerLogModal.classList.contains('hidden')) {
+                closeDockerLog();
+            } else if (dockerModal && !dockerModal.classList.contains('hidden')) {
+                closeDockerModal();
+            } else if (sysModal && !sysModal.classList.contains('hidden')) {
                 closeSysModal();
             } else if (!netModal.classList.contains('hidden')) {
                 closeNetModal();
@@ -690,6 +694,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.key === 'F10') {
             e.preventDefault();
             toggleSysModal();
+        } else if (e.key === 'F12') {
+            e.preventDefault();
+            toggleDockerModal();
         }
     });
 
@@ -1228,8 +1235,257 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ======================================================================
+    // 8.6. Docker & Konteyner Yöneticisi (F12)
+    // ======================================================================
+    const dockerModal = document.getElementById('docker-modal');
+    const btnDockerModal = document.getElementById('btn-docker-modal');
+    const btnCloseDocker = document.getElementById('btn-close-docker');
+    const btnRefreshDocker = document.getElementById('btn-refresh-docker');
+    const btnRetryDocker = document.getElementById('btn-retry-docker');
+    const dockerSearchInput = document.getElementById('docker-search-input');
+    const dockerTableBody = document.getElementById('docker-table-body');
+    const dockerRefreshSpin = document.getElementById('docker-refresh-spin');
+
+    const dockerKpiTotal = document.getElementById('docker-kpi-total');
+    const dockerKpiRunning = document.getElementById('docker-kpi-running');
+    const dockerKpiStopped = document.getElementById('docker-kpi-stopped');
+    const dockerKpiPaused = document.getElementById('docker-kpi-paused');
+    const dockerKpiVersion = document.getElementById('docker-kpi-version');
+    const dockerDaemonAlert = document.getElementById('docker-daemon-alert');
+    const dockerAlertMsg = document.getElementById('docker-alert-msg');
+    const dockerStatusSubtitle = document.getElementById('docker-status-subtitle');
+
+    // Log Modal
+    const dockerLogModal = document.getElementById('docker-log-modal');
+    const btnCloseDockerLog = document.getElementById('btn-close-docker-log');
+    const logContainerName = document.getElementById('log-container-name');
+    const dockerLogText = document.getElementById('docker-log-text');
+    const btnCopyDockerLog = document.getElementById('btn-copy-docker-log');
+    const btnRefreshDockerLog = document.getElementById('btn-refresh-docker-log');
+
+    let cachedDockerData = null;
+    let activeLogCid = null;
+    let activeLogCname = null;
+
+    function openDockerModal() {
+        if (!dockerModal) return;
+        dockerModal.classList.remove('hidden');
+        fetchDockerContainers();
+        if (dockerSearchInput) {
+            dockerSearchInput.value = '';
+            dockerSearchInput.focus();
+        }
+    }
+
+    function closeDockerModal() {
+        if (dockerModal) dockerModal.classList.add('hidden');
+    }
+
+    function toggleDockerModal() {
+        if (!dockerModal) return;
+        if (dockerModal.classList.contains('hidden')) {
+            openDockerModal();
+        } else {
+            closeDockerModal();
+        }
+    }
+
+    async function fetchDockerContainers() {
+        if (btnRefreshDocker) btnRefreshDocker.disabled = true;
+        if (dockerRefreshSpin) dockerRefreshSpin.textContent = '⏳ ';
+        try {
+            const res = await fetch('/api/docker/containers');
+            const data = await res.json();
+            cachedDockerData = data;
+
+            const st = data.status || {};
+            const sum = data.summary || {};
+
+            if (dockerKpiTotal) dockerKpiTotal.textContent = sum.total || 0;
+            if (dockerKpiRunning) dockerKpiRunning.textContent = sum.running || 0;
+            if (dockerKpiStopped) dockerKpiStopped.textContent = sum.stopped || 0;
+            if (dockerKpiPaused) dockerKpiPaused.textContent = sum.paused || 0;
+            if (dockerKpiVersion) dockerKpiVersion.textContent = st.version ? `v${st.version}` : 'v--';
+
+            if (!st.daemon_running) {
+                if (dockerDaemonAlert) dockerDaemonAlert.classList.remove('hidden');
+                if (dockerAlertMsg) dockerAlertMsg.textContent = st.error || "Docker servisi veya Docker Desktop soketine bağlanılamadı.";
+                if (dockerStatusSubtitle) dockerStatusSubtitle.textContent = "Bağlantı Kesildi • Daemon Kapalı";
+            } else {
+                if (dockerDaemonAlert) dockerDaemonAlert.classList.add('hidden');
+                if (dockerStatusSubtitle) dockerStatusSubtitle.textContent = `${st.server_version ? 'Docker Engine ' + st.server_version : 'Docker Aktif'} • ${sum.running} Çalışan Konteyner`;
+            }
+
+            renderDockerTable();
+        } catch (err) {
+            console.error('Docker verisi alınamadı:', err);
+            if (dockerTableBody) {
+                dockerTableBody.innerHTML = `<tr><td colspan="7" class="c-red text-center">Docker API hatası: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        } finally {
+            if (btnRefreshDocker) btnRefreshDocker.disabled = false;
+            if (dockerRefreshSpin) dockerRefreshSpin.textContent = '';
+        }
+    }
+
+    function renderDockerTable() {
+        if (!cachedDockerData || !dockerTableBody) return;
+
+        const query = (dockerSearchInput ? dockerSearchInput.value.trim().toLowerCase() : '');
+        let items = cachedDockerData.containers || [];
+
+        if (query) {
+            items = items.filter(c => 
+                (c.name && c.name.toLowerCase().includes(query)) ||
+                (c.image && c.image.toLowerCase().includes(query)) ||
+                (c.id && c.id.toLowerCase().includes(query))
+            );
+        }
+
+        if (items.length === 0) {
+            if (cachedDockerData.status && !cachedDockerData.status.daemon_running) {
+                dockerTableBody.innerHTML = '<tr><td colspan="7" class="c-muted text-center" style="padding: 2rem;">Docker servisi çalışmıyor. Lütfen Docker Desktop veya Docker Daemon başlatın.</td></tr>';
+            } else if (query) {
+                dockerTableBody.innerHTML = '<tr><td colspan="7" class="c-muted text-center" style="padding: 2rem;">Aramanızla eşleşen konteyner bulunamadı.</td></tr>';
+            } else {
+                dockerTableBody.innerHTML = '<tr><td colspan="7" class="c-muted text-center" style="padding: 2rem;">Henüz oluşturulmuş bir konteyner bulunmuyor.</td></tr>';
+            }
+            return;
+        }
+
+        dockerTableBody.innerHTML = items.map(c => {
+            let stateCls = 'state-exited';
+            if (c.state === 'running') stateCls = 'state-running';
+            else if (c.state === 'paused') stateCls = 'state-paused';
+
+            // Eylem butonları
+            let actionBtns = '';
+            if (c.state === 'running') {
+                actionBtns += `<button type="button" class="docker-btn btn-docker-stop" data-cid="${c.id}" data-act="stop" title="Durdur (Stop)">⏹ Durdur</button>`;
+                actionBtns += `<button type="button" class="docker-btn btn-docker-restart" data-cid="${c.id}" data-act="restart" title="Yeniden Başlat">🔄 Yeniden Başlat</button>`;
+            } else {
+                actionBtns += `<button type="button" class="docker-btn btn-docker-start" data-cid="${c.id}" data-act="start" title="Başlat (Start)">▶ Başlat</button>`;
+            }
+            actionBtns += `<button type="button" class="docker-btn btn-docker-logs" data-cid="${c.id}" data-cname="${escapeHtml(c.name)}" title="Logları Gör">📜 Loglar</button>`;
+
+            return `
+                <tr>
+                    <td><span class="c-state-badge ${stateCls}">${escapeHtml(c.state)}</span></td>
+                    <td>
+                        <strong class="c-text">${escapeHtml(c.name)}</strong>
+                        <div class="text-xs c-muted mono">${c.id}</div>
+                    </td>
+                    <td class="c-cyan text-truncate" style="max-width: 180px;" title="${escapeHtml(c.image)}">${escapeHtml(c.image)}</td>
+                    <td class="mono text-xs c-yellow text-truncate" style="max-width: 170px;" title="${escapeHtml(c.ports)}">${escapeHtml(c.ports || '-')}</td>
+                    <td class="mono ${parseFloat(c.cpu_percent) > 50 ? 'c-red' : 'c-green'}">${c.cpu_percent || '0%'}</td>
+                    <td class="mono c-purple">${c.mem_usage || '0 MB'}</td>
+                    <td style="text-align: right;">
+                        <div class="docker-actions-group">${actionBtns}</div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // Buton dinleyicilerini bağla
+        dockerTableBody.querySelectorAll('.docker-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const cid = btn.getAttribute('data-cid');
+                const act = btn.getAttribute('data-act');
+                const cname = btn.getAttribute('data-cname');
+
+                if (act) {
+                    await handleDockerAction(cid, act, btn);
+                } else if (cname) {
+                    openDockerLog(cid, cname);
+                }
+            });
+        });
+    }
+
+    async function handleDockerAction(cid, action, btn) {
+        const origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ ...';
+        try {
+            const res = await fetch(`/api/docker/action/${cid}/${action}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                btn.textContent = '✓ Tamam';
+                setTimeout(() => fetchDockerContainers(), 600);
+            } else {
+                alert(`İşlem Başarısız: ${data.message || 'Bilinmeyen hata'}`);
+                btn.textContent = origText;
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert(`Hata: ${e.message}`);
+            btn.textContent = origText;
+            btn.disabled = false;
+        }
+    }
+
+    async function openDockerLog(cid, cname) {
+        if (!dockerLogModal) return;
+        activeLogCid = cid;
+        activeLogCname = cname;
+        if (logContainerName) logContainerName.textContent = `Konteyner: ${cname} (${cid})`;
+        if (dockerLogText) dockerLogText.textContent = 'Loglar yükleniyor...';
+        dockerLogModal.classList.remove('hidden');
+        await refreshDockerLog();
+    }
+
+    function closeDockerLog() {
+        if (dockerLogModal) dockerLogModal.classList.add('hidden');
+    }
+
+    async function refreshDockerLog() {
+        if (!activeLogCid || !dockerLogText) return;
+        try {
+            const res = await fetch(`/api/docker/logs/${activeLogCid}?tail=150`);
+            const data = await res.json();
+            dockerLogText.textContent = data.logs || '(Boş log)';
+            dockerLogText.scrollTop = dockerLogText.scrollHeight;
+        } catch (e) {
+            dockerLogText.textContent = `Loglar alınamadı: ${e.message}`;
+        }
+    }
+
+    if (btnDockerModal) btnDockerModal.addEventListener('click', openDockerModal);
+    if (btnCloseDocker) btnCloseDocker.addEventListener('click', closeDockerModal);
+    if (btnRefreshDocker) btnRefreshDocker.addEventListener('click', fetchDockerContainers);
+    if (btnRetryDocker) btnRetryDocker.addEventListener('click', fetchDockerContainers);
+    if (dockerSearchInput) dockerSearchInput.addEventListener('input', () => renderDockerTable());
+
+    if (dockerModal) {
+        dockerModal.addEventListener('click', (e) => {
+            if (e.target === dockerModal) closeDockerModal();
+        });
+    }
+
+    if (btnCloseDockerLog) btnCloseDockerLog.addEventListener('click', closeDockerLog);
+    if (btnRefreshDockerLog) btnRefreshDockerLog.addEventListener('click', refreshDockerLog);
+    if (btnCopyDockerLog) {
+        btnCopyDockerLog.addEventListener('click', () => {
+            if (dockerLogText) {
+                navigator.clipboard.writeText(dockerLogText.textContent).then(() => {
+                    const prev = btnCopyDockerLog.textContent;
+                    btnCopyDockerLog.textContent = '✓ Kopyalandı!';
+                    setTimeout(() => btnCopyDockerLog.textContent = prev, 1500);
+                }).catch(() => {});
+            }
+        });
+    }
+    if (dockerLogModal) {
+        dockerLogModal.addEventListener('click', (e) => {
+            if (e.target === dockerLogModal) closeDockerLog();
+        });
+    }
+
+    // ======================================================================
     // 9. Ana Döngü
     // ======================================================================
+
 
     function tick() {
         fetchHardwareStats();
