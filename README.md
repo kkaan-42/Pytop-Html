@@ -12,13 +12,28 @@
 **Linux'un efsanevi `btop++` ve `htop` araçlarının web üzerinde çalışan, ultra hafif ve modern sürümü.**  
 *Tüm Linux dağıtımları, macOS (Apple Silicon & Intel) ve Windows ile %100 uyumludur.*
 
-[Yenilikler](#-v21-beta-sürümü-yenilikleri) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
+[Yenilikler](#-v21-beta-sürümü-yenilikleri) • [İndir (Releases)](#-işletim-sistemine-özel-indirme-paketleri-releases) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
 
 </div>
 
 > [!IMPORTANT]
 > 🚀 **pyTOP Pro v2.1-beta (Beta Sürümü)**  
 > pyTOP Pro resmi olarak **Beta** aşamasına geçmiştir! Bu sürüm ile birlikte sisteme **Canlı Docker & Konteyner Yöneticisi (<kbd>F12</kbd>)**, **HOST & SPECS Donanım Envanteri (<kbd>F10</kbd>)**, **Canlı Açık Port / Soket Dedektörü (<kbd>F6</kbd>)** ve yeni nesil performans optimizasyonları eklenmiştir.
+
+---
+
+## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
+
+pyTOP Pro v2.1-beta sürümü, her işletim sistemi için özel olarak optimize edilmiş bağımsız arşiv dosyaları ve tek tıkla çalışabilen başlatıcılarla GitHub Releases üzerinden sunulmaktadır:
+
+| İşletim Sistemi | Paket Formatı | Doğrudan İndirme | Özel Başlatıcı | Kullanım Şekli |
+| :--- | :---: | :---: | :---: | :--- |
+| **🪟 Windows** (10 / 11 / Server) | `.zip` | [📥 pytop-v2.1-beta-windows.zip](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-windows.zip) | `baslat.bat` | Arşivi klasöre çıkartın ve **`baslat.bat`** dosyasına çift tıklayın. Python ve kütüphaneleri otomatik kontrol eder, web tarayıcısını anında açar. |
+| **🐧 Linux** (Ubuntu, Debian, Fedora, Arch...) | `.tar.gz` | [📥 pytop-v2.1-beta-linux.tar.gz](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-linux.tar.gz) | `baslat.sh` / `baslat_linux.sh` | Arşivi açın (`tar -xzf ...`), terminalde `./baslat.sh` komutunu verin. Dağıtım paket yöneticinizi tanır ve ortamı otomatik hazırlar. *(İsteğe bağlı systemd servisi `pytop.service` dahildir)* |
+| **🍎 macOS** (Apple Silicon M1-M4 & Intel) | `.zip` | [📥 pytop-v2.1-beta-macos.zip](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-macos.zip) | `baslat_mac.command` | Arşivi açın ve Finder üzerinden **`baslat_mac.command`** dosyasına çift tıklayın. Yerel Terminal penceresinde anında başlar. |
+
+> [!TIP]
+> Tüm sürümleri, değişiklik günlüklerini ve kaynak kodları incelemek için [GitHub Releases Sayfası](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.1-beta) adresini ziyaret edebilirsiniz.
 
 ---
 

@@ -6,3 +6,6 @@ alerts_config.json
 .env
 .DS_Store
 Thumbs.db
+dist/
+*.zip
+*.tar.gz
