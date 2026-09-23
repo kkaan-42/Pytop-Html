@@ -402,5 +402,5 @@ Yeni Linux dağıtımları sistem Python paketlerini korumak için doğrudan glo
 Bu proje **MIT Lisansı** ile lisanslanmıştır. Her türlü katkı, hata bildirimi (Issue) ve özellik önerisi (Pull Request) memnuniyetle karşılanır!
 
 <div align="center">
-Geliştirici: <b>Kaan Çimen</b> • GitHub: <a href="https://github.com/kkaan-42">@kkaan-42</a>
+Geliştirici: <b>Kaan Öcal</b> • GitHub: <a href="https://github.com/kkaan-42">@kkaan-42</a>
 </div>
