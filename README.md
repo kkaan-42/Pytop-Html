@@ -29,8 +29,8 @@ pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.c
 | İşletim Sistemi | Paket | Release indirme adı | Kurulum |
 | :--- | :--- | :--- | :--- |
 | **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.3.0.exe` | Kurulum sihirbazını çalıştırın. |
-| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.3.0-Linux-x64.AppImage` | `chmod +x pyTOP-Pro-2.3.0-Linux-x64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
-| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.3.0-Linux-x64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.3.0-Linux-x64.deb` çalıştırın. |
+| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.3.0-Linux-x86_64.AppImage` | `chmod +x pyTOP-Pro-2.3.0-Linux-x86_64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
+| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.3.0-Linux-amd64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.3.0-Linux-amd64.deb` çalıştırın. |
 
 > [!TIP]
 > AppImage, Ubuntu, Debian, Linux Mint, Fedora ve Arch gibi x86_64 dağıtımlarını hedefler. Debian paketi Debian ve Ubuntu tabanlı dağıtımlar içindir. AppImage sürümü otomatik güncellenir; `.deb` paketini dağıtımınızın paket yöneticisiyle güncelleyin.
