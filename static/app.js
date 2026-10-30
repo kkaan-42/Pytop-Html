@@ -157,6 +157,19 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('pytop_theme', theme);
     });
 
+    // Let users trade card detail for more room, and remember their choice.
+    const densityButton = document.getElementById('btn-density');
+    const setCompactDensity = (compact) => {
+        document.body.classList.toggle('compact-density', compact);
+        densityButton.setAttribute('aria-pressed', String(compact));
+        densityButton.textContent = compact ? 'Kompakt görünüm' : 'Rahat görünüm';
+        localStorage.setItem('pytop_compact_density', compact ? '1' : '0');
+    };
+    setCompactDensity(localStorage.getItem('pytop_compact_density') === '1');
+    densityButton.addEventListener('click', () => {
+        setCompactDensity(!document.body.classList.contains('compact-density'));
+    });
+
     btnFullscreen.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});

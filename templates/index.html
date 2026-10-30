@@ -79,6 +79,7 @@
                 <button type="button" id="btn-layout-modal" class="tool-btn btn-layout-trigger" title="Panel Düzenini &amp; Görünümünü Özelleştir (L)">
                     <span>🎛️</span> LAYOUT
                 </button>
+                <button type="button" id="btn-density" class="tool-btn density-toggle" aria-pressed="false" title="Kart yoğunluğunu değiştir">Rahat görünüm</button>
                 <div class="theme-control">
                     <label for="theme-select">THEME:</label>
                     <select id="theme-select">
@@ -95,6 +96,15 @@
                 <button type="button" id="btn-fullscreen" class="tool-btn" title="Tam Ekran (F11)">[⛶]</button>
             </div>
         </header>
+
+        <section class="dashboard-intro" aria-label="Gösterge paneli özeti">
+            <div>
+                <span class="eyebrow">SİSTEM DURUMU <span class="intro-live-dot"></span> CANLI</span>
+                <h1>Genel Bakış</h1>
+                <p>Donanım kullanımı ve çalışan süreçler tek ekranda.</p>
+            </div>
+            <div class="intro-meta"><span class="intro-host-mark">⌘</span><span><strong>{{ sys.hostname }}</strong><small>{{ sys.os }} · {{ sys.cores_logical }} mantıksal çekirdek</small></span></div>
+        </section>
 
         <!-- Canlı Eşik Aşımı Uyarı Şeridi (Varsa görünür) -->
         <div id="active-alert-banner" class="alert-banner hidden">
