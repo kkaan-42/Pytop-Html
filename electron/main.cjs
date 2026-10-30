@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, shell } = require('electron');
 const { spawn } = require('node:child_process');
 const net = require('node:net');
 const path = require('node:path');
@@ -74,7 +74,12 @@ function createWindow(url) {
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
   });
-  windowRef.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  windowRef.webContents.setWindowOpenHandler(({ url: target }) => {
+    if (target.startsWith('https://github.com/kkaan-42/Pytop-Html/releases/')) {
+      shell.openExternal(target);
+    }
+    return { action: 'deny' };
+  });
   windowRef.webContents.on('will-navigate', (event, target) => {
     if (!target.startsWith(url)) event.preventDefault();
   });

@@ -1,8 +1,8 @@
-# 🖥️ pyTOP Pro v2.2 — Windows Masaüstü Sistem Monitörü
+# 🖥️ pyTOP Pro v2.2.1 — Windows Masaüstü Sistem Monitörü
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v2.2-4f9f83?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.2.1-4f9f83?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Edition-Windows%20Desktop-4f9f83?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=for-the-badge&logo=linux&logoColor=white)
@@ -17,21 +17,21 @@
 </div>
 
 > [!IMPORTANT]
-> 🚀 **pyTOP Pro v2.2 — Windows Masaüstü Sürümü**
+> 🚀 **pyTOP Pro v2.2.1 — Windows Masaüstü Sürümü**
 > Electron penceresinde çalışan yerel sistem monitörü. Kurulum dosyası Python gerektirmez.
 
 ---
 
 ## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
 
-pyTOP Pro v2.2 Windows masaüstü sürümü GitHub Releases bölümünde tek kurulum dosyası olarak sunulur:
+pyTOP Pro v2.2.1 Windows masaüstü sürümü GitHub Releases bölümünde tek kurulum dosyası olarak sunulur:
 
 | İşletim Sistemi | Paket Formatı | Doğrudan İndirme | Özel Başlatıcı | Kullanım Şekli |
 | :--- | :---: | :---: | :---: | :--- |
-| **🪟 Windows 10 / 11 x64** | `.exe` | [📥 pyTOP-Pro-Setup-2.2.0.exe](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.2/pyTOP-Pro-Setup-2.2.0.exe) | pyTOP Pro | Kurulum sihirbazını çalıştırın; Python kurulumu gerekmez. |
+| **🪟 Windows 10 / 11 x64** | `.exe` | [📥 pyTOP-Pro-Setup-2.2.1.exe](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.2.1/pyTOP-Pro-Setup-2.2.1.exe) | pyTOP Pro | Kurulum sihirbazını çalıştırın; Python kurulumu gerekmez. |
 
 > [!TIP]
-> Sürümü ve tek Windows indirmesini [GitHub Releases sayfasında](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.2) bulabilirsiniz.
+> Sürümü ve tek Windows indirmesini [GitHub Releases sayfasında](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.2.1) bulabilirsiniz.
 
 ---
 
@@ -384,9 +384,9 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
-Windows v2.2 Electron uygulaması `electron/` içinde yer alır. Geliştirme için Electron bağımlılıklarını `cd electron; npm install` ile kurup `npm start` çalıştırın; Python ortamı da uygulamanın Flask backend'ini yerelde başlatır.
+Windows v2.2.1 Electron uygulaması `electron/` içinde yer alır. Geliştirme için Electron bağımlılıklarını `cd electron; npm install` ile kurup `npm start` çalıştırın; Python ortamı da uygulamanın Flask backend'ini yerelde başlatır.
 
-Tek Windows kurulum dosyasını yayımlamak için `v2.2` etiketini gönderin. `.github/workflows/release-windows.yml` backend'i PyInstaller ile paketler, Electron NSIS kurulum dosyasını üretir ve Release'e tek `.exe` dosyası ekler.
+Tek Windows kurulum dosyasını yayımlamak için `v2.2.x` etiketini gönderin. `.github/workflows/release-windows.yml` backend'i PyInstaller ile paketler, Electron NSIS kurulum dosyasını üretir ve Release'e tek `.exe` dosyası ekler.
 
 ---
 

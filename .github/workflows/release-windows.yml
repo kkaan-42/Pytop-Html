@@ -3,13 +3,13 @@ name: Build and publish Windows desktop release
 on:
   push:
     tags:
-      - v2.2
+      - 'v2.2.*'
   workflow_dispatch:
     inputs:
       tag:
         description: Existing release tag to build
         required: true
-        default: v2.2
+        default: v2.2.1
 
 permissions:
   contents: write
@@ -41,15 +41,16 @@ jobs:
       - name: Build the single Windows installer
         working-directory: electron
         run: npm run dist:win
-      - name: Publish v2.2 with one Windows download
+      - name: Publish pyTOP Windows release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
-          name: pyTOP v2.2 — Windows Desktop
+          name: pyTOP ${{ github.event.inputs.tag || github.ref_name }} — Windows Desktop
           body: |
-            pyTOP v2.2 Windows masaüstü sürümü.
+            pyTOP ${{ github.event.inputs.tag || github.ref_name }} Windows masaüstü sürümü.
 
+            v2.2.1: Yenilenen gösterge paneli ve güncelleme denetimi iyileştirmeleri.
             Tek indirme: Windows 10/11 için Electron tabanlı kurulum dosyası. Python kurulumu gerekmez.
           draft: false
           prerelease: false
-          files: electron/dist/pyTOP-Pro-Setup-2.2.0.exe
+          files: electron/dist/*.exe
