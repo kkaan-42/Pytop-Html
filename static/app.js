@@ -1793,3 +1793,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+// Figma dashboard layout: live summary mirrors and compact navigation.
+function syncOverviewMetrics() {
+    document.querySelectorAll('[data-mirror]').forEach((target) => {
+        const source = document.querySelector(target.dataset.mirror);
+        if (source && target.textContent !== source.textContent) target.textContent = source.textContent;
+    });
+    const gpuName = document.getElementById('gpu-name-label');
+    const gpuSummary = document.getElementById('summary-gpu-name');
+    if (gpuName && gpuSummary) gpuSummary.textContent = gpuName.textContent;
+}
+syncOverviewMetrics();
+window.setInterval(syncOverviewMetrics, 500);
+
+document.querySelectorAll('[data-sidebar-action]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const action = button.dataset.sidebarAction;
+        document.querySelectorAll('[data-sidebar-action]').forEach((item) => item.classList.toggle('active', item === button));
+        const modalTriggers = { network: 'btn-net-modal', docker: 'btn-docker-modal', reports: 'btn-report-modal', settings: 'btn-layout-modal' };
+        if (action === 'processes') document.querySelector('.processes-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else if (action === 'overview') window.scrollTo({ top: 0, behavior: 'smooth' });
+        else if (modalTriggers[action]) document.getElementById(modalTriggers[action])?.click();
+    });
+});

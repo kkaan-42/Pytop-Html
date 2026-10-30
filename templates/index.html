@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pyTOP Pro • Terminal Sistem &amp; Süreç Monitörü</title>
+    <title>pyTOP Pro • Sistem Genel Bakışı</title>
     <!-- Terminal Monospace Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,13 +34,34 @@
 
 <body>
 
+    <aside class="app-sidebar" aria-label="Ana gezinme">
+        <a class="sidebar-brand" href="#overview" aria-label="pyTOP Pro ana sayfa">
+            <span class="brand-mark">p</span><span><strong>pyTOP</strong><small>PRO · 2.2</small></span>
+        </a>
+        <div class="sidebar-group-label">ÇALIŞMA ALANI</div>
+        <nav class="sidebar-nav">
+            <button type="button" class="sidebar-link active" data-sidebar-action="overview"><span class="nav-glyph">▦</span>Genel bakış</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="processes"><span class="nav-glyph">⌘</span>İşlemler</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="network"><span class="nav-glyph">⌁</span>Ağ</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="docker"><span class="nav-glyph">▣</span>Docker</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="reports"><span class="nav-glyph">▤</span>Raporlar</button>
+        </nav>
+        <div class="sidebar-spacer"></div>
+        <button type="button" class="sidebar-link" data-sidebar-action="settings"><span class="nav-glyph">⚙</span>Ayarlar</button>
+        <div class="sidebar-device">
+            <span class="device-icon">▣</span>
+            <span><strong>{{ sys.hostname }}</strong><small>{{ sys.os }}</small></span>
+            <span class="device-online" aria-label="Bağlı"></span>
+        </div>
+    </aside>
+
     <!-- Tam Ekran Terminal Çerçevesi -->
-    <div class="terminal-root">
+    <div class="terminal-root" id="overview">
 
         <!-- 1. Terminal Üst Bilgi Şeridi -->
         <header class="top-bar">
             <div class="bar-left">
-                <span class="app-tag">pyTOP Pro <span class="badge-beta">BETA</span></span>
+                <span class="app-tag">Sistem durumu</span>
                 <span class="sep">/</span>
                 <span class="host-info">{{ sys.hostname }}</span>
                 <span class="sep">/</span>
@@ -99,9 +120,9 @@
 
         <section class="dashboard-intro" aria-label="Gösterge paneli özeti">
             <div>
-                <span class="eyebrow">SİSTEM DURUMU <span class="intro-live-dot"></span> CANLI</span>
-                <h1>Genel Bakış</h1>
-                <p>Donanım kullanımı ve çalışan süreçler tek ekranda.</p>
+                <span class="eyebrow"><span class="intro-live-dot"></span> SİSTEM DURUMU · CANLI</span>
+                <h1>Sistem genel bakışı</h1>
+                <p>Kaynak kullanımı ve etkin işlemler, tek bir görünümde.</p>
             </div>
             <div class="intro-meta"><span class="intro-host-mark">⌘</span><span><strong>{{ sys.hostname }}</strong><small>{{ sys.os }} · {{ sys.cores_logical }} mantıksal çekirdek</small></span></div>
         </section>
@@ -111,6 +132,13 @@
             <span class="banner-icon">🚨</span>
             <span id="alert-banner-text" class="banner-text">UYARI: Donanım eşik değeri aşıldı!</span>
         </div>
+
+        <section class="metric-overview" aria-label="Anlık kaynak özeti">
+            <article class="metric-card"><div class="metric-label"><span class="metric-icon">▧</span> CPU <span class="metric-meta">{{ sys.cores_logical }} mantıksal işlemci</span></div><div class="metric-value" data-mirror="#cpu-total-pct">0%</div><div class="metric-foot"><span>Toplam kullanım</span><span class="metric-spark spark-cpu">⌁⌁⌁⌁</span></div></article>
+            <article class="metric-card"><div class="metric-label"><span class="metric-icon">▤</span> Bellek</div><div class="metric-value" data-mirror="#ram-text-detail">—</div><div class="metric-foot"><span>RAM kullanımı</span><span class="metric-spark">⌁⌁⌁⌁</span></div></article>
+            <article class="metric-card"><div class="metric-label"><span class="metric-icon">▣</span> GPU</div><div class="metric-value" data-mirror="#gpu-load-label">—</div><div class="metric-foot"><span id="summary-gpu-name">Donanım telemetrisi</span><span class="metric-spark">⌁⌁⌁</span></div></article>
+            <article class="metric-card"><div class="metric-label"><span class="metric-icon">⌁</span> Ağ</div><div class="metric-value metric-network"><span data-mirror="#net-rx-speed">0 KB/s</span><small>↓</small></div><div class="metric-foot"><span>İndirme hızı</span><span class="metric-spark">⌁⌁⌁⌁</span></div></article>
+        </section>
 
         <!-- 2. Donanım Göstergeleri Izgarası (CPU, GPU & Güç, RAM, Ağ, Specs - Sürükle Bırak) -->
         <section class="hardware-grid" id="main-hardware-grid">
