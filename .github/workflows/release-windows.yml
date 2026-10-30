@@ -46,7 +46,7 @@ jobs:
           name: windows-release
           path: |
             electron/dist/*.exe
-            electron/dist/*.yml
+            electron/dist/latest*.yml
             electron/dist/*.blockmap
           if-no-files-found: error
 
@@ -86,7 +86,7 @@ jobs:
           path: |
             electron/dist/*.AppImage
             electron/dist/*.deb
-            electron/dist/*.yml
+            electron/dist/latest*.yml
             electron/dist/*.blockmap
           if-no-files-found: error
 
