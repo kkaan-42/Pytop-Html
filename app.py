@@ -22,7 +22,7 @@ import docker_monitor
 import database
 import updater
 
-APP_VERSION = "v2.2.2"
+APP_VERSION = "v2.3.0"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("PYTOP_SESSION_SECRET") or secrets.token_hex(32)

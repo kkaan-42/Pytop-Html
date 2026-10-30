@@ -8,14 +8,14 @@ import urllib.request
 DEFAULT_REPOSITORY = "kkaan-42/Pytop-Html"
 
 
-def check_release(current_version="v2.2.2"):
+def check_release(current_version="v2.3.0"):
     repository = os.environ.get("PYTOP_GITHUB_REPOSITORY", DEFAULT_REPOSITORY).strip().strip("/")
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
         return {"available": False, "reason": "PYTOP_GITHUB_REPOSITORY owner/repo biçiminde olmalı."}
     url = f"https://api.github.com/repos/{repository}/releases/latest"
     request = urllib.request.Request(url, headers={
         "Accept": "application/vnd.github+json",
-        "User-Agent": "pyTOP-Pro/2.2.2",
+        "User-Agent": "pyTOP-Pro/2.3.0",
     })
     try:
         with urllib.request.urlopen(request, timeout=4) as response:

@@ -16,9 +16,11 @@ autoUpdater.allowPrerelease = false;
 autoUpdater.logger = console;
 
 async function checkForUpdates(manual = false) {
-  if (!app.isPackaged || process.platform !== 'win32') {
+  const supportsAutoUpdate = process.platform === 'win32' || (process.platform === 'linux' && Boolean(process.env.APPIMAGE));
+  if (!app.isPackaged || !supportsAutoUpdate) {
     if (manual) await dialog.showMessageBox(windowRef, {
-      type: 'info', title: 'pyTOP Pro güncellemesi', message: 'Otomatik güncellemeler Windows masaüstü sürümünde kullanılabilir.'
+      type: 'info', title: 'pyTOP Pro güncellemesi',
+      message: 'Otomatik güncelleme Windows ve AppImage paketlerinde kullanılabilir. Debian paketi için dağıtımınızın paket yöneticisini kullanın.'
     });
     return { status: 'unsupported' };
   }
@@ -97,7 +99,8 @@ async function waitForBackend(port) {
 }
 
 function startBackend(port) {
-  const executable = path.join(process.resourcesPath, 'backend', 'pyTOP-Backend.exe');
+  const executableName = process.platform === 'win32' ? 'pyTOP-Backend.exe' : 'pyTOP-Backend';
+  const executable = path.join(process.resourcesPath, 'backend', executableName);
   if (!app.isPackaged) {
     const python = process.env.PYTOP_PYTHON || 'python';
     const projectRoot = path.resolve(__dirname, '..');

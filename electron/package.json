@@ -1,12 +1,13 @@
 {
   "name": "pytop-pro-desktop",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "private": true,
-  "description": "pyTOP Pro Windows desktop system monitor",
+  "description": "pyTOP Pro Windows and Linux desktop system monitor",
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win nsis --publish never"
+    "dist:win": "electron-builder --win nsis --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb --publish never"
   },
   "devDependencies": {
     "electron": "^37.2.6",
@@ -23,8 +24,18 @@
     "files": ["main.cjs", "preload.cjs", "package.json"],
     "extraResources": [{ "from": "backend", "to": "backend" }],
     "win": {
+      "icon": "build/icon.svg",
       "target": [{ "target": "nsis", "arch": ["x64"] }],
       "artifactName": "pyTOP-Pro-Setup-${version}.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.svg",
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "System",
+      "artifactName": "pyTOP-Pro-${version}-Linux-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,

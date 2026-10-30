@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pyTOP Pro • Sistem Genel Bakışı</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
     <!-- Terminal Monospace Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +37,7 @@
 
     <aside class="app-sidebar" aria-label="Ana gezinme">
         <a class="sidebar-brand" href="#overview" aria-label="pyTOP Pro ana sayfa">
-            <span class="brand-mark">p</span><span><strong>pyTOP</strong><small>PRO · 2.2.2</small></span>
+            <span class="brand-mark"><img src="{{ url_for('static', filename='logo.svg') }}" alt="" aria-hidden="true"></span><span><strong>pyTOP</strong><small>PRO · 2.3.0</small></span>
         </a>
         <div class="sidebar-group-label">ÇALIŞMA ALANI</div>
         <nav class="sidebar-nav">

@@ -2334,7 +2334,7 @@ button:focus-visible, select:focus-visible, input:focus-visible {
     .intro-meta { display: none; }
 }
 
-/* pyTOP Pro — v2.2.2 desktop dashboard translated from the Figma screen. */
+/* pyTOP Pro — v2.3.0 desktop dashboard translated from the Figma screen. */
 body {
     display: flex; width: 100vw; height: 100vh; overflow: hidden;
     background: #101619; background-image: none;
@@ -2346,7 +2346,8 @@ body {
     border-right: 1px solid #263238; color: #b9c6c2;
 }
 .sidebar-brand { display: flex; align-items: center; gap: 11px; margin: 0 4px 28px; color: inherit; text-decoration: none; }
-.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #45665b; border-radius: 9px; color: #a7d5bd; background: #1b2d27; font: 700 23px/1 Inter, sans-serif; }
+.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; overflow: hidden; border-radius: 9px; background: #10191b; }
+.brand-mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sidebar-brand strong, .sidebar-brand small, .sidebar-device strong, .sidebar-device small { display: block; }
 .sidebar-brand strong { color: #edf3f0; font-size: 15px; letter-spacing: -.04em; }
 .sidebar-brand small { margin-top: 2px; color: #7f9990; font-size: 9px; letter-spacing: .12em; }

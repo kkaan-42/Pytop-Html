@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="ring" x1="84" y1="112" x2="423" y2="418" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B3F5D7"/>
+      <stop offset=".52" stop-color="#64D7B2"/>
+      <stop offset="1" stop-color="#51C8DD"/>
+    </linearGradient>
+    <linearGradient id="bars" x1="154" y1="350" x2="354" y2="169" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#55C99F"/>
+      <stop offset="1" stop-color="#86E7D3"/>
+    </linearGradient>
+    <filter id="glow" x="64" y="68" width="384" height="384" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="#10191B"/>
+  <rect x="2" y="2" width="508" height="508" rx="116" stroke="#314543" stroke-opacity=".55" stroke-width="4"/>
+  <circle cx="256" cy="256" r="174" stroke="#243836" stroke-width="22"/>
+  <path d="M142 388a174 174 0 1 1 235-16" stroke="url(#ring)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M142 388a174 174 0 0 0 61 34" stroke="#6FD7B3" stroke-opacity=".34" stroke-width="30" stroke-linecap="round" filter="url(#glow)"/>
+  <rect x="151" y="275" width="42" height="91" rx="13" fill="url(#bars)"/>
+  <rect x="213" y="222" width="42" height="144" rx="13" fill="url(#bars)"/>
+  <rect x="275" y="178" width="42" height="188" rx="13" fill="url(#bars)"/>
+  <rect x="337" y="238" width="42" height="128" rx="13" fill="url(#bars)"/>
+  <path d="M158 248l61-45 54 15 74-77" stroke="#D8FFF0" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="347" cy="141" r="13" fill="#D8FFF0"/>
+  <circle cx="347" cy="141" r="7" fill="#52CFA8"/>
+</svg>

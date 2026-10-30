@@ -1,15 +1,15 @@
-name: Build and publish Windows desktop release
+name: Build and publish desktop releases
 
 on:
   push:
     tags:
-      - 'v2.2.*'
+      - 'v2.*'
   workflow_dispatch:
     inputs:
       tag:
         description: Existing release tag to build
         required: true
-        default: v2.2.2
+        default: v2.3.0
 
 permissions:
   contents: write
@@ -38,22 +38,78 @@ jobs:
       - name: Install Electron build dependencies
         working-directory: electron
         run: npm install --no-audit --no-fund
-      - name: Build the single Windows installer
+      - name: Build Windows installer and updater files
         working-directory: electron
         run: npm run dist:win
-      - name: Publish pyTOP Windows release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
-          name: pyTOP ${{ github.event.inputs.tag || github.ref_name }} — Windows Desktop
-          body: |
-            pyTOP ${{ github.event.inputs.tag || github.ref_name }} Windows masaüstü sürümü.
-
-            ${{ github.event.inputs.tag || github.ref_name }}: Uygulama içi otomatik güncelleme, arka plan sürüm kontrolü ve onaylı indirme/kurulum.
-            Windows 10/11 Electron kurulum dosyasının yanında güncelleyicinin doğrulama manifesti ve blok haritaları bulunur. Python kurulumu gerekmez.
-          draft: false
-          prerelease: false
-          files: |
+          name: windows-release
+          path: |
             electron/dist/*.exe
             electron/dist/*.yml
             electron/dist/*.blockmap
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Python backend dependencies
+        run: python -m pip install -r requirements.txt pyinstaller==6.14.2
+      - name: Install AppImage build dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+      - name: Package the local monitoring service
+        run: >-
+          pyinstaller --noconfirm --clean --onedir --name pyTOP-Backend
+          --add-data "templates:templates" --add-data "static:static" app.py
+      - name: Bundle backend for Electron
+        run: cp -R dist/pyTOP-Backend electron/backend
+      - name: Install Electron build dependencies
+        working-directory: electron
+        run: npm install --no-audit --no-fund
+      - name: Build Linux AppImage and Debian packages
+        working-directory: electron
+        run: npm run dist:linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: |
+            electron/dist/*.AppImage
+            electron/dist/*.deb
+            electron/dist/*.yml
+            electron/dist/*.blockmap
+          if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [windows, linux]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-release'
+          path: release-assets
+          merge-multiple: true
+      - name: Publish one cross-platform release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: pyTOP ${{ github.event.inputs.tag || github.ref_name }} — Windows & Linux
+          body: |
+            pyTOP ${{ github.event.inputs.tag || github.ref_name }} masaüstü sürümü.
+
+            Windows: Electron NSIS kurulum dosyası ve güncelleme manifesti.
+            Linux: AppImage (x86_64, uygulama içi güncelleme destekli) ve Debian/Ubuntu `.deb` paketi.
+            Uygulama logosu yenilendi. Paketler Python kurulumu gerektirmez.
+          draft: false
+          prerelease: false
+          files: release-assets/*

@@ -1,37 +1,39 @@
-# 🖥️ pyTOP Pro v2.2.2 — Windows Masaüstü Sistem Monitörü
+# 🖥️ pyTOP Pro v2.3.0 — Windows & Linux Masaüstü Sistem Monitörü
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v2.2.2-4f9f83?style=for-the-badge)
-![Status](https://img.shields.io/badge/Edition-Windows%20Desktop-4f9f83?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.3.0-4f9f83?style=for-the-badge)
+![Status](https://img.shields.io/badge/Edition-Windows%20%26%20Linux%20Desktop-4f9f83?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=for-the-badge&logo=linux&logoColor=white)
+![Platform](https://img.shields.io/badge/Desktop-Windows%20%7C%20Linux-blue?style=for-the-badge&logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 **Linux'un efsanevi `btop++` ve `htop` araçlarının web üzerinde çalışan, ultra hafif ve modern sürümü.**  
-*Tüm Linux dağıtımları, macOS (Apple Silicon & Intel) ve Windows ile %100 uyumludur.*
+*Windows ve yaygın x86_64 Linux dağıtımlarında masaüstü uygulaması olarak çalışır; Python kurulumu gerekmez.*
 
 [Yenilikler](#-v21-beta-sürümü-yenilikleri) • [İndir (Releases)](#-işletim-sistemine-özel-indirme-paketleri-releases) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
 
 </div>
 
 > [!IMPORTANT]
-> 🚀 **pyTOP Pro v2.2.2 — Windows Masaüstü Sürümü**
-> Electron penceresinde çalışan yerel sistem monitörü. Kurulum dosyası Python gerektirmez.
+> 🚀 **pyTOP Pro v2.3.0 — Windows & Linux Masaüstü Sürümü**
+> Electron penceresinde çalışan yerel sistem monitörü. Kurulum paketleri Python gerektirmez.
 
 ---
 
 ## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
 
-pyTOP Pro v2.2.2 Windows masaüstü sürümü GitHub Releases bölümünde tek kurulum dosyası olarak sunulur:
+pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.3.0) indirin:
 
-| İşletim Sistemi | Paket Formatı | Doğrudan İndirme | Özel Başlatıcı | Kullanım Şekli |
-| :--- | :---: | :---: | :---: | :--- |
-| **🪟 Windows 10 / 11 x64** | `.exe` | [📥 pyTOP-Pro-Setup-2.2.2.exe](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.2.2/pyTOP-Pro-Setup-2.2.2.exe) | pyTOP Pro | Kurulum sihirbazını çalıştırın; Python kurulumu gerekmez. |
+| İşletim Sistemi | Paket | Release indirme adı | Kurulum |
+| :--- | :--- | :--- | :--- |
+| **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.3.0.exe` | Kurulum sihirbazını çalıştırın. |
+| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.3.0-Linux-x64.AppImage` | `chmod +x pyTOP-Pro-2.3.0-Linux-x64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
+| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.3.0-Linux-x64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.3.0-Linux-x64.deb` çalıştırın. |
 
 > [!TIP]
-> Sürümü ve Windows indirmesini [GitHub Releases sayfasında](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.2.2) bulabilirsiniz.
+> AppImage, Ubuntu, Debian, Linux Mint, Fedora ve Arch gibi x86_64 dağıtımlarını hedefler. Debian paketi Debian ve Ubuntu tabanlı dağıtımlar içindir. AppImage sürümü otomatik güncellenir; `.deb` paketini dağıtımınızın paket yöneticisiyle güncelleyin.
 
 ---
 
@@ -134,15 +136,12 @@ pyTOP Pro, test edilmiş ve aşağıdaki platformlarda yerel olarak desteklenmek
 
 | Kategori | Desteklenen Dağıtım / İşletim Sistemi | Paket Yöneticisi |
 | :--- | :--- | :--- |
-| **Debian Ailesi** | Ubuntu (18.04 - 24.04 LTS), Debian (10/11/12), Linux Mint, Pop!_OS, Kali Linux, Raspberry Pi OS | `apt` |
-| **Arch Ailesi** | Arch Linux, Manjaro, EndeavourOS, Garuda Linux, Artix | `pacman` |
-| **Red Hat Ailesi** | Fedora (38/39/40+), RHEL (8/9), CentOS Stream, Rocky Linux, AlmaLinux | `dnf` / `yum` |
-| **SUSE Ailesi** | openSUSE Leap, openSUSE Tumbleweed | `zypper` |
-| **Hafif Dağıtımlar** | Alpine Linux, Void Linux | `apk` / `xbps` |
-| **Bağımsız / Diğer** | Gentoo, NixOS, FreeBSD | `emerge` / `nix` / `pkg` |
-| **Apple macOS** | macOS Sequoia, Sonoma, Ventura, Monterey (Apple Silicon M1-M4 & Intel) | `brew` |
-| **Microsoft Windows** | Windows 10, Windows 11, Windows Server (2019/2022) | `winget` / `pip` |
-| **Konteyner** | Docker, Podman, Kubernetes, TrueNAS SCALE, Unraid | `docker` |
+| **Debian Ailesi** | Debian 11+, Ubuntu 22.04+, Linux Mint ve Ubuntu tabanlı dağıtımlar | `.deb` veya AppImage |
+| **Arch Ailesi** | Arch Linux, Manjaro, EndeavourOS ve x86_64 türevleri | AppImage |
+| **Red Hat Ailesi** | Fedora, Rocky Linux, AlmaLinux ve x86_64 türevleri | AppImage |
+| **SUSE Ailesi** | openSUSE Leap / Tumbleweed x86_64 | AppImage |
+| **Yerel kaynak çalıştırma** | Linux, macOS ve Windows (Python ortamı gerekir) | `baslat.sh` / `baslat.bat` |
+| **Konteyner** | Docker ve Docker Compose destekleyen sistemler | `docker` |
 
 ---
 
@@ -384,9 +383,9 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
-Windows v2.2.2 Electron uygulaması `electron/` içinde yer alır. Uygulama açılışta yeni sürümü denetler, kullanıcı onayından sonra indirir ve uygulama yeniden başlatıldığında kurar. Geliştirme için Electron bağımlılıklarını `cd electron; npm install` ile kurup `npm start` çalıştırın; Python ortamı da uygulamanın Flask backend'ini yerelde başlatır.
+Windows ve Linux v2.3.0 Electron uygulaması `electron/` içinde yer alır. Uygulama açılışta yeni sürümü denetler; Windows ve Linux AppImage paketlerinde indirme onayından sonra güncellemeyi indirip yeniden başlatma sırasında kurar. Debian `.deb` paketleri dağıtımın paket yöneticisiyle güncellenir. Geliştirme için `cd electron; npm install` ve `npm start` komutlarını çalıştırın; Python ortamı Flask backend'ini yerelde başlatır.
 
-Yeni bir Windows sürümü yayımlamak için `v2.2.x` etiketi gönderin. `.github/workflows/release-windows.yml` backend'i PyInstaller ile paketler, Electron NSIS kurulum dosyasını üretir ve kurulum dosyasıyla birlikte otomatik güncelleme manifestlerini Release'e ekler. Manifest dosyaları uygulama tarafından kullanılır; kullanıcıya tek kurulum dosyası sunulur.
+Yeni bir masaüstü sürümü yayımlamak için `v2.x.x` etiketi gönderin. `.github/workflows/release-windows.yml` Windows ve Linux backend'lerini PyInstaller ile ayrı ayrı paketler; NSIS, AppImage ve Debian paketlerini tek GitHub Release'e ekler.
 
 ---
 
