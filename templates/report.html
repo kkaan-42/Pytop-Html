@@ -534,13 +534,15 @@
                     <tr>
                         <td><strong>{{ g.name }}</strong></td>
                         <td><span class="mono">{{ g.type }}</span></td>
-                        <td>%{{ g.load }}</td>
-                        <td>{{ g.temp }}°C</td>
+                        <td>{% if g.load is not none %}%{{ g.load }}{% else %}N/A{% endif %}</td>
+                        <td>{% if g.temp is not none and g.temp > 0 %}{{ g.temp }}°C{% else %}N/A{% endif %}</td>
                         <td>
-                            {% if g.total_mb > 0 %}
+                            {% if g.total_mb is not none and g.total_mb > 0 and g.used_mb is not none and g.percent is not none %}
                             {{ g.used_mb }} MB / {{ g.total_mb }} MB (%{{ g.percent }})
+                            {% elif g.type == 'Apple Unified' and g.total_mb is not none %}
+                            {{ g.total_mb }} MB unified system memory; per-GPU use unavailable
                             {% else %}
-                            -
+                            Telemetry unavailable
                             {% endif %}
                         </td>
                     </tr>

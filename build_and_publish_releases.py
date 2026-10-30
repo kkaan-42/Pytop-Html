@@ -36,9 +36,10 @@ COMMON_FILES = [
     "alerts.py",
     "report_generator.py",
     "database.py",
+    "updater.py",
     "requirements.txt",
+    ".env.example",
     "README.md",
-    "alerts_config.json"
 ]
 
 COMMON_DIRS = [

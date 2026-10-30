@@ -5,9 +5,12 @@ başlatma/durdurma/yeniden başlatma eylemlerini yürütür ve canlı logları �
 """
 
 import json
+import re
 import shutil
 import subprocess
 import time
+
+_CONTAINER_ID = re.compile(r"^[0-9a-fA-F]{12,64}$")
 
 
 def is_docker_installed() -> bool:
@@ -209,9 +212,9 @@ def execute_container_action(container_id: str, action: str) -> dict:
     if not is_docker_installed():
         return {"success": False, "message": "Docker kurulu değil."}
 
-    # ID güvenliği (alfasayısal ve tire kontrolü)
-    clean_id = "".join(c for c in container_id if c.isalnum() or c in "-_")
-    if not clean_id:
+    # Docker IDs are hex; reject names/options rather than trying to sanitize them.
+    clean_id = container_id.strip()
+    if not _CONTAINER_ID.fullmatch(clean_id):
         return {"success": False, "message": "Geçersiz konteyner kimliği (ID)."}
 
     try:
@@ -240,13 +243,13 @@ def get_container_logs(container_id: str, tail: int = 150) -> dict:
     if not is_docker_installed():
         return {"success": False, "logs": "Docker bulunamadı.", "container_id": container_id}
 
-    clean_id = "".join(c for c in container_id if c.isalnum() or c in "-_")
-    if not clean_id:
+    clean_id = container_id.strip()
+    if not _CONTAINER_ID.fullmatch(clean_id):
         return {"success": False, "logs": "Geçersiz konteyner kimliği.", "container_id": container_id}
 
     try:
         res = subprocess.run(
-            ["docker", "logs", "--tail", str(min(tail, 500)), clean_id],
+            ["docker", "logs", "--tail", str(max(1, min(int(tail), 500))), clean_id],
             capture_output=True,
             text=True,
             timeout=5

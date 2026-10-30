@@ -70,6 +70,9 @@
                 <button type="button" id="btn-report-modal" class="tool-btn btn-report-trigger" title="Sistem Sağlık Raporu (F7)">
                     <span>📄</span> REPORT
                 </button>
+                <button type="button" id="btn-update-check" class="tool-btn" title="GitHub Releases sürüm kontrolü">
+                    <span>⬆️</span> UPDATE
+                </button>
                 <button type="button" id="btn-alerts-modal" class="tool-btn btn-alert-trigger" title="Discord / Telegram Uyarı Ayarları (F8)">
                     <span id="alerts-status-icon">🔔</span> ALERTS
                 </button>
@@ -510,19 +513,25 @@
                         </label>
                     </div>
                 </div>
+                <div class="alert-form-group mt-2 c-muted text-xs">
+                    Webhook ve bot sırları uygulama içinden saklanmaz. Sunucuyu başlatan ortamda
+                    <code>PYTOP_DISCORD_WEBHOOK</code>, <code>PYTOP_TELEGRAM_BOT_TOKEN</code> ve
+                    <code>PYTOP_TELEGRAM_CHAT_ID</code> değişkenlerini ayarlayın.
+                    <span id="alert-secrets-status"></span>
+                </div>
 
                 <!-- Discord Ayarları -->
                 <div id="discord-fields" class="channel-fields">
                     <label for="cfg-discord-webhook">Discord Webhook URL:</label>
-                    <input type="password" id="cfg-discord-webhook" class="term-input" placeholder="https://discord.com/api/webhooks/...">
+                    <input type="password" id="cfg-discord-webhook" class="term-input" placeholder="PYTOP_DISCORD_WEBHOOK ile ayarlanır" readonly autocomplete="off">
                 </div>
 
                 <!-- Telegram Ayarları -->
                 <div id="telegram-fields" class="channel-fields hidden">
                     <label for="cfg-telegram-token">Telegram Bot Token:</label>
-                    <input type="password" id="cfg-telegram-token" class="term-input" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ...">
+                    <input type="password" id="cfg-telegram-token" class="term-input" placeholder="PYTOP_TELEGRAM_BOT_TOKEN ile ayarlanır" readonly autocomplete="off">
                     <label for="cfg-telegram-chat" class="mt-1">Telegram Chat ID:</label>
-                    <input type="text" id="cfg-telegram-chat" class="term-input" placeholder="Örn: 987654321">
+                    <input type="password" id="cfg-telegram-chat" class="term-input" placeholder="PYTOP_TELEGRAM_CHAT_ID ile ayarlanır" readonly autocomplete="off">
                 </div>
 
                 <!-- Eşik Değerleri -->

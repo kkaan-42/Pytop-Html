@@ -4,6 +4,13 @@ import subprocess
 import shutil
 import psutil
 
+
+def _number(value, default=None):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
 def get_gpu_stats():
     """
     NVIDIA, AMD, Intel veya Apple Silicon GPU bilgilerini çeker.
@@ -37,16 +44,19 @@ def get_gpu_stats():
                 for line in res.stdout.strip().splitlines():
                     parts = [p.strip() for p in line.split(",")]
                     if len(parts) >= 6:
-                        tot_mb = float(parts[3])
-                        usd_mb = float(parts[4])
-                        pct = round((usd_mb / tot_mb) * 100, 1) if tot_mb > 0 else 0
+                        temp = _number(parts[1])
+                        load = _number(parts[2])
+                        tot_mb = _number(parts[3])
+                        usd_mb = _number(parts[4])
+                        free_mb = _number(parts[5])
+                        pct = round((usd_mb / tot_mb) * 100, 1) if tot_mb and usd_mb is not None else None
                         gpus.append({
                             "name": parts[0],
-                            "temp": int(parts[1]),
-                            "load": int(parts[2]),
+                            "temp": temp,
+                            "load": load,
                             "total_mb": tot_mb,
                             "used_mb": usd_mb,
-                            "free_mb": float(parts[5]),
+                            "free_mb": free_mb,
                             "percent": pct,
                             "type": "NVIDIA"
                         })
@@ -71,15 +81,14 @@ def get_gpu_stats():
                 # Apple Silicon (M1/M2/M3/M4) Birleşik Bellek ve Entegre GPU
                 mem = psutil.virtual_memory()
                 total_mb = round(mem.total / (1024 * 1024), 0)
-                used_mb = round(mem.used / (1024 * 1024), 0)
                 gpus.append({
                     "name": soc_name,
-                    "temp": 0,
-                    "load": 0,
+                    "temp": None,
+                    "load": None,
                     "total_mb": total_mb,
-                    "used_mb": used_mb,
-                    "free_mb": max(0.0, total_mb - used_mb),
-                    "percent": mem.percent,
+                    "used_mb": None,
+                    "free_mb": None,
+                    "percent": None,
                     "type": "Apple Unified"
                 })
                 return gpus
@@ -87,12 +96,12 @@ def get_gpu_stats():
                 # Intel Mac
                 gpus.append({
                     "name": soc_name if soc_name != "Apple Silicon GPU" else "Intel Iris / Mac GPU",
-                    "temp": 0,
-                    "load": 0,
-                    "total_mb": 0,
-                    "used_mb": 0,
-                    "free_mb": 0,
-                    "percent": 0,
+                    "temp": None,
+                    "load": None,
+                    "total_mb": None,
+                    "used_mb": None,
+                    "free_mb": None,
+                    "percent": None,
                     "type": "macOS Generic"
                 })
                 return gpus
@@ -111,7 +120,7 @@ def get_gpu_stats():
                     vram_total_file = os.path.join(device_path, "mem_info_vram_total")
                     vram_used_file = os.path.join(device_path, "mem_info_vram_used")
 
-                    load = 0
+                    load = None
                     if os.path.exists(gpu_busy_file):
                         try:
                             with open(gpu_busy_file, "r") as f:
@@ -119,8 +128,8 @@ def get_gpu_stats():
                         except Exception:
                             pass
 
-                    total_mb = 0.0
-                    used_mb = 0.0
+                    total_mb = None
+                    used_mb = None
                     if os.path.exists(vram_total_file) and os.path.exists(vram_used_file):
                         try:
                             with open(vram_total_file, "r") as f:
@@ -130,7 +139,7 @@ def get_gpu_stats():
                         except Exception:
                             pass
 
-                    temp = 0
+                    temp = None
                     hwmon_dir = os.path.join(device_path, "hwmon")
                     if os.path.exists(hwmon_dir):
                         try:
@@ -143,8 +152,8 @@ def get_gpu_stats():
                         except Exception:
                             pass
 
-                    pct = round((used_mb / total_mb) * 100, 1) if total_mb > 0 else load
-                    if load > 0 or total_mb > 0 or os.path.exists(device_path):
+                    pct = round((used_mb / total_mb) * 100, 1) if total_mb and used_mb is not None else None
+                    if (load is not None and load > 0) or (total_mb is not None and total_mb > 0) or os.path.exists(device_path):
                         gpus.append({
                             "name": f"AMD/Intel GPU ({card})",
                             "temp": temp,

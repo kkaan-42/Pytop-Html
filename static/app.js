@@ -2,6 +2,16 @@
  * pyTOP Pro — Terminal & Sistem Monitörü İstemci Mantığı
  */
 
+// Remote API responses are session protected. A session expiry returns to the login form.
+const pytopNativeFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+    const response = await pytopNativeFetch(...args);
+    if (response.status === 401 && window.location.pathname !== '/login') {
+        window.location.assign('/login');
+    }
+    return response;
+};
+
 // ======================================================================
 // 0. Eski PWA Service Worker ve Cache Storage Kalıntılarını Temizle
 // ======================================================================
@@ -423,10 +433,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.gpus && data.gpus.length > 0) {
                 const gpu = data.gpus[0];
                 gpuNameLabel.textContent = gpu.name;
-                gpuTempBadge.textContent = `${gpu.temp}°C`;
-                gpuLoadLabel.textContent = `${gpu.load}% LOAD`;
-                vramTextDetail.textContent = `${gpu.used_mb} / ${gpu.total_mb} MB (${gpu.percent}%)`;
-                vramBarFill.style.width = `${gpu.percent}%`;
+                gpuTempBadge.textContent = Number.isFinite(gpu.temp) && gpu.temp > 0 ? `${gpu.temp}°C` : 'N/A';
+                gpuLoadLabel.textContent = Number.isFinite(gpu.load) ? `${gpu.load}% LOAD` : 'TELEMETRİ YOK';
+                if (Number.isFinite(gpu.used_mb) && Number.isFinite(gpu.total_mb) && Number.isFinite(gpu.percent)) {
+                    vramTextDetail.textContent = `${gpu.used_mb} / ${gpu.total_mb} MB (${gpu.percent}%)`;
+                    vramBarFill.style.width = `${Math.max(0, Math.min(100, gpu.percent))}%`;
+                } else if (gpu.type === 'Apple Unified' && Number.isFinite(gpu.total_mb)) {
+                    vramTextDetail.textContent = `${gpu.total_mb} MB sistemle paylaşılan bellek · GPU kullanımı ayrı ölçülemiyor`;
+                    vramBarFill.style.width = '0%';
+                } else {
+                    vramTextDetail.textContent = 'VRAM kullanımı bu donanımda ölçülemiyor';
+                    vramBarFill.style.width = '0%';
+                }
             } else {
                 gpuNameLabel.textContent = "Standart GPU / Sensör Yok";
                 gpuTempBadge.textContent = "N/A";
@@ -714,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/kill/${pid}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ force })
+                body: JSON.stringify({ force, confirm: true })
             });
             const data = await res.json();
             alert(data.message);
@@ -986,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cfgDiskThresh = document.getElementById('cfg-disk-thresh');
     const cfgGpuThresh = document.getElementById('cfg-gpu-thresh');
     const cfgCooldown = document.getElementById('cfg-cooldown');
+    const alertSecretsStatus = document.getElementById('alert-secrets-status');
 
     function toggleChannelFields(channel) {
         if (channel === 'discord') {
@@ -1006,15 +1025,19 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/alerts/config');
             const cfg = await res.json();
+            if (!res.ok) throw new Error(cfg.error || 'Uyarı ayarları alınamadı.');
             chkAlertsEnabled.checked = !!cfg.enabled;
             const channel = cfg.channel || 'discord';
             const radio = document.querySelector(`input[name="alert_channel"][value="${channel}"]`);
             if (radio) radio.checked = true;
             toggleChannelFields(channel);
 
-            if (cfg.discord_webhook) cfgDiscordWebhook.value = cfg.discord_webhook;
-            if (cfg.telegram_token) cfgTelegramToken.value = cfg.telegram_token;
-            if (cfg.telegram_chat_id) cfgTelegramChat.value = cfg.telegram_chat_id;
+            cfgDiscordWebhook.value = '';
+            cfgTelegramToken.value = '';
+            cfgTelegramChat.value = '';
+            if (alertSecretsStatus) {
+                alertSecretsStatus.textContent = ` Discord: ${cfg.discord_configured ? 'hazır' : 'ayarlı değil'} · Telegram: ${cfg.telegram_configured ? 'hazır' : 'ayarlı değil'}`;
+            }
 
             cfgCpuThresh.value = cfg.cpu_threshold || 90;
             cfgRamThresh.value = cfg.ram_threshold || 90;
@@ -1040,9 +1063,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
             enabled: chkAlertsEnabled.checked,
             channel: selectedChannel,
-            discord_webhook: cfgDiscordWebhook.value.trim(),
-            telegram_token: cfgTelegramToken.value.trim(),
-            telegram_chat_id: cfgTelegramChat.value.trim(),
             cpu_threshold: parseFloat(cfgCpuThresh.value) || 90,
             ram_threshold: parseFloat(cfgRamThresh.value) || 90,
             disk_threshold: parseFloat(cfgDiskThresh.value) || 90,
@@ -1059,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
             const d = await res.json();
+            if (!res.ok || !d.success) throw new Error(d.message || 'Ayarlar kaydedilemedi.');
             alert(d.message || 'Ayarlar kaydedildi.');
             closeAlertsModal();
             fetchHardwareStats();
@@ -1154,6 +1175,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reportModal) {
         reportModal.addEventListener('click', (e) => {
             if (e.target === reportModal) closeReportModal();
+        });
+    }
+
+    const btnUpdateCheck = document.getElementById('btn-update-check');
+    if (btnUpdateCheck) {
+        btnUpdateCheck.addEventListener('click', async () => {
+            const originalLabel = btnUpdateCheck.innerHTML;
+            btnUpdateCheck.disabled = true;
+            btnUpdateCheck.textContent = 'CHECKING…';
+            try {
+                const response = await fetch('/api/update');
+                const data = await response.json();
+                if (!response.ok || !data.available) throw new Error(data.reason || 'Sürüm kontrolü yapılamadı.');
+                if (data.update_available) {
+                    const openRelease = confirm(`Yeni sürüm bulundu: ${data.latest}\nGitHub Releases sayfası açılsın mı?`);
+                    if (openRelease && data.url) window.open(data.url, '_blank', 'noopener,noreferrer');
+                } else {
+                    alert(`Güncelsiniz (${data.current}).`);
+                }
+            } catch (err) {
+                alert(`Güncelleme kontrolü başarısız: ${err.message}`);
+            } finally {
+                btnUpdateCheck.disabled = false;
+                btnUpdateCheck.innerHTML = originalLabel;
+            }
         });
     }
 

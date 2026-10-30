@@ -228,7 +228,12 @@ def get_system_specifications():
     gpus = gpu_monitor.get_gpu_stats()
     if gpus:
         gpu_name = gpus[0]["name"]
-        gpu_detail = f"{gpu_name} ({gpus[0].get('vram_total_mb', 0)} MB)" if gpus[0].get('vram_total_mb') else gpu_name
+        if gpus[0].get("type") == "Apple Unified":
+            gpu_detail = f"{gpu_name} (unified memory; GPU telemetry unavailable)"
+        elif gpus[0].get("total_mb"):
+            gpu_detail = f"{gpu_name} ({gpus[0]['total_mb']} MB VRAM)"
+        else:
+            gpu_detail = gpu_name
     else:
         gpu_name = "Entegre / Yazılımsal GPU"
         gpu_detail = "Harici GPU bulunamadı"

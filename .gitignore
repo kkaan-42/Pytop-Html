@@ -1,11 +1,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.venv/
 app_data.db
 alerts_config.json
 .env
+.env.*
+!.env.example
 .DS_Store
 Thumbs.db
 dist/
+installer_build/Output/
 *.zip
 *.tar.gz

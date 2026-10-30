@@ -4,12 +4,18 @@ services:
     container_name: pytop-pro
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
+    environment:
+      - PYTOP_BIND=0.0.0.0
+      - PYTOP_REMOTE_TOKEN=${PYTOP_REMOTE_TOKEN:?Set a long random PYTOP_REMOTE_TOKEN before starting Compose}
+      - PYTOP_DATA_DIR=/data
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
     # Linux host süreçlerini ve donanımını tam görmek için:
     pid: "host"
     volumes:
+      - pytop-data:/data
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-    environment:
-      - HOST_PROC=/host/proc
-      - HOST_SYS=/host/sys
+volumes:
+  pytop-data:

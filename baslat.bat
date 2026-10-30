@@ -50,13 +50,26 @@ pause
 exit /b 1
 
 :python_found
+!PY_CMD! -c "import sys; exit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
+if errorlevel 1 goto :no_python
 echo [+] Python bulundu: !PY_CMD!
 
-:: Gerekli kutuphaneleri kontrol et
-!PY_CMD! -c "import flask, psutil" >nul 2>&1
+:: Izole sanal ortam kullan; sistem Python'una paket kurma
+set "RUNNER=%~dp0.venv\Scripts\python.exe"
+if not exist "%RUNNER%" (
+    echo [i] Izole Python ortami olusturuluyor...
+    !PY_CMD! -m venv "%~dp0.venv"
+    if errorlevel 1 (
+        echo [HATA] Sanal ortam olusturulamadi. Python kurulumu eksik olabilir.
+        pause
+        exit /b 1
+    )
+)
+
+"%RUNNER%" -c "import flask, psutil" >nul 2>&1
 if errorlevel 1 (
-    echo [!] Gerekli kutuphaneler eksik, requirements.txt yukleniyor...
-    !PY_CMD! -m pip install -r requirements.txt
+    echo [!] Bagimliliklar izole ortama yukleniyor...
+    "%RUNNER%" -m pip install -r requirements.txt
     if errorlevel 1 (
         echo [HATA] Kutuphaneler yuklenemedi. Lutfen internet baglantinizi kontrol edin.
         pause
@@ -65,14 +78,11 @@ if errorlevel 1 (
 )
 
 echo [+] Sunucu baslatiliyor...
-echo [i] Web arayuzu aciliyor: http://127.0.0.1:5000
+echo [i] Baslangic adresi sunucu basladiginda gosterilecek.
 echo.
 
-:: Tarayiciyi 2 saniye sonra otomatik ac
-start "" cmd /c "timeout /t 2 /nobreak >nul && start http://127.0.0.1:5000"
-
 :: Flask uygulamasini calistir
-!PY_CMD! app.py
+"%RUNNER%" app.py
 
 if errorlevel 1 (
     echo.

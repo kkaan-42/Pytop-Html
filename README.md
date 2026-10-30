@@ -253,17 +253,24 @@ Host makineye hiçbir bağımlılık kurmadan pyTOP Pro'yu izole çalıştırmak
 
 ### Tek Komutla Docker Run:
 ```bash
+export PYTOP_REMOTE_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
 docker run -d \
   --name pytop-pro \
   --restart unless-stopped \
   --pid host \
-  --net host \
-  -p 5000:5000 \
+  -p 127.0.0.1:5000:5000 \
+  -e PYTOP_BIND=0.0.0.0 \
+  -e PYTOP_REMOTE_TOKEN="$PYTOP_REMOTE_TOKEN" \
+  -e PYTOP_DATA_DIR=/data \
+  -v pytop-data:/data \
   kkaan-42/pytop-html:latest
 ```
+Docker içindeki servis uzak erişim anahtarı ister. Host portu varsayılan olarak yalnızca yerel makineye açılır.
 
 ### Docker Compose ile:
 ```bash
+# Bir defa üretip shell ortamında tutun:
+export PYTOP_REMOTE_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
 # Arka planda başlatın:
 docker compose up -d
 
@@ -291,6 +298,8 @@ sudo systemctl enable --now pytop.service
 # 4. Servis durumunu kontrol edin:
 sudo systemctl status pytop.service
 ```
+
+Servis varsayılan olarak yalnızca yerel bağlantılara açık kalır. Uzak kullanım için systemd unit dosyasına `PYTOP_BIND=0.0.0.0` ve güçlü bir `PYTOP_REMOTE_TOKEN` ortam değişkeni ekleyin; dış erişimi HTTPS proxy veya VPN ile koruyun.
 
 Artık sunucunuz yeniden başlasa bile monitörünüz `http://<sunucu-ip>:5000` adresinde her an hazır olacaktır!
 
@@ -329,14 +338,22 @@ pyTOP Pro, sunucunuz başında değilken bile donanımınızı korur.
 ### 🟣 Discord Webhook Kurulumu:
 1. Discord sunucunuzda bildirim almak istediğiniz metin kanalının **Ayarlar ➔ Entegrasyonlar ➔ Webhook'lar** bölümüne gidin.
 2. **Yeni Webhook** oluşturun ve Webhook URL'sini kopyalayın.
-3. pyTOP Pro arayüzünde <kbd>F8</kbd> tuşuna basın veya sağ üstteki **🔔 Uyarı Ayarları** butonuna tıklayın.
-4. **Discord Webhook** kutucuğunu işaretleyip URL'yi yapıştırın ve **Test Et** butonuna basın.
+3. Gizli URL'yi ortam değişkeni olarak ayarlayın; Linux/macOS: `export PYTOP_DISCORD_WEBHOOK='https://discord.com/api/webhooks/...'`, PowerShell: `$env:PYTOP_DISCORD_WEBHOOK='https://discord.com/api/webhooks/...'`.
+4. Uygulamayı yeniden başlatın, arayüzde <kbd>F8</kbd> ile alarmı etkinleştirip eşiği seçin ve **Test Et** butonuna basın.
 
 ### 🔵 Telegram Bot Kurulumu:
 1. Telegram'da `@BotFather` ile konuşarak `/newbot` komutuyla bir bot oluşturun ve **Bot Token**'ınızı alın.
 2. Botunuzu bildirim almak istediğiniz gruba ekleyin veya bota `/start` mesajı atın.
 3. Chat ID'nizi öğrenmek için `@userinfobot` veya `@getidsbot` botunu kullanın.
-4. pyTOP Pro ayarlarında **Telegram Bot** seçeneğini aktif edip Token ve Chat ID'nizi kaydedin.
+4. Token ve Chat ID'yi `PYTOP_TELEGRAM_BOT_TOKEN` ve `PYTOP_TELEGRAM_CHAT_ID` ortam değişkenleri olarak tanımlayın. Arayüzden alarmı etkinleştirip test bildirimi gönderin.
+
+Webhook ve bot sırları tarayıcıdan API'ye gönderilmez ve yapılandırma dosyasına yazılmaz. Eski `alerts_config.json` dosyalarındaki sırlar yeni sürüm tarafından içe aktarılmaz; yeni ortam değişkenlerini ayarladıktan sonra eski dosyanızı kendiniz güvenle kaldırın.
+
+Örnek ortam değişkenleri `.env.example` içindedir. Uygulama bu dosyayı otomatik yüklemez; systemd, Docker Compose veya çalıştırdığınız shell'in ortamına ekleyin.
+
+### Sürüm kontrolü
+
+Üst araç çubuğundaki **UPDATE** düğmesi GitHub Releases içindeki son sürümü okur ve yeni sürüm varsa yayın sayfasını açar. Uygulama kendi kendine dosya indirmez veya güncelleme kurmaz. Depo farklıysa `PYTOP_GITHUB_REPOSITORY=owner/repo` tanımlayın.
 
 ---
 
@@ -351,7 +368,9 @@ Pytop-Html/
 ├── gpu_monitor.py         # Çapraz platform GPU (NVIDIA, Apple Silicon, AMD/Intel DRM) & batarya
 ├── alerts.py              # Eşik kontrol motoru, cooldown yöneticisi, Discord & Telegram entegrasyonu
 ├── report_generator.py    # Sistem sağlık skoru motoru, donanım teşhisi ve raporlayıcı
-├── database.py            # SQLite geçmiş metrik kaydı
+├── database.py            # Platform kullanıcı dizininde SQLite görev/not verisi
+├── updater.py             # GitHub Releases salt okunur sürüm kontrolü
+├── installer_build/       # Inno Setup 6 Windows kurulum dosyası üretimi
 ├── baslat.sh              # Evrensel Linux (tüm dağıtımlar) & macOS başlatıcı
 ├── start.sh               # Kısayol başlatıcı betiği
 ├── baslat.bat             # Windows başlatıcı betiği
@@ -367,6 +386,8 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
+Windows kurulum dosyası için Inno Setup 6 ve Python ortamında `python installer_build/build_setup.py` komutunu kullanın. Setup kaynakları `%LOCALAPPDATA%\Programs\pyTOP Pro` içine kurar; ilk açılışta `baslat.bat` izole `.venv` ortamını oluşturur ve bağımlılıkları yükler.
+
 ---
 
 ## ❓ Sıkça Sorulan Sorular (SSS)
@@ -381,11 +402,15 @@ Root (Linux/macOS) veya Administrator (Windows) tarafından başlatılan kritik 
 <details>
 <summary><b>2. Uzak sunucumda (VPS / Dedicated) web arayüzüne nasıl bağlanırım?</b></summary>
 <br>
-pyTOP Pro varsayılan olarak <code>0.0.0.0</code> adresini dinler, yani tüm ağ arayüzlerine açıktır. Güvenlik duvarınızda 5000 portuna izin vermeniz yeterlidir:
+pyTOP Pro varsayılan olarak yalnızca <code>127.0.0.1</code> üzerinde dinler. Uzak erişim gerekiyorsa sunucuyu en az 24 karakterlik güçlü bir anahtarla başlatın:
+<pre>PYTOP_BIND=0.0.0.0
+PYTOP_REMOTE_TOKEN=&lt;uzun-rastgele-anahtar&gt;
+python app.py</pre>
+Panel, tarayıcıyı anahtar giriş sayfasına yönlendirir. Anahtar ve oturum çerezleri ağ üzerinden iletileceğinden, uzak sunucuya doğrudan HTTP açmak yerine HTTPS kullanan bir reverse proxy veya VPN arkasından erişin. Reverse proxy kullanırken yalnızca güvendiğiniz proxy'nin bu servise ulaşmasına izin verin; `PYTOP_TRUST_PROXY=1` seçeneğini ancak proxy `X-Forwarded-*` başlıklarını kendisi yazıp uygulama portuna doğrudan erişimi engelliyorsa etkinleştirin. HTTPS proxy arkasında güvenli çerez için `PYTOP_COOKIE_SECURE=1` ayarlayın. Güvenlik duvarında yalnızca gereken istemcilere izin verin:
 <br><br>
 <b>UFW (Ubuntu/Debian):</b> <code>sudo ufw allow 5000/tcp</code><br>
 <b>Firewalld (Fedora/RHEL):</b> <code>sudo firewall-cmd --add-port=5000/tcp --permanent && sudo firewall-cmd --reload</code><br>
-Ardından tarayıcınızdan <code>http://&lt;sunucu-ip-adresiniz&gt;:5000</code> adresini ziyaret edin.
+Ardından tarayıcınızdan <code>https://&lt;sunucu-adresiniz&gt;</code> adresini ziyaret edip giriş yapın. Uzak oturumlar HTTP-only, SameSite çerezi kullanır; sunucu yeniden başladığında geçersiz olur.
 </details>
 
 <details>

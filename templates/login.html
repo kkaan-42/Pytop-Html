@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>pyTOP Pro · Uzak oturum</title>
+  <style>
+    :root{color-scheme:dark;font-family:'JetBrains Mono',Consolas,monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#080d12;color:#e2e8f0}.card{width:min(420px,calc(100% - 32px));padding:28px;border:1px solid #263545;border-radius:12px;background:#111923;box-shadow:0 18px 60px #0008}.tag{color:#38bdf8;font-size:10px;letter-spacing:2px}h1{font-size:22px;margin:8px 0}p{font-size:11px;line-height:1.7;color:#91a2b2}.error{padding:10px;border:1px solid #f8717166;background:#f8717114;color:#ffadb2;border-radius:6px}.field{display:grid;gap:7px;margin-top:20px}label{font-size:10px;color:#a9b7c3}input{width:100%;padding:11px;border:1px solid #334554;border-radius:6px;background:#090f15;color:#fff;font:inherit}button{width:100%;margin-top:12px;padding:11px;border:0;border-radius:6px;background:#38bdf8;color:#061018;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}code{color:#7dd3fc}
+  </style>
+</head>
+<body><main class="card">
+  <div class="tag">pyTOP PRO / UZAK ERİŞİM</div><h1>Oturum aç</h1>
+  {% if not token_configured %}<p class="error">Sunucuda uzak erişim anahtarı ayarlı değil. Güvenli erişim için sunucuyu <code>PYTOP_REMOTE_TOKEN</code> ile yeniden başlatın.</p>
+  {% else %}<p>pyTOP Pro yönetim paneline erişmek için sunucu yöneticisinin verdiği anahtarı girin.</p>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" autocomplete="off"><div class="field"><label for="token">Uzak erişim anahtarı</label><input id="token" name="token" type="password" required autofocus autocomplete="current-password"></div><button type="submit">Giriş yap</button></form>{% endif %}
+</main></body></html>

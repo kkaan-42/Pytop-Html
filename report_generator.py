@@ -174,10 +174,11 @@ def generate_health_report():
 
     # GPU kontrolü
     for g in gpus:
-        if g.get("temp", 0) >= 85:
+        gpu_temp = g.get("temp")
+        if isinstance(gpu_temp, (int, float)) and gpu_temp >= 85:
             health_score -= 15
-            deductions.append(f"Yüksek GPU Sıcaklığı ({g['temp']}°C)")
-            findings.append(f"Ekran kartı ({g['name']}) sıcaklığı yüksek ({g['temp']}°C). Havalandırma ve fan hızını kontrol edin.")
+            deductions.append(f"Yüksek GPU Sıcaklığı ({gpu_temp}°C)")
+            findings.append(f"Ekran kartı ({g['name']}) sıcaklığı yüksek ({gpu_temp}°C). Havalandırma ve fan hızını kontrol edin.")
 
     # Swap kontrolü
     if mem_data["swap_percent"] >= 70:

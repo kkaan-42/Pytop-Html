@@ -3,7 +3,13 @@ import time
 import platform
 import datetime
 import socket
-from flask import Flask, render_template, jsonify, request, Response
+import hmac
+import ipaddress
+import secrets
+import threading
+import webbrowser
+from flask import Flask, render_template, jsonify, request, Response, session, redirect, url_for, abort
+from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 import psutil
 
@@ -13,10 +19,81 @@ import report_generator
 import net_monitor
 import sys_info
 import docker_monitor
+import database
+import updater
 
 APP_VERSION = "v2.1-beta"
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("PYTOP_SESSION_SECRET") or secrets.token_hex(32)
+app.config["PYTOP_REMOTE_TOKEN"] = os.environ.get("PYTOP_REMOTE_TOKEN", "")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("PYTOP_COOKIE_SECURE", "").lower() in {"1", "true", "yes"}
+if os.environ.get("PYTOP_TRUST_PROXY", "").lower() in {"1", "true", "yes"}:
+    # Enable only when direct access is blocked and a trusted proxy overwrites these headers.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+database.init_db()
+_io_lock = threading.Lock()
+
+
+def _is_loopback(address):
+    try:
+        parsed = ipaddress.ip_address(address or "")
+        return parsed.is_loopback or bool(parsed.ipv4_mapped and parsed.ipv4_mapped.is_loopback)
+    except ValueError:
+        return False
+
+
+@app.before_request
+def protect_remote_access():
+    remote = request.remote_addr
+    host = request.host
+    try:
+        from urllib.parse import urlsplit
+        host = urlsplit("//" + request.host).hostname or ""
+    except ValueError:
+        host = ""
+
+    if _is_loopback(remote):
+        # Reject DNS-rebinding hostnames while allowing the usual local names.
+        allowed_hosts = {"localhost", "127.0.0.1", "::1", socket.gethostname().lower(), platform.node().lower()}
+        if host.lower() not in allowed_hosts and not app.testing:
+            abort(400, description="Bu Host başlığı yerel arayüz için kabul edilmiyor.")
+    elif remote:
+        if request.endpoint == "remote_login" or request.path.startswith("/static/"):
+            pass
+        elif len(app.config.get("PYTOP_REMOTE_TOKEN", "")) < 24:
+            abort(403, description="Uzak erişim için en az 24 karakterlik PYTOP_REMOTE_TOKEN gerekli.")
+        elif not session.get("pytop_authenticated"):
+            if request.path.startswith("/api/"):
+                return jsonify({"error": "Uzak oturum açma gerekli."}), 401
+            return redirect(url_for("remote_login"))
+
+    if remote and not _is_loopback(remote) and request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+        origin = request.headers.get("Origin")
+        if origin:
+            from urllib.parse import urlsplit
+            origin_parts = urlsplit(origin)
+            host_parts = urlsplit(request.host_url)
+            if origin_parts.netloc != host_parts.netloc:
+                abort(403, description="İstek kaynağı doğrulanamadı.")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def remote_login():
+    if _is_loopback(request.remote_addr) or session.get("pytop_authenticated"):
+        return redirect(url_for("index"))
+    expected = app.config.get("PYTOP_REMOTE_TOKEN", "")
+    error = None
+    if request.method == "POST":
+        supplied = request.form.get("token", "")
+        if len(expected) >= 24 and hmac.compare_digest(supplied, expected):
+            session.clear()
+            session["pytop_authenticated"] = True
+            return redirect(url_for("index"))
+        error = "Anahtar doğrulanamadı veya uzak erişim sunucuda etkin değil."
+    return render_template("login.html", error=error, token_configured=len(expected) >= 24)
 
 
 # Başlangıç donanım ölçümünü ısıt
@@ -89,12 +166,26 @@ def get_stats():
     """Çekirdek bazlı CPU, RAM, Disk, Ağ, GPU, Batarya ve sistem özetini anlık hızlarla döndürür."""
     global _last_io
 
-    now = time.time()
-    dt = max(0.1, now - _last_io["time"])
+    with _io_lock:
+        now = time.time()
+        dt = max(0.1, now - _last_io["time"])
+        current_net = psutil.net_io_counters()
+        current_disk = psutil.disk_io_counters() if hasattr(psutil, 'disk_io_counters') else None
+        rx_speed_kbs = 0.0
+        tx_speed_kbs = 0.0
+        if current_net and _last_io.get("net"):
+            rx_speed_kbs = round(max(0, (current_net.bytes_recv - _last_io["net"].bytes_recv) / dt / 1024), 1)
+            tx_speed_kbs = round(max(0, (current_net.bytes_sent - _last_io["net"].bytes_sent) / dt / 1024), 1)
+        read_speed_kbs = 0.0
+        write_speed_kbs = 0.0
+        if current_disk and _last_io.get("disk"):
+            read_speed_kbs = round(max(0, (current_disk.read_bytes - _last_io["disk"].read_bytes) / dt / 1024), 1)
+            write_speed_kbs = round(max(0, (current_disk.write_bytes - _last_io["disk"].write_bytes) / dt / 1024), 1)
+        _last_io = {"net": current_net, "disk": current_disk, "time": now}
 
     # 1. CPU
     per_cpu = psutil.cpu_percent(interval=None, percpu=True)
-    total_cpu = psutil.cpu_percent(interval=None)
+    total_cpu = round(sum(per_cpu) / len(per_cpu), 1) if per_cpu else psutil.cpu_percent(interval=None)
     cpu_times = psutil.cpu_times_percent()
     cpu_freq = psutil.cpu_freq()
     current_freq = round(cpu_freq.current, 1) if cpu_freq else 0
@@ -117,36 +208,23 @@ def get_stats():
 
     try:
         disk = psutil.disk_usage(drive)
-    except Exception:
-        disk = psutil.disk_usage("/")
-        drive = "/"
-    
-    disk_total_gb = round(disk.total / (1024 ** 3), 1)
-    disk_used_gb = round(disk.used / (1024 ** 3), 1)
-    disk_free_gb = round(disk.free / (1024 ** 3), 1)
+    except (OSError, PermissionError):
+        disk = None
+        try:
+            for partition in psutil.disk_partitions(all=False):
+                try:
+                    disk = psutil.disk_usage(partition.mountpoint)
+                    drive = partition.mountpoint
+                    break
+                except (OSError, PermissionError):
+                    continue
+        except (OSError, PermissionError):
+            pass
 
-    # 4. Ağ ve Disk I/O Hızları
-    current_net = psutil.net_io_counters()
-    current_disk = psutil.disk_io_counters() if hasattr(psutil, 'disk_io_counters') else None
-
-    rx_speed_kbs = 0.0
-    tx_speed_kbs = 0.0
-    if current_net and _last_io.get("net"):
-        rx_speed_kbs = round(max(0, (current_net.bytes_recv - _last_io["net"].bytes_recv) / dt / 1024), 1)
-        tx_speed_kbs = round(max(0, (current_net.bytes_sent - _last_io["net"].bytes_sent) / dt / 1024), 1)
-
-    read_speed_kbs = 0.0
-    write_speed_kbs = 0.0
-    if current_disk and _last_io.get("disk"):
-        read_speed_kbs = round(max(0, (current_disk.read_bytes - _last_io["disk"].read_bytes) / dt / 1024), 1)
-        write_speed_kbs = round(max(0, (current_disk.write_bytes - _last_io["disk"].write_bytes) / dt / 1024), 1)
-
-    # Güncelle
-    _last_io = {
-        "net": current_net,
-        "disk": current_disk,
-        "time": now
-    }
+    disk_total_gb = round(disk.total / (1024 ** 3), 1) if disk else 0.0
+    disk_used_gb = round(disk.used / (1024 ** 3), 1) if disk else 0.0
+    disk_free_gb = round(disk.free / (1024 ** 3), 1) if disk else 0.0
+    disk_percent = disk.percent if disk else 0.0
 
     # 5. Uptime
     uptime_seconds = int(now - psutil.boot_time())
@@ -190,7 +268,7 @@ def get_stats():
             "total_gb": disk_total_gb,
             "used_gb": disk_used_gb,
             "free_gb": disk_free_gb,
-            "percent": disk.percent,
+            "percent": disk_percent,
             "read_kbs": read_speed_kbs,
             "write_kbs": write_speed_kbs
         },
@@ -217,10 +295,16 @@ def get_stats():
 def get_processes():
     """Çalışan gerçek sistem süreçlerini listeler, kategorize eder ve sıralar."""
     sort_by = request.args.get("sort", "cpu")
+    if sort_by not in {"cpu", "mem", "rss", "pid", "name", "threads"}:
+        sort_by = "cpu"
     sort_order = request.args.get("order", "desc")
+    if sort_order not in {"asc", "desc"}:
+        sort_order = "desc"
     filter_q = request.args.get("filter", "").lower().strip()
     category = request.args.get("cat", "all")
-    limit = int(request.args.get("limit", 60))
+    if category not in {"all", "python", "browser", "user"}:
+        category = "all"
+    limit = max(1, min(request.args.get("limit", 60, type=int) or 60, 250))
 
     procs = []
     attrs = ['pid', 'name', 'username', 'cpu_percent', 'memory_percent', 'status', 'memory_info', 'num_threads', 'create_time']
@@ -367,8 +451,12 @@ def get_process_detail(pid):
 @app.route("/api/kill/<int:pid>", methods=["POST"])
 def kill_process(pid):
     """Belirtilen PID numaralı süreci sonlandırır (SIGTERM veya SIGKILL)."""
-    data = request.get_json() or {}
-    force = data.get("force", False)
+    data = request.get_json(silent=True) or {}
+    if data.get("confirm") is not True:
+        return jsonify({"success": False, "message": "İşlemi sonlandırmak için confirm=true gerekli."}), 400
+    if pid <= 1 or pid == os.getpid():
+        return jsonify({"success": False, "message": "Sistem süreci veya pyTOP Pro'nun kendisi sonlandırılamaz."}), 400
+    force = data.get("force") is True
 
     try:
         p = psutil.Process(pid)
@@ -394,17 +482,16 @@ def kill_process(pid):
 def alert_config():
     """Uyarı ayarlarını okur veya günceller."""
     if request.method == "POST":
-        data = request.get_json() or {}
+        data = request.get_json(silent=True) or {}
         success, msg = alerts.save_config(data)
-        return jsonify({"success": success, "message": msg})
+        return jsonify({"success": success, "message": msg}), (200 if success else 400)
     else:
         cfg = alerts.load_config()
-        # Güvenlik için tokenları kısmen maskeleme
         safe_cfg = cfg.copy()
-        if safe_cfg.get("discord_webhook"):
-            safe_cfg["discord_webhook_masked"] = safe_cfg["discord_webhook"][:28] + "..."
-        if safe_cfg.get("telegram_token"):
-            safe_cfg["telegram_token_masked"] = safe_cfg["telegram_token"][:8] + "..."
+        safe_cfg["discord_configured"] = bool(safe_cfg.pop("discord_webhook", ""))
+        safe_cfg["telegram_configured"] = bool(safe_cfg.pop("telegram_token", "") and safe_cfg.pop("telegram_chat_id", ""))
+        safe_cfg.pop("telegram_token", None)
+        safe_cfg.pop("telegram_chat_id", None)
         return jsonify(safe_cfg)
 
 @app.route("/api/alerts/test", methods=["POST"])
@@ -485,6 +572,17 @@ def api_docker_logs(container_id):
     return jsonify(res)
 
 
+@app.route("/api/update")
+def api_update_check():
+    """Check the configured GitHub repository's latest release without installing it."""
+    return jsonify(updater.check_release(APP_VERSION))
+
+
+@app.route("/healthz")
+def health_check():
+    return jsonify({"ok": True, "version": APP_VERSION})
+
+
 
 @app.after_request
 def add_cache_control_headers(response):
@@ -492,6 +590,9 @@ def add_cache_control_headers(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
     return response
 
 @app.route("/sw.js")
@@ -509,22 +610,34 @@ self.addEventListener('activate', (event) => {
     return Response(code, mimetype="application/javascript")
 
 
-def find_available_port(start_port=5000, max_tries=20):
+def find_available_port(start_port=5000, max_tries=20, host="127.0.0.1"):
     """Port 5000 meşgulse çökmemesi için sıradaki boş portu bulur."""
     for p in range(start_port, start_port + max_tries):
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(("0.0.0.0", p))
+            family = socket.AF_INET6 if ":" in host else socket.AF_INET
+            with socket.socket(family, socket.SOCK_STREAM) as s:
+                s.bind((host, p))
                 return p
         except OSError:
             continue
     return start_port
 
 if __name__ == "__main__":
-    port = find_available_port(5000)
+    host = os.environ.get("PYTOP_BIND", "127.0.0.1").strip()
+    port_value = os.environ.get("PYTOP_PORT", "")
+    remote_token = os.environ.get("PYTOP_REMOTE_TOKEN", "")
+    if host not in {"localhost", "127.0.0.1", "::1"} and len(remote_token) < 24:
+        raise SystemExit("Uzak erişim için en az 24 karakterlik PYTOP_REMOTE_TOKEN ayarlayın; aksi halde PYTOP_BIND=127.0.0.1 kullanın.")
+    port = int(port_value) if port_value else find_available_port(5000, host=host)
     print("==================================================")
     print(f" pyTOP Pro ({APP_VERSION}) — Terminal Sistem & Süreç Monitörü")
     print(f" Yerel Erişim:  http://127.0.0.1:{port}")
-    print(f" Ağ Erişimi:    http://0.0.0.0:{port}")
+    if host not in {"localhost", "127.0.0.1", "::1"}:
+        print(f" Ağ Erişimi:    http://{host}:{port} (oturum açma ve token gerekli)")
+    else:
+        print(" Uzak ağ erişimi kapalıdır. Gerekiyorsa PYTOP_BIND ve PYTOP_REMOTE_TOKEN ayarlayın.")
     print("==================================================")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    has_desktop = os.name == "nt" or (platform.system() == "Darwin" and not os.environ.get("SSH_CLIENT")) or bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+    if host in {"localhost", "127.0.0.1", "::1"} and has_desktop and os.environ.get("PYTOP_NO_BROWSER") != "1":
+        threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{port}")).start()
+    app.run(host=host, port=port, debug=False, threaded=True)
