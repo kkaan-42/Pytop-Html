@@ -9,7 +9,7 @@ on:
       tag:
         description: Existing release tag to build
         required: true
-        default: v2.2.1
+        default: v2.2.2
 
 permissions:
   contents: write
@@ -49,8 +49,11 @@ jobs:
           body: |
             pyTOP ${{ github.event.inputs.tag || github.ref_name }} Windows masaüstü sürümü.
 
-            v2.2.1: Yenilenen gösterge paneli ve güncelleme denetimi iyileştirmeleri.
-            Tek indirme: Windows 10/11 için Electron tabanlı kurulum dosyası. Python kurulumu gerekmez.
+            ${{ github.event.inputs.tag || github.ref_name }}: Uygulama içi otomatik güncelleme, arka plan sürüm kontrolü ve onaylı indirme/kurulum.
+            Windows 10/11 Electron kurulum dosyasının yanında güncelleyicinin doğrulama manifesti ve blok haritaları bulunur. Python kurulumu gerekmez.
           draft: false
           prerelease: false
-          files: electron/dist/*.exe
+          files: |
+            electron/dist/*.exe
+            electron/dist/*.yml
+            electron/dist/*.blockmap

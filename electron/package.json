@@ -1,22 +1,26 @@
 {
   "name": "pytop-pro-desktop",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "description": "pyTOP Pro Windows desktop system monitor",
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win nsis"
+    "dist:win": "electron-builder --win nsis --publish never"
   },
   "devDependencies": {
     "electron": "^37.2.6",
     "electron-builder": "^26.0.12"
   },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
   "build": {
     "appId": "com.pytop.pro",
     "productName": "pyTOP Pro",
+    "publish": [{ "provider": "github", "owner": "kkaan-42", "repo": "Pytop-Html", "releaseType": "release" }],
     "directories": { "output": "dist" },
-    "files": ["main.cjs", "package.json"],
+    "files": ["main.cjs", "preload.cjs", "package.json"],
     "extraResources": [{ "from": "backend", "to": "backend" }],
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],

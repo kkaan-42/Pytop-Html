@@ -1,4 +1,5 @@
-const { app, BrowserWindow, dialog, shell } = require('electron');
+const { app, BrowserWindow, dialog, shell, ipcMain } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const { spawn } = require('node:child_process');
 const net = require('node:net');
 const path = require('node:path');
@@ -7,6 +8,62 @@ const http = require('node:http');
 let backend;
 let windowRef;
 let stopping = false;
+let updateCheckInProgress = false;
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.allowPrerelease = false;
+autoUpdater.logger = console;
+
+async function checkForUpdates(manual = false) {
+  if (!app.isPackaged || process.platform !== 'win32') {
+    if (manual) await dialog.showMessageBox(windowRef, {
+      type: 'info', title: 'pyTOP Pro güncellemesi', message: 'Otomatik güncellemeler Windows masaüstü sürümünde kullanılabilir.'
+    });
+    return { status: 'unsupported' };
+  }
+  if (updateCheckInProgress) return { status: 'checking' };
+
+  updateCheckInProgress = true;
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    if (!result?.isUpdateAvailable) {
+      if (manual) await dialog.showMessageBox(windowRef, {
+        type: 'info', title: 'pyTOP Pro güncellemesi', message: `Uygulamanız güncel (v${app.getVersion()}).`
+      });
+      return { status: 'current' };
+    }
+
+    const version = result.updateInfo.version;
+    const { response } = await dialog.showMessageBox(windowRef, {
+      type: 'info', title: 'pyTOP Pro güncellemesi bulundu',
+      message: `pyTOP Pro v${version} bulundu. Güncelleme indirilsin mi?`,
+      buttons: ['İndir', 'Daha sonra'], defaultId: 0, cancelId: 1
+    });
+    if (response !== 0) return { status: 'deferred', version };
+
+    if (windowRef && !windowRef.isDestroyed()) windowRef.webContents.send('updates:status', { state: 'downloading', version });
+    await autoUpdater.downloadUpdate();
+    if (windowRef && !windowRef.isDestroyed()) windowRef.webContents.send('updates:status', { state: 'downloaded', version });
+    const install = await dialog.showMessageBox(windowRef, {
+      type: 'info', title: 'Güncelleme hazır',
+      message: `pyTOP Pro v${version} indirildi. Kurulumu tamamlamak için uygulamayı yeniden başlatın.`,
+      buttons: ['Şimdi yeniden başlat', 'Daha sonra'], defaultId: 0, cancelId: 1
+    });
+    if (install.response === 0) autoUpdater.quitAndInstall();
+    return { status: 'downloaded', version };
+  } catch (error) {
+    console.error('pyTOP update check:', error);
+    if (manual) await dialog.showMessageBox(windowRef, {
+      type: 'error', title: 'Güncelleme kontrolü başarısız', message: error.message || 'GitHub Release kontrol edilemedi.'
+    });
+    return { status: 'error' };
+  } finally {
+    updateCheckInProgress = false;
+  }
+}
+
+ipcMain.handle('updates:check', () => checkForUpdates(true));
 
 function reservePort() {
   return new Promise((resolve, reject) => {
@@ -72,7 +129,10 @@ function createWindow(url) {
     backgroundColor: '#0d1117',
     title: 'pyTOP Pro',
     autoHideMenuBar: true,
-    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+    webPreferences: {
+      contextIsolation: true, nodeIntegration: false, sandbox: true,
+      preload: path.join(__dirname, 'preload.cjs')
+    }
   });
   windowRef.webContents.setWindowOpenHandler(({ url: target }) => {
     if (target.startsWith('https://github.com/kkaan-42/Pytop-Html/releases/')) {
@@ -99,6 +159,7 @@ app.whenReady().then(async () => {
     startBackend(port);
     await waitForBackend(port);
     createWindow(`http://127.0.0.1:${port}/`);
+    setTimeout(() => checkForUpdates(false), 10000);
   } catch (error) {
     await dialog.showMessageBox({ type: 'error', title: 'pyTOP Pro başlatılamadı', message: error.message });
     await stopBackend();

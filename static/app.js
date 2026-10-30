@@ -1198,14 +1198,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btnUpdateCheck.disabled = true;
             btnUpdateCheck.textContent = 'CHECKING…';
             try {
-                const response = await fetch('/api/update');
-                const data = await response.json();
-                if (!response.ok || !data.available) throw new Error(data.reason || 'Sürüm kontrolü yapılamadı.');
-                if (data.update_available) {
-                    const openRelease = confirm(`Yeni sürüm bulundu: ${data.latest}\nGitHub Releases sayfası açılsın mı?`);
-                    if (openRelease && data.url) window.open(data.url, '_blank', 'noopener,noreferrer');
+                if (window.pyTopUpdater) {
+                    await window.pyTopUpdater.check();
                 } else {
-                    alert(`Güncelsiniz (${data.current}).`);
+                    const response = await fetch('/api/update');
+                    const data = await response.json();
+                    if (!response.ok || !data.available) throw new Error(data.reason || 'Sürüm kontrolü yapılamadı.');
+                    if (data.update_available) {
+                        const openRelease = confirm(`Yeni sürüm bulundu: ${data.latest}\nGitHub Releases sayfası açılsın mı?`);
+                        if (openRelease && data.url) window.open(data.url, '_blank', 'noopener,noreferrer');
+                    } else {
+                        alert(`Güncelsiniz (${data.current}).`);
+                    }
                 }
             } catch (err) {
                 alert(`Güncelleme kontrolü başarısız: ${err.message}`);

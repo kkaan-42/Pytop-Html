@@ -2334,7 +2334,7 @@ button:focus-visible, select:focus-visible, input:focus-visible {
     .intro-meta { display: none; }
 }
 
-/* pyTOP Pro — v2.2.1 desktop dashboard translated from the Figma screen. */
+/* pyTOP Pro — v2.2.2 desktop dashboard translated from the Figma screen. */
 body {
     display: flex; width: 100vw; height: 100vh; overflow: hidden;
     background: #101619; background-image: none;
