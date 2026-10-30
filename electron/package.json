@@ -1,0 +1,35 @@
+{
+  "name": "pytop-pro-desktop",
+  "version": "2.2.0",
+  "private": true,
+  "description": "pyTOP Pro Windows desktop system monitor",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.pytop.pro",
+    "productName": "pyTOP Pro",
+    "directories": { "output": "dist" },
+    "files": ["main.cjs", "package.json"],
+    "extraResources": [{ "from": "backend", "to": "backend" }],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "pyTOP-Pro-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "pyTOP Pro",
+      "installerLanguages": ["en_US", "tr_TR"],
+      "language": "0x041f"
+    }
+  }
+}

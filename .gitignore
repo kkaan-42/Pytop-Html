@@ -13,3 +13,6 @@ dist/
 installer_build/Output/
 *.zip
 *.tar.gz
+node_modules/
+electron/dist/
+electron/backend/

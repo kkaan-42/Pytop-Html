@@ -1,0 +1,55 @@
+name: Build and publish Windows desktop release
+
+on:
+  push:
+    tags:
+      - v2.2
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build
+        required: true
+        default: v2.2
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Python backend dependencies
+        run: python -m pip install -r requirements.txt pyinstaller==6.14.2
+      - name: Package the local monitoring service
+        run: >-
+          pyinstaller --noconfirm --clean --onedir --noconsole --name pyTOP-Backend
+          --add-data "templates;templates" --add-data "static;static" app.py
+      - name: Bundle backend for Electron
+        run: Copy-Item -Recurse -Force dist/pyTOP-Backend electron/backend
+      - name: Install Electron build dependencies
+        working-directory: electron
+        run: npm install --no-audit --no-fund
+      - name: Build the single Windows installer
+        working-directory: electron
+        run: npm run dist:win
+      - name: Publish v2.2 with one Windows download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: pyTOP v2.2 — Windows Desktop
+          body: |
+            pyTOP v2.2 Windows masaüstü sürümü.
+
+            Tek indirme: Windows 10/11 için Electron tabanlı kurulum dosyası. Python kurulumu gerekmez.
+          draft: false
+          prerelease: false
+          files: electron/dist/pyTOP-Pro-Setup-2.2.0.exe

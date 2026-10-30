@@ -1,9 +1,9 @@
-# 🖥️ pyTOP Pro (Beta v2.1) — Modern Web & Terminal Sistem Monitörü
+# 🖥️ pyTOP Pro v2.2 — Windows Masaüstü Sistem Monitörü
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v2.1--beta-orange?style=for-the-badge)
-![Status](https://img.shields.io/badge/Edition-BETA-f59e0b?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.2-4f9f83?style=for-the-badge)
+![Status](https://img.shields.io/badge/Edition-Windows%20Desktop-4f9f83?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue?style=for-the-badge&logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
@@ -17,23 +17,21 @@
 </div>
 
 > [!IMPORTANT]
-> 🚀 **pyTOP Pro v2.1-beta (Beta Sürümü)**  
-> pyTOP Pro resmi olarak **Beta** aşamasına geçmiştir! Bu sürüm ile birlikte sisteme **Canlı Docker & Konteyner Yöneticisi (<kbd>F12</kbd>)**, **HOST & SPECS Donanım Envanteri (<kbd>F10</kbd>)**, **Canlı Açık Port / Soket Dedektörü (<kbd>F6</kbd>)** ve yeni nesil performans optimizasyonları eklenmiştir.
+> 🚀 **pyTOP Pro v2.2 — Windows Masaüstü Sürümü**
+> Electron penceresinde çalışan yerel sistem monitörü. Kurulum dosyası Python gerektirmez.
 
 ---
 
 ## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
 
-pyTOP Pro v2.1-beta sürümü, her işletim sistemi için özel olarak optimize edilmiş bağımsız arşiv dosyaları ve tek tıkla çalışabilen başlatıcılarla GitHub Releases üzerinden sunulmaktadır:
+pyTOP Pro v2.2 Windows masaüstü sürümü GitHub Releases bölümünde tek kurulum dosyası olarak sunulur:
 
 | İşletim Sistemi | Paket Formatı | Doğrudan İndirme | Özel Başlatıcı | Kullanım Şekli |
 | :--- | :---: | :---: | :---: | :--- |
-| **🪟 Windows** (10 / 11 / Server) | `.zip` | [📥 pytop-v2.1-beta-windows.zip](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-windows.zip) | `baslat.bat` | Arşivi klasöre çıkartın ve **`baslat.bat`** dosyasına çift tıklayın. Python ve kütüphaneleri otomatik kontrol eder, web tarayıcısını anında açar. |
-| **🐧 Linux** (Ubuntu, Debian, Fedora, Arch...) | `.tar.gz` | [📥 pytop-v2.1-beta-linux.tar.gz](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-linux.tar.gz) | `baslat.sh` / `baslat_linux.sh` | Arşivi açın (`tar -xzf ...`), terminalde `./baslat.sh` komutunu verin. Dağıtım paket yöneticinizi tanır ve ortamı otomatik hazırlar. *(İsteğe bağlı systemd servisi `pytop.service` dahildir)* |
-| **🍎 macOS** (Apple Silicon M1-M4 & Intel) | `.zip` | [📥 pytop-v2.1-beta-macos.zip](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.1-beta/pytop-v2.1-beta-macos.zip) | `baslat_mac.command` | Arşivi açın ve Finder üzerinden **`baslat_mac.command`** dosyasına çift tıklayın. Yerel Terminal penceresinde anında başlar. |
+| **🪟 Windows 10 / 11 x64** | `.exe` | [📥 pyTOP-Pro-Setup-2.2.0.exe](https://github.com/kkaan-42/Pytop-Html/releases/download/v2.2/pyTOP-Pro-Setup-2.2.0.exe) | pyTOP Pro | Kurulum sihirbazını çalıştırın; Python kurulumu gerekmez. |
 
 > [!TIP]
-> Tüm sürümleri, değişiklik günlüklerini ve kaynak kodları incelemek için [GitHub Releases Sayfası](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.1-beta) adresini ziyaret edebilirsiniz.
+> Sürümü ve tek Windows indirmesini [GitHub Releases sayfasında](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.2) bulabilirsiniz.
 
 ---
 
@@ -386,7 +384,9 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
-Windows kurulum dosyası için Inno Setup 6 ve Python ortamında `python installer_build/build_setup.py` komutunu kullanın. Setup kaynakları `%LOCALAPPDATA%\Programs\pyTOP Pro` içine kurar; ilk açılışta `baslat.bat` izole `.venv` ortamını oluşturur ve bağımlılıkları yükler.
+Windows v2.2 Electron uygulaması `electron/` içinde yer alır. Geliştirme için Electron bağımlılıklarını `cd electron; npm install` ile kurup `npm start` çalıştırın; Python ortamı da uygulamanın Flask backend'ini yerelde başlatır.
+
+Tek Windows kurulum dosyasını yayımlamak için `v2.2` etiketini gönderin. `.github/workflows/release-windows.yml` backend'i PyInstaller ile paketler, Electron NSIS kurulum dosyasını üretir ve Release'e tek `.exe` dosyası ekler.
 
 ---
 
