@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Set app version from release tag
+        run: python scripts/sync_release_version.py "${{ github.event.inputs.tag || github.ref_name }}"
       - name: Install Python backend dependencies
         run: python -m pip install -r requirements.txt pyinstaller==6.14.2
       - name: Package the local monitoring service
@@ -62,6 +64,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Set app version from release tag
+        run: python scripts/sync_release_version.py "${{ github.event.inputs.tag || github.ref_name }}"
       - name: Install Python backend dependencies
         run: python -m pip install -r requirements.txt pyinstaller==6.14.2
       - name: Install AppImage build dependency
