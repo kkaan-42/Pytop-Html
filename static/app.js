@@ -143,6 +143,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSaveLayout = document.getElementById('btn-save-layout');
     const btnResetLayout = document.getElementById('btn-reset-layout');
     const hardwareGrid = document.getElementById('main-hardware-grid');
+    const serverUrlInput = document.getElementById('server-url-input');
+    const btnConnectServer = document.getElementById('btn-connect-server');
+    const serverConnectStatus = document.getElementById('server-connect-status');
+
+    if (serverUrlInput && btnConnectServer) {
+        serverUrlInput.value = localStorage.getItem('pytop_server_url') || '';
+        btnConnectServer.addEventListener('click', async () => {
+            const url = serverUrlInput.value.trim();
+            try {
+                if (!window.pyTopServer?.connect) throw new Error('Sunucu bağlantısı yalnızca Electron masaüstü uygulamasında kullanılabilir.');
+                btnConnectServer.disabled = true;
+                if (serverConnectStatus) serverConnectStatus.textContent = 'Sunucu adresi kontrol ediliyor…';
+                await window.pyTopServer.connect(url);
+                localStorage.setItem('pytop_server_url', url);
+            } catch (error) {
+                if (serverConnectStatus) serverConnectStatus.textContent = error.message || 'Sunucuya bağlanılamadı.';
+            } finally {
+                btnConnectServer.disabled = false;
+            }
+        });
+    }
 
     // ======================================================================
     // 3. Tema ve Tam Ekran Yönetimi

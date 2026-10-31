@@ -360,9 +360,9 @@ pyTOP Server'ı izlenecek Linux sunucuya kurun. Sunucuda proje kaynaklarını ve
 sudo ./install-server.sh
 ```
 
-Kurulum `pytop-server` systemd servisini etkinleştirir ve en az 24 karakterli rastgele erişim tokeni oluşturur. Tokeni sunucuda `sudo cat /opt/pytop-server/server.env` ile görüntüleyin. Kendi bilgisayarınızdaki tarayıcıdan `http://SUNUCU_IP:5000` adresini açıp token ile giriş yaptığınızda canlı panel ve grafikler sunucunun metriklerini gösterir. Servis günlükleri `sudo journalctl -u pytop-server -f` komutuyla izlenebilir; durdurmak için `sudo systemctl disable --now pytop-server` kullanın.
+Kurulum `pytop-server` systemd servisini etkinleştirir ve rastgele erişim tokeni oluşturur. Tokeni sunucuda `sudo cat /opt/pytop-server/server.env` ile görüntüleyin. pyTOP Pro masaüstü uygulamasında **Ayarlar → Uzak pyTOP Server** alanına `http://SUNUCU_IP:5000` adresini girip **Bağlan**'ı seçin; açılan sunucu giriş ekranında tokeni girin. Canlı panel ve grafikler sunucunun metriklerini gösterir. İsterseniz aynı adresi tarayıcıda da açabilirsiniz. Servis günlükleri `sudo journalctl -u pytop-server -f` komutuyla izlenebilir; durdurmak için `sudo systemctl disable --now pytop-server` kullanın.
 
-Erişimi yalnızca güvenilir LAN veya VPN ile sınırlandırın; uygulamayı internete doğrudan açmayın. Sunucuya gelen TCP 5000 erişimini güvenlik duvarında yalnızca istemci ağınıza izin verecek şekilde ayarlayın. Bu sürüm Linux sunucularını hedefler; Windows/macOS server ajanı ve Electron içinden sunucu profili seçme sonraki geliştirme adımlarıdır.
+Erişimi yalnızca güvenilir LAN veya VPN ile sınırlandırın; uygulamayı internete doğrudan açmayın. Sunucuya gelen TCP 5000 erişimini güvenlik duvarında yalnızca istemci ağınıza izin verecek şekilde ayarlayın. Server ajanı bu sürümde Linux'u hedefler.
 
 ---
 

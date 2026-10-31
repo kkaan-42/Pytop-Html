@@ -8,3 +8,7 @@ contextBridge.exposeInMainWorld('pyTopUpdater', {
     return () => ipcRenderer.removeListener('updates:status', listener);
   }
 });
+
+contextBridge.exposeInMainWorld('pyTopServer', {
+  connect: address => ipcRenderer.invoke('server:connect', address)
+});

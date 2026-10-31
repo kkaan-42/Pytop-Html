@@ -915,6 +915,16 @@
                     <strong class="app-version-value">{{ sys.app_version }}</strong>
                 </section>
 
+                <section class="server-connect-card" aria-labelledby="server-connect-title">
+                    <div class="layout-section-title" id="server-connect-title">UZAK PYTOP SERVER</div>
+                    <p class="app-version-note">Sunucudaki paneli bu masaüstü penceresinde açın. Giriş tokenini sunucunun oturum açma ekranında girin.</p>
+                    <div class="server-connect-row">
+                        <input id="server-url-input" class="term-input" type="url" inputmode="url" placeholder="https://pytop.example.com veya http://192.168.1.20:5000" autocomplete="url" aria-label="pyTOP Server adresi">
+                        <button type="button" id="btn-connect-server" class="term-action-btn btn-primary">Bağlan</button>
+                    </div>
+                    <p id="server-connect-status" class="app-version-note" role="status" aria-live="polite">Yalnızca güvendiğiniz LAN/VPN sunucularına bağlanın.</p>
+                </section>
+
                 <div class="layout-intro-note">
                     <span class="text-xs c-muted">Panelleri fare ile <strong class="c-cyan">sürükleyip bırakarak</strong> sıralayabilir veya aşağıdaki anahtarlarla görünürlüklerini açıp kapatabilirsiniz. Tüm tercihleriniz tarayıcınızda otomatik saklanır.</span>
                 </div>

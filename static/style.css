@@ -2123,6 +2123,29 @@ kbd {
     text-shadow: 0 0 12px rgba(56, 189, 248, 0.28);
 }
 
+.server-connect-card {
+    margin-bottom: 0.8rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    background: rgba(24, 32, 51, 0.5);
+}
+
+.server-connect-card .app-version-note { line-height: 1.5; }
+
+.server-connect-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.55rem;
+}
+
+.server-connect-row .term-input { flex: 1; min-width: 0; }
+
+@media (max-width: 560px) {
+    .server-connect-row { align-items: stretch; flex-direction: column; }
+}
+
 .layout-section-title {
     font-size: 0.7rem;
     font-weight: 700;

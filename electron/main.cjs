@@ -9,6 +9,7 @@ let backend;
 let windowRef;
 let stopping = false;
 let updateCheckInProgress = false;
+const trustedOrigins = new Set();
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
@@ -67,6 +68,19 @@ async function checkForUpdates(manual = false) {
 
 ipcMain.handle('updates:check', () => checkForUpdates(true));
 
+ipcMain.handle('server:connect', async (_event, address) => {
+  if (typeof address !== 'string' || address.length > 2048) throw new Error('Geçerli bir sunucu adresi girin.');
+  let target;
+  try { target = new URL(address); } catch { throw new Error('Sunucu adresi https:// veya http:// ile başlamalı.'); }
+  if (!['https:', 'http:'].includes(target.protocol) || target.username || target.password || target.search || target.hash) {
+    throw new Error('Adres yalnızca http(s) sunucu adresi olabilir; kullanıcı bilgisi veya ek parametre içeremez.');
+  }
+  target.pathname = target.pathname.replace(/\/$/, '') || '/';
+  trustedOrigins.add(target.origin);
+  await windowRef.loadURL(target.toString());
+  return { status: 'connected', origin: target.origin };
+});
+
 function reservePort() {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -123,6 +137,7 @@ function startBackend(port) {
 }
 
 function createWindow(url) {
+  trustedOrigins.add(new URL(url).origin);
   windowRef = new BrowserWindow({
     width: 1440,
     height: 920,
@@ -144,7 +159,9 @@ function createWindow(url) {
     return { action: 'deny' };
   });
   windowRef.webContents.on('will-navigate', (event, target) => {
-    if (!target.startsWith(url)) event.preventDefault();
+    try {
+      if (!trustedOrigins.has(new URL(target).origin)) event.preventDefault();
+    } catch { event.preventDefault(); }
   });
   windowRef.once('ready-to-show', () => windowRef.show());
   windowRef.on('closed', () => { windowRef = null; });
