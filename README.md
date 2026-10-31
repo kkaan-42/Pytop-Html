@@ -352,6 +352,18 @@ Webhook ve bot sırları tarayıcıdan API'ye gönderilmez ve yapılandırma dos
 
 Üst araç çubuğundaki **UPDATE** düğmesi GitHub Releases içindeki son sürümü okur ve yeni sürüm varsa yayın sayfasını açar. Uygulama kendi kendine dosya indirmez veya güncelleme kurmaz. Depo farklıysa `PYTOP_GITHUB_REPOSITORY=owner/repo` tanımlayın.
 
+### pyTOP Server kurulumu (Linux)
+
+pyTOP Server'ı izlenecek Linux sunucuya kurun. Sunucuda proje kaynaklarını veya GitHub Releases içindeki kaynak arşivini açıp:
+
+```bash
+sudo ./install-server.sh
+```
+
+Kurulum `pytop-server` systemd servisini etkinleştirir ve en az 24 karakterli rastgele erişim tokeni oluşturur. Tokeni sunucuda `sudo cat /opt/pytop-server/server.env` ile görüntüleyin. Kendi bilgisayarınızdaki tarayıcıdan `http://SUNUCU_IP:5000` adresini açıp token ile giriş yaptığınızda canlı panel ve grafikler sunucunun metriklerini gösterir. Servis günlükleri `sudo journalctl -u pytop-server -f` komutuyla izlenebilir; durdurmak için `sudo systemctl disable --now pytop-server` kullanın.
+
+Erişimi yalnızca güvenilir LAN veya VPN ile sınırlandırın; uygulamayı internete doğrudan açmayın. Sunucuya gelen TCP 5000 erişimini güvenlik duvarında yalnızca istemci ağınıza izin verecek şekilde ayarlayın. Bu sürüm Linux sunucularını hedefler; Windows/macOS server ajanı ve Electron içinden sunucu profili seçme sonraki geliştirme adımlarıdır.
+
 ---
 
 ## 🏗️ Proje Mimarisi
