@@ -4,6 +4,7 @@ const { spawn } = require('node:child_process');
 const net = require('node:net');
 const path = require('node:path');
 const http = require('node:http');
+const fs = require('node:fs/promises');
 
 let backend;
 let windowRef;
@@ -38,23 +39,8 @@ async function checkForUpdates(manual = false) {
     }
 
     const version = result.updateInfo.version;
-    const { response } = await dialog.showMessageBox(windowRef, {
-      type: 'info', title: 'pyTOP Pro güncellemesi bulundu',
-      message: `pyTOP Pro v${version} bulundu. Güncelleme indirilsin mi?`,
-      buttons: ['İndir', 'Daha sonra'], defaultId: 0, cancelId: 1
-    });
-    if (response !== 0) return { status: 'deferred', version };
-
-    if (windowRef && !windowRef.isDestroyed()) windowRef.webContents.send('updates:status', { state: 'downloading', version });
-    await autoUpdater.downloadUpdate();
-    if (windowRef && !windowRef.isDestroyed()) windowRef.webContents.send('updates:status', { state: 'downloaded', version });
-    const install = await dialog.showMessageBox(windowRef, {
-      type: 'info', title: 'Güncelleme hazır',
-      message: `pyTOP Pro v${version} indirildi. Kurulumu tamamlamak için uygulamayı yeniden başlatın.`,
-      buttons: ['Şimdi yeniden başlat', 'Daha sonra'], defaultId: 0, cancelId: 1
-    });
-    if (install.response === 0) autoUpdater.quitAndInstall();
-    return { status: 'downloaded', version };
+    windowRef?.webContents.send('updates:status', { state: 'available', version });
+    return { status: 'available', version };
   } catch (error) {
     console.error('pyTOP update check:', error);
     if (manual) await dialog.showMessageBox(windowRef, {
@@ -67,6 +53,36 @@ async function checkForUpdates(manual = false) {
 }
 
 ipcMain.handle('updates:check', () => checkForUpdates(true));
+ipcMain.handle('updates:download', async () => {
+  windowRef?.webContents.send('updates:status', { state: 'downloading' });
+  await autoUpdater.downloadUpdate();
+  windowRef?.webContents.send('updates:status', { state: 'downloaded' });
+  return { status: 'downloaded' };
+});
+ipcMain.handle('updates:install', () => autoUpdater.quitAndInstall());
+
+async function readServerProfiles() {
+  try { return JSON.parse(await fs.readFile(path.join(app.getPath('userData'), 'server-profiles.json'), 'utf8')); }
+  catch { return []; }
+}
+ipcMain.handle('servers:list', readServerProfiles);
+ipcMain.handle('servers:save', async (_event, profile) => {
+  if (!profile || typeof profile.name !== 'string' || typeof profile.url !== 'string') throw new Error('Profil adı ve adres gerekli.');
+  const name = profile.name.trim().slice(0, 48);
+  let url;
+  try { url = new URL(profile.url.trim()); } catch { throw new Error('Sunucu adresi geçersiz.'); }
+  if (!name || !['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) throw new Error('Profil adı ve geçerli http(s) adresi girin.');
+  const profiles = await readServerProfiles();
+  const id = profile.id || require('node:crypto').randomUUID();
+  const next = [...profiles.filter(item => item.id !== id), { id, name, url: url.origin }].slice(-20);
+  await fs.writeFile(path.join(app.getPath('userData'), 'server-profiles.json'), JSON.stringify(next, null, 2), { mode: 0o600 });
+  return next;
+});
+ipcMain.handle('servers:delete', async (_event, id) => {
+  const next = (await readServerProfiles()).filter(item => item.id !== id);
+  await fs.writeFile(path.join(app.getPath('userData'), 'server-profiles.json'), JSON.stringify(next, null, 2), { mode: 0o600 });
+  return next;
+});
 
 ipcMain.handle('server:connect', async (_event, address) => {
   if (typeof address !== 'string' || address.length > 2048) throw new Error('Geçerli bir sunucu adresi girin.');

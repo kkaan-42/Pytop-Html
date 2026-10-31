@@ -144,26 +144,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnResetLayout = document.getElementById('btn-reset-layout');
     const hardwareGrid = document.getElementById('main-hardware-grid');
     const serverUrlInput = document.getElementById('server-url-input');
-    const btnConnectServer = document.getElementById('btn-connect-server');
+    const serverNameInput = document.getElementById('server-name-input');
+    const btnSaveServer = document.getElementById('btn-save-server');
+    const serverProfileList = document.getElementById('server-profile-list');
     const serverConnectStatus = document.getElementById('server-connect-status');
 
-    if (serverUrlInput && btnConnectServer) {
-        serverUrlInput.value = localStorage.getItem('pytop_server_url') || '';
-        btnConnectServer.addEventListener('click', async () => {
-            const url = serverUrlInput.value.trim();
-            try {
-                if (!window.pyTopServer?.connect) throw new Error('Sunucu bağlantısı yalnızca Electron masaüstü uygulamasında kullanılabilir.');
-                btnConnectServer.disabled = true;
-                if (serverConnectStatus) serverConnectStatus.textContent = 'Sunucu adresi kontrol ediliyor…';
-                await window.pyTopServer.connect(url);
-                localStorage.setItem('pytop_server_url', url);
-            } catch (error) {
-                if (serverConnectStatus) serverConnectStatus.textContent = error.message || 'Sunucuya bağlanılamadı.';
-            } finally {
-                btnConnectServer.disabled = false;
-            }
+    const renderServerProfiles = (profiles = []) => {
+        if (!serverProfileList) return;
+        serverProfileList.replaceChildren();
+        profiles.forEach(profile => {
+            const row = document.createElement('div'); row.className = 'server-profile-row';
+            const label = document.createElement('span'); label.textContent = `${profile.name} · ${profile.url}`;
+            const connect = document.createElement('button'); connect.className = 'term-action-btn btn-primary'; connect.textContent = 'Bağlan';
+            connect.addEventListener('click', async () => {
+                try { await window.pyTopServer.connect(profile.url); }
+                catch (error) { if (serverConnectStatus) serverConnectStatus.textContent = error.message; }
+            });
+            const remove = document.createElement('button'); remove.className = 'term-action-btn btn-secondary'; remove.textContent = 'Sil';
+            remove.addEventListener('click', async () => renderServerProfiles(await window.pyTopServer.remove(profile.id)));
+            row.append(label, connect, remove); serverProfileList.append(row);
         });
-    }
+    };
+    if (window.pyTopServer?.list && serverProfileList) window.pyTopServer.list().then(renderServerProfiles);
+    btnSaveServer?.addEventListener('click', async () => {
+        try {
+            const profiles = await window.pyTopServer.save({ name: serverNameInput.value, url: serverUrlInput.value });
+            renderServerProfiles(profiles); serverNameInput.value = ''; serverUrlInput.value = '';
+            if (serverConnectStatus) serverConnectStatus.textContent = 'Sunucu profili kaydedildi.';
+        } catch (error) { if (serverConnectStatus) serverConnectStatus.textContent = error.message; }
+    });
+
+    const updateModal = document.getElementById('update-available-modal');
+    if (updateModal) document.body.append(updateModal);
+    const updateVersion = document.getElementById('update-version');
+    const updateStatus = document.getElementById('update-status');
+    const updateAction = document.getElementById('btn-update-install');
+    const hideUpdate = () => updateModal?.classList.add('hidden');
+    document.getElementById('btn-update-later')?.addEventListener('click', hideUpdate);
+    document.getElementById('btn-update-dismiss')?.addEventListener('click', hideUpdate);
+    updateAction?.addEventListener('click', async () => {
+        try {
+            if (updateAction.dataset.ready === '1') return window.pyTopUpdater.install();
+            updateAction.disabled = true;
+            await window.pyTopUpdater.download();
+        } catch (error) { if (updateStatus) updateStatus.textContent = error.message || 'Güncelleme indirilemedi.'; }
+        finally { updateAction.disabled = false; }
+    });
+    window.pyTopUpdater?.onStatus(status => {
+        if (status.state === 'available') {
+            updateVersion.textContent = `v${status.version}`;
+            updateModal?.classList.remove('hidden');
+        } else if (status.state === 'downloading') {
+            if (updateStatus) updateStatus.textContent = 'Güncelleme indiriliyor…';
+            updateAction.textContent = 'İndiriliyor…';
+        } else if (status.state === 'downloaded') {
+            if (updateStatus) updateStatus.textContent = 'İndirme tamamlandı. Kurulumu bitirmek için yeniden başlatın.';
+            updateAction.textContent = 'Yeniden başlat'; updateAction.dataset.ready = '1';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!window.pyTopUpdater) return;
+        if (!window.pyTopUpdater.check) return;
+        // Startup checks surface the same in-app update panel as manual checks.
+    });
 
     // ======================================================================
     // 3. Tema ve Tam Ekran Yönetimi

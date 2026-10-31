@@ -917,13 +917,28 @@
 
                 <section class="server-connect-card" aria-labelledby="server-connect-title">
                     <div class="layout-section-title" id="server-connect-title">UZAK PYTOP SERVER</div>
-                    <p class="app-version-note">Sunucudaki paneli bu masaüstü penceresinde açın. Giriş tokenini sunucunun oturum açma ekranında girin.</p>
+                    <p class="app-version-note">Sunucu profili ekleyin; Bağlan ile paneli bu pencerede açın. Token sunucunun giriş ekranında istenir.</p>
                     <div class="server-connect-row">
+                        <input id="server-name-input" class="term-input" type="text" maxlength="48" placeholder="Sunucu adı" aria-label="Sunucu profili adı">
                         <input id="server-url-input" class="term-input" type="url" inputmode="url" placeholder="https://pytop.example.com veya http://192.168.1.20:5000" autocomplete="url" aria-label="pyTOP Server adresi">
-                        <button type="button" id="btn-connect-server" class="term-action-btn btn-primary">Bağlan</button>
+                        <button type="button" id="btn-save-server" class="term-action-btn btn-secondary">Profili kaydet</button>
                     </div>
+                    <div id="server-profile-list" class="server-profile-list" aria-label="Kayıtlı sunucular"></div>
                     <p id="server-connect-status" class="app-version-note" role="status" aria-live="polite">Yalnızca güvendiğiniz LAN/VPN sunucularına bağlanın.</p>
                 </section>
+
+                <div id="update-available-modal" class="term-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="update-title">
+                    <div class="term-modal update-available-dialog">
+                        <div class="modal-top"><span class="modal-badge-layout">PYTOP PRO / SYSTEM UPDATE</span><button type="button" id="btn-update-later" class="modal-close" aria-label="Kapat">&times;</button></div>
+                        <div class="modal-body">
+                            <h2 id="update-title">Yeni güncelleme geldi</h2>
+                            <p id="update-message" class="c-muted">Yeni bir pyTOP Pro sürümü hazır.</p>
+                            <div class="update-release-card"><strong id="update-version">v--</strong><span id="update-details">Güncellemeyi indirip uygulamayı yeniden başlatabilirsiniz.</span></div>
+                            <div class="layout-modal-actions"><button type="button" id="btn-update-dismiss" class="term-action-btn btn-secondary">Daha sonra</button><button type="button" id="btn-update-install" class="term-action-btn btn-primary">Güncellemeyi indir</button></div>
+                            <p id="update-status" class="app-version-note" role="status" aria-live="polite"></p>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="layout-intro-note">
                     <span class="text-xs c-muted">Panelleri fare ile <strong class="c-cyan">sürükleyip bırakarak</strong> sıralayabilir veya aşağıdaki anahtarlarla görünürlüklerini açıp kapatabilirsiniz. Tüm tercihleriniz tarayıcınızda otomatik saklanır.</span>

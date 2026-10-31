@@ -2141,6 +2141,14 @@ kbd {
 }
 
 .server-connect-row .term-input { flex: 1; min-width: 0; }
+.server-profile-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.6rem; }
+.server-profile-row { display: flex; align-items: center; gap: 0.45rem; padding: 0.45rem; border: 1px solid rgba(255,255,255,.08); border-radius: 6px; background: rgba(8,13,22,.55); }
+.server-profile-row span { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--c-text); font-size: .7rem; }
+.update-available-dialog { width: min(520px, 92vw); border: 1px solid rgba(56,189,248,.28); box-shadow: 0 24px 80px rgba(0,0,0,.65), 0 0 36px rgba(34,211,238,.12); }
+.update-available-dialog h2 { margin: .7rem 0; color: var(--c-text); font-size: 1.5rem; }
+.update-release-card { display: flex; flex-direction: column; gap: .45rem; margin: 1.2rem 0; padding: 1rem; border: 1px solid rgba(56,189,248,.2); border-radius: 9px; background: rgba(20,31,48,.75); }
+.update-release-card strong { color: var(--c-cyan); font: 800 1.3rem var(--font-mono); }
+.update-release-card span { color: var(--c-muted); font-size: .78rem; }
 
 @media (max-width: 560px) {
     .server-connect-row { align-items: stretch; flex-direction: column; }
