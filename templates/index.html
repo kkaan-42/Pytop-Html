@@ -37,7 +37,7 @@
 
     <aside class="app-sidebar" aria-label="Ana gezinme">
         <a class="sidebar-brand" href="#overview" aria-label="pyTOP Pro ana sayfa">
-            <span class="brand-mark"><img src="{{ url_for('static', filename='logo.svg') }}" alt="" aria-hidden="true"></span><span><strong>pyTOP</strong><small>PRO · 2.3.0</small></span>
+            <span class="brand-mark"><img src="{{ url_for('static', filename='logo.svg') }}" alt="" aria-hidden="true"></span><span><strong>pyTOP</strong><small>PRO · {{ sys.app_version }}</small></span>
         </a>
         <div class="sidebar-group-label">ÇALIŞMA ALANI</div>
         <nav class="sidebar-nav">
@@ -901,12 +901,20 @@
         <div class="term-modal layout-modal-dialog">
             <div class="modal-top">
                 <div class="modal-top-left">
-                    <span class="modal-badge-layout">🎛️ PANEL DÜZENİ &amp; GÖRÜNÜM</span>
-                    <span class="layout-modal-subtitle">Dashboard Widget Özelleştirici</span>
+                    <span class="modal-badge-layout">⚙ AYARLAR &amp; GÖRÜNÜM</span>
+                    <span class="layout-modal-subtitle">Uygulama sürümü ve panel tercihleri</span>
                 </div>
                 <button type="button" id="btn-close-layout" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
+                <section class="app-version-card" aria-label="Uygulama sürümü">
+                    <div>
+                        <span class="app-version-label">PYTOP PRO SÜRÜMÜ</span>
+                        <p class="app-version-note">Kurulu uygulama sürümü</p>
+                    </div>
+                    <strong class="app-version-value">{{ sys.app_version }}</strong>
+                </section>
+
                 <div class="layout-intro-note">
                     <span class="text-xs c-muted">Panelleri fare ile <strong class="c-cyan">sürükleyip bırakarak</strong> sıralayabilir veya aşağıdaki anahtarlarla görünürlüklerini açıp kapatabilirsiniz. Tüm tercihleriniz tarayıcınızda otomatik saklanır.</span>
                 </div>
