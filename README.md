@@ -1,8 +1,8 @@
-# 🖥️ pyTOP Pro v2.5.1 — Windows & Linux Masaüstü Sistem Monitörü
+# 🖥️ pyTOP Pro v2.5.2 — Windows & Linux Masaüstü Sistem Monitörü
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v2.5.1-4f9f83?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.5.2-4f9f83?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Edition-Windows%20%26%20Linux%20Desktop-4f9f83?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Desktop-Windows%20%7C%20Linux-blue?style=for-the-badge&logo=linux&logoColor=white)
@@ -17,20 +17,20 @@
 </div>
 
 > [!IMPORTANT]
-> 🚀 **pyTOP Pro v2.5.1 — Windows & Linux Masaüstü Sürümü**
+> 🚀 **pyTOP Pro v2.5.2 — Windows & Linux Masaüstü Sürümü**
 > Electron penceresinde çalışan yerel sistem monitörü. Kurulum paketleri Python gerektirmez.
 
 ---
 
 ## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
 
-pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.5.1) indirin:
+pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.5.2) indirin:
 
 | İşletim Sistemi | Paket | Release indirme adı | Kurulum |
 | :--- | :--- | :--- | :--- |
-| **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.5.1.exe` | Kurulum sihirbazını çalıştırın. |
-| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.5.1-Linux-x86_64.AppImage` | `chmod +x pyTOP-Pro-2.5.1-Linux-x86_64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
-| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.5.1-Linux-amd64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.5.1-Linux-amd64.deb` çalıştırın. |
+| **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.5.2.exe` | Kurulum sihirbazını çalıştırın. |
+| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.5.2-Linux-x86_64.AppImage` | `chmod +x pyTOP-Pro-2.5.2-Linux-x86_64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
+| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.5.2-Linux-amd64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.5.2-Linux-amd64.deb` çalıştırın. |
 
 > [!TIP]
 > AppImage, Ubuntu, Debian, Linux Mint, Fedora ve Arch gibi x86_64 dağıtımlarını hedefler. Debian paketi Debian ve Ubuntu tabanlı dağıtımlar içindir. AppImage sürümü otomatik güncellenir; `.deb` paketini dağıtımınızın paket yöneticisiyle güncelleyin.
@@ -418,7 +418,7 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
-Windows ve Linux v2.5.1 Electron uygulaması `electron/` içindedir. Kenar çubuğundaki **Sunucu** bölümünden veya Ayarlar sekmesinden kalıcı çoklu uzak sunucu profilleri ekleyip seçebilirsiniz. Uygulama açılışta yeni sürümü denetler; Windows ve Linux AppImage paketlerinde uygulama içi güncelleme bildiriminden indirilip kurulabilir. Debian `.deb` paketleri dağıtımın paket yöneticisiyle güncellenir. Geliştirme için `cd electron; npm install` ve `npm start` komutlarını çalıştırın; Python ortamı Flask backend'ini yerelde başlatır.
+Windows ve Linux v2.5.2 Electron uygulaması `electron/` içindedir. Kenar çubuğundaki **Sunucu** bölümünden veya Ayarlar sekmesinden kalıcı çoklu uzak sunucu profilleri ekleyip seçebilirsiniz. Uygulama açılışta yeni sürümü denetler; Windows ve Linux AppImage paketlerinde uygulama içi güncelleme bildiriminden indirilip kurulabilir. Debian `.deb` paketleri dağıtımın paket yöneticisiyle güncellenir. Geliştirme için `cd electron; npm install` ve `npm start` komutlarını çalıştırın; Python ortamı Flask backend'ini yerelde başlatır.
 
 Yeni bir masaüstü sürümü yayımlamak için `v2.x.x` etiketi gönderin. `.github/workflows/release-windows.yml` Windows ve Linux backend'lerini PyInstaller ile ayrı ayrı paketler; NSIS, AppImage ve Debian paketlerini tek GitHub Release'e ekler.
 
