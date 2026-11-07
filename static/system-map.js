@@ -405,7 +405,7 @@
         button.addEventListener('click', () => {
             const action = button.dataset.sidebarAction;
             if (action === 'system-map') show();
-            else if (action === 'overview' || action === 'processes') hide();
+            else if (action === 'overview' || action === 'processes' || action === 'server') hide();
         }, true); // capture: harita, app.js kaydırmadan önce gizlenir
     });
 

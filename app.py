@@ -583,6 +583,48 @@ def health_check():
     return jsonify({"ok": True, "version": APP_VERSION})
 
 
+@app.route("/api/server/info")
+def api_server_info():
+    """pyTOP Server durumunu döner: dinleme adresi, uzak erişim ve ağ adresleri. Token asla döndürülmez."""
+    bind = str(app.config.get("PYTOP_BIND") or os.environ.get("PYTOP_BIND", "127.0.0.1")).strip()
+    port = app.config.get("PYTOP_PORT") or request.host.rpartition(":")[2] or os.environ.get("PYTOP_PORT", "")
+    try:
+        port = int(port)
+    except (TypeError, ValueError):
+        port = None
+    remote_enabled = bind not in {"localhost", "127.0.0.1", "::1"}
+    token_configured = len(app.config.get("PYTOP_REMOTE_TOKEN", "")) >= 24
+
+    addresses = []
+    try:
+        for name, entries in psutil.net_if_addrs().items():
+            for entry in entries:
+                if entry.family != socket.AF_INET:
+                    continue
+                try:
+                    ip = ipaddress.ip_address(entry.address)
+                except ValueError:
+                    continue
+                if ip.is_loopback or ip.is_link_local:
+                    continue
+                addresses.append({"interface": name, "address": entry.address, "private": ip.is_private})
+    except Exception:
+        pass
+
+    return jsonify({
+        "version": APP_VERSION,
+        "hostname": platform.node(),
+        "os": f"{platform.system()} {platform.release()}",
+        "bind": bind,
+        "port": port,
+        "remote_enabled": remote_enabled,
+        "token_configured": token_configured,
+        "systemd_service": bool(os.environ.get("INVOCATION_ID")),
+        "viewer_is_remote": not _is_loopback(request.remote_addr),
+        "addresses": addresses,
+    })
+
+
 
 @app.after_request
 def add_cache_control_headers(response):
@@ -629,6 +671,8 @@ if __name__ == "__main__":
     if host not in {"localhost", "127.0.0.1", "::1"} and len(remote_token) < 24:
         raise SystemExit("Uzak erişim için en az 24 karakterlik PYTOP_REMOTE_TOKEN ayarlayın; aksi halde PYTOP_BIND=127.0.0.1 kullanın.")
     port = int(port_value) if port_value else find_available_port(5000, host=host)
+    app.config["PYTOP_BIND"] = host
+    app.config["PYTOP_PORT"] = port
     print("==================================================")
     print(f" pyTOP Pro ({APP_VERSION}) — Terminal Sistem & Süreç Monitörü")
     print(f" Yerel Erişim:  http://127.0.0.1:{port}")

@@ -1,8 +1,8 @@
-# 🖥️ pyTOP Pro v2.4.2 — Windows & Linux Masaüstü Sistem Monitörü
+# 🖥️ pyTOP Pro v2.5.1 — Windows & Linux Masaüstü Sistem Monitörü
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v2.4.2-4f9f83?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.5.1-4f9f83?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Edition-Windows%20%26%20Linux%20Desktop-4f9f83?style=for-the-badge)
 ![Python Version](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Desktop-Windows%20%7C%20Linux-blue?style=for-the-badge&logo=linux&logoColor=white)
@@ -12,28 +12,37 @@
 **Linux'un efsanevi `btop++` ve `htop` araçlarının web üzerinde çalışan, ultra hafif ve modern sürümü.**  
 *Windows ve yaygın x86_64 Linux dağıtımlarında masaüstü uygulaması olarak çalışır; Python kurulumu gerekmez.*
 
-[Yenilikler](#-v21-beta-sürümü-yenilikleri) • [İndir (Releases)](#-işletim-sistemine-özel-indirme-paketleri-releases) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
+[Yenilikler](#-v25-sürümü-yenilikleri) • [İndir (Releases)](#-işletim-sistemine-özel-indirme-paketleri-releases) • [Özellikler](#-öne-çıkan-özellikler) • [Platform Desteği](#-desteklenen-dağıtımlar-ve-sistemler) • [Kurulum](#-hızlı-kurulum-ve-çalıştırma) • [Kısayollar](#-klavye-kısayolları-tablosu) • [Docker](#-docker--docker-compose-ile-çalıştırma)
 
 </div>
 
 > [!IMPORTANT]
-> 🚀 **pyTOP Pro v2.4.2 — Windows & Linux Masaüstü Sürümü**
+> 🚀 **pyTOP Pro v2.5.1 — Windows & Linux Masaüstü Sürümü**
 > Electron penceresinde çalışan yerel sistem monitörü. Kurulum paketleri Python gerektirmez.
 
 ---
 
 ## 📥 İşletim Sistemine Özel İndirme Paketleri (Releases)
 
-pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.4.2) indirin:
+pyTOP Pro masaüstü paketlerini [GitHub Releases sayfasından](https://github.com/kkaan-42/Pytop-Html/releases/tag/v2.5.1) indirin:
 
 | İşletim Sistemi | Paket | Release indirme adı | Kurulum |
 | :--- | :--- | :--- | :--- |
-| **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.4.2.exe` | Kurulum sihirbazını çalıştırın. |
-| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.4.2-Linux-x86_64.AppImage` | `chmod +x pyTOP-Pro-2.4.2-Linux-x86_64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
-| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.4.2-Linux-amd64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.4.2-Linux-amd64.deb` çalıştırın. |
+| **🪟 Windows 10 / 11 x64** | NSIS kurulum `.exe` | `pyTOP-Pro-Setup-2.5.1.exe` | Kurulum sihirbazını çalıştırın. |
+| **🐧 Linux x86_64** | AppImage | `pyTOP-Pro-2.5.1-Linux-x86_64.AppImage` | `chmod +x pyTOP-Pro-2.5.1-Linux-x86_64.AppImage` çalıştırıp açın; FUSE 2 gerekebilir. |
+| **🐧 Debian / Ubuntu x86_64** | `.deb` | `pyTOP-Pro-2.5.1-Linux-amd64.deb` | Paketi yazılım yükleyicinizle açın veya `sudo apt install ./pyTOP-Pro-2.5.1-Linux-amd64.deb` çalıştırın. |
 
 > [!TIP]
 > AppImage, Ubuntu, Debian, Linux Mint, Fedora ve Arch gibi x86_64 dağıtımlarını hedefler. Debian paketi Debian ve Ubuntu tabanlı dağıtımlar içindir. AppImage sürümü otomatik güncellenir; `.deb` paketini dağıtımınızın paket yöneticisiyle güncelleyin.
+
+---
+
+## 🚀 v2.5 Sürümü Yenilikleri
+
+* 🗺️ **Canlı Sistem Haritası:** Kenar çubuğundaki **Sistem haritası** bölümü; CPU, Bellek, GPU, Disk, Ağ, Docker, İşlemler ve Batarya'yı bilgisayarınıza bağlı düğümler olarak canlı gösterir. Düğüme tıklayınca yolu vurgulanır, ayrıntı panelinde geçmiş grafiği, temel değerler ve en çok kaynak kullanan işlemler açılır.
+* 🩶 **Grafit Gri tema (yeni varsayılan):** Nötr gri yüzeyler; renk yalnızca durum için kullanılır (yüksek yük amber, kritik kırmızı, çevrimiçi yeşil). Diğer temalar **THEME** menüsünde ve <kbd>F2</kbd> ile duruyor.
+* 🖧 **Sunucu bölümü:** Kenar çubuğundaki **Sunucu** bölümü bu makinenin pyTOP Server durumunu (uzak erişim, dinleme adresi, token ayarlı mı, ağ adresleri) gösterir; kayıtlı uzak sunuculara bağlanmayı ve Linux kurulum komutlarını tek yerde toplar.
+* 📝 **Sürüm notları:** Her GitHub Release, `release-notes/<etiket>.md` dosyasındaki notlarla yayımlanır.
 
 ---
 
@@ -119,11 +128,23 @@ Geleneksel terminal monitörlerinin aksine:
 * **Canlı Log İzleyici:** Konteynerin son 150 satırlık konsol çıktılarını (`stdout`/`stderr`) terminal görünümünde izleme ve panoya kopyalama.
 * **Hızlı Erişim:** Üst bardaki `[🐳 DOCKER]` butonu veya <kbd>F12</kbd> kısayolu ile anında açılır.
 
-### 11. 🎨 4 Farklı Terminal Teması
-* **Btop Dark (Varsayılan):** Modern neon mor/camgöbeği cam estetiği.
+### 11. 🎨 5 Farklı Tema
+* **Grafit Gri (Varsayılan):** Nötr gri yüzeyler; renk yalnızca uyarı, kritik ve çevrimiçi durumları için.
+* **Btop Dark:** Modern neon mor/camgöbeği cam estetiği.
 * **Htop Classic:** Geleneksel Linux terminal yeşili/mavisi.
 * **Monokai Pro:** Kodlayıcılar için amber ve sıcak kontrast.
 * **Matrix Cyberpunk:** Fütüristik terminal yeşili ve koyu siyah.
+
+### 12. 🗺️ Canlı Sistem Haritası
+* **Topoloji görünümü:** Bilgisayar merkezde; donanım, ağ, Docker ve işlemler bağlı düğümler olarak canlı güncellenir.
+* **Durum renkleri:** Normal (%60 altı), Yüksek (%60–85) ve Kritik (%85 üstü); disk ve ağ veri akışı hareketli çizgilerle gösterilir.
+* **Ayrıntı paneli:** Seçilen düğümün son ölçümleri, temel değerleri ve en çok kaynak kullanan işlemleri; ilgili pencereye (İşlemler, Ağ, Docker, Donanım, Rapor) tek tıkla geçiş.
+* **Ek yük yok:** Harita panelin zaten çektiği verileri kullanır; Docker ve bellek sıralaması seyrek sorgulanır.
+
+### 13. 🖧 Sunucu (pyTOP Server) Bölümü
+* **Bu makine:** Uzak erişimin açık olup olmadığı, dinleme adresi ve portu, erişim tokeninin ayarlı olup olmadığı (token asla gösterilmez) ve ağdan bağlanılacak adresler.
+* **Kayıtlı sunucular:** Masaüstü uygulamasında uzak pyTOP Server profilleri ekleme, bağlanma ve silme.
+* **Linux kurulumu:** Kopyalanabilir kurulum, token ve günlük komutları.
 
 
 
@@ -360,9 +381,11 @@ pyTOP Server'ı izlenecek Linux sunucuya kurun. Sunucuda proje kaynaklarını ve
 sudo ./install-server.sh
 ```
 
-Kurulum `pytop-server` systemd servisini etkinleştirir ve rastgele erişim tokeni oluşturur. Tokeni sunucuda `sudo cat /opt/pytop-server/server.env` ile görüntüleyin. pyTOP Pro masaüstü uygulamasında **Ayarlar → Uzak pyTOP Server** alanına `http://SUNUCU_IP:5000` adresini girip **Bağlan**'ı seçin; açılan sunucu giriş ekranında tokeni girin. Canlı panel ve grafikler sunucunun metriklerini gösterir. İsterseniz aynı adresi tarayıcıda da açabilirsiniz. Servis günlükleri `sudo journalctl -u pytop-server -f` komutuyla izlenebilir; durdurmak için `sudo systemctl disable --now pytop-server` kullanın.
+Kurulum `pytop-server` systemd servisini etkinleştirir ve rastgele erişim tokeni oluşturur. Tokeni sunucuda `sudo cat /opt/pytop-server/server.env` ile görüntüleyin. pyTOP Pro masaüstü uygulamasında kenar çubuğundaki **Sunucu** bölümüne (veya **Ayarlar → Uzak pyTOP Server** alanına) `http://SUNUCU_IP:5000` adresini girip **Bağlan**'ı seçin; açılan sunucu giriş ekranında tokeni girin. Canlı panel ve grafikler sunucunun metriklerini gösterir. İsterseniz aynı adresi tarayıcıda da açabilirsiniz. Servis günlükleri `sudo journalctl -u pytop-server -f` komutuyla izlenebilir; durdurmak için `sudo systemctl disable --now pytop-server` kullanın.
 
 Erişimi yalnızca güvenilir LAN veya VPN ile sınırlandırın; uygulamayı internete doğrudan açmayın. Sunucuya gelen TCP 5000 erişimini güvenlik duvarında yalnızca istemci ağınıza izin verecek şekilde ayarlayın. Server ajanı bu sürümde Linux'u hedefler.
+
+**Sunucu** bölümü, uygulamanın çalıştığı makinenin sunucu durumunu da gösterir: uzak erişim kapalıysa ne yapılması gerektiğini, açıksa diğer cihazların bağlanacağı `http://IP:PORT` adreslerini listeler. Bilgiler `/api/server/info` ucundan gelir; bu uç erişim tokenini hiçbir zaman döndürmez.
 
 ---
 
@@ -395,7 +418,7 @@ Pytop-Html/
     └── report.html        # Yazdırılabilir (PDF) profesyonel sistem sağlık raporu
 ```
 
-Windows ve Linux v2.4.2 Electron uygulaması `electron/` içindedir. Ayarlar sekmesinden kalıcı çoklu uzak sunucu profilleri ekleyip seçebilirsiniz. Uygulama açılışta yeni sürümü denetler; Windows ve Linux AppImage paketlerinde uygulama içi güncelleme bildiriminden indirilip kurulabilir. Debian `.deb` paketleri dağıtımın paket yöneticisiyle güncellenir. Geliştirme için `cd electron; npm install` ve `npm start` komutlarını çalıştırın; Python ortamı Flask backend'ini yerelde başlatır.
+Windows ve Linux v2.5.1 Electron uygulaması `electron/` içindedir. Kenar çubuğundaki **Sunucu** bölümünden veya Ayarlar sekmesinden kalıcı çoklu uzak sunucu profilleri ekleyip seçebilirsiniz. Uygulama açılışta yeni sürümü denetler; Windows ve Linux AppImage paketlerinde uygulama içi güncelleme bildiriminden indirilip kurulabilir. Debian `.deb` paketleri dağıtımın paket yöneticisiyle güncellenir. Geliştirme için `cd electron; npm install` ve `npm start` komutlarını çalıştırın; Python ortamı Flask backend'ini yerelde başlatır.
 
 Yeni bir masaüstü sürümü yayımlamak için `v2.x.x` etiketi gönderin. `.github/workflows/release-windows.yml` Windows ve Linux backend'lerini PyInstaller ile ayrı ayrı paketler; NSIS, AppImage ve Debian paketlerini tek GitHub Release'e ekler.
 

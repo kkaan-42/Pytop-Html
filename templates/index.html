@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ sys.cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='system-map.css') }}?v={{ sys.cache_bust }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='server-view.css') }}?v={{ sys.cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='theme-graphite.css') }}?v={{ sys.cache_bust }}">
     <script>
         // PWA ve Service Worker kalıntılarını anında temizle
@@ -49,6 +50,7 @@
             <button type="button" class="sidebar-link" data-sidebar-action="network"><span class="nav-glyph">⌁</span>Ağ</button>
             <button type="button" class="sidebar-link" data-sidebar-action="docker"><span class="nav-glyph">▣</span>Docker</button>
             <button type="button" class="sidebar-link" data-sidebar-action="reports"><span class="nav-glyph">▤</span>Raporlar</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="server"><span class="nav-glyph">⇄</span>Sunucu</button>
         </nav>
         <div class="sidebar-spacer"></div>
         <button type="button" class="sidebar-link" data-sidebar-action="settings"><span class="nav-glyph">⚙</span>Ayarlar</button>
@@ -252,6 +254,76 @@
                         <button type="button" class="smap-secondary" id="smap-action-alert">Uyarı kuralı ekle</button>
                     </div>
                 </aside>
+            </div>
+        </section>
+
+        <!-- pyTOP Server (sidebar: Sunucu) -->
+        <section id="server-view" class="sv-view" aria-labelledby="sv-title" hidden>
+            <header class="sv-header">
+                <span class="sv-eyebrow">PYTOP SERVER</span>
+                <h1 id="sv-title">Sunucu</h1>
+                <p>Bu makineyi ağdan izlenebilir hale getirin, uzaktaki pyTOP Server'lara bağlanın veya bir Linux sunucusuna kurun.</p>
+            </header>
+
+            <div class="sv-grid">
+                <section class="sv-card" aria-labelledby="sv-local-title">
+                    <div class="sv-card-head">
+                        <h2 id="sv-local-title">Bu makine</h2>
+                        <span class="sv-pill" id="sv-remote-pill">Denetleniyor…</span>
+                    </div>
+                    <dl class="sv-facts">
+                        <div><dt>Sunucu adı</dt><dd id="sv-hostname">—</dd></div>
+                        <div><dt>Sürüm</dt><dd id="sv-version">—</dd></div>
+                        <div><dt>Dinleme adresi</dt><dd id="sv-bind" class="sv-mono">—</dd></div>
+                        <div><dt>Erişim tokeni</dt><dd id="sv-token">—</dd></div>
+                        <div><dt>Çalışma şekli</dt><dd id="sv-mode">—</dd></div>
+                        <div><dt>İşletim sistemi</dt><dd id="sv-os">—</dd></div>
+                    </dl>
+                    <div class="sv-subtitle">Ağdan bağlantı adresleri</div>
+                    <ul class="sv-address-list" id="sv-addresses"><li class="sv-empty">Yükleniyor…</li></ul>
+                    <p class="sv-note" id="sv-local-note"></p>
+                </section>
+
+                <section class="sv-card" aria-labelledby="sv-profiles-title">
+                    <div class="sv-card-head">
+                        <h2 id="sv-profiles-title">Kayıtlı sunucular</h2>
+                        <span class="sv-pill" id="sv-profile-count">0</span>
+                    </div>
+                    <form class="sv-form" id="sv-profile-form">
+                        <label class="sv-field"><span>Sunucu adı</span><input id="sv-profile-name" type="text" maxlength="48" placeholder="Ev sunucusu" required></label>
+                        <label class="sv-field"><span>Adres</span><input id="sv-profile-url" type="url" inputmode="url" placeholder="http://192.168.1.20:5000" autocomplete="url" required></label>
+                        <button type="submit" class="sv-btn sv-btn-primary">Profili kaydet</button>
+                    </form>
+                    <ul class="sv-profile-list" id="sv-profile-list"></ul>
+                    <p class="sv-note" id="sv-profile-status" role="status" aria-live="polite">Token, bağlandığınızda sunucunun giriş ekranında istenir. Yalnızca güvendiğiniz LAN/VPN sunucularına bağlanın.</p>
+                </section>
+
+                <section class="sv-card sv-card-wide" aria-labelledby="sv-install-title">
+                    <div class="sv-card-head">
+                        <h2 id="sv-install-title">Linux sunucusuna kur</h2>
+                        <span class="sv-pill">systemd</span>
+                    </div>
+                    <ol class="sv-steps">
+                        <li>
+                            <span class="sv-step-title">Depoyu sunucuya indirin</span>
+                            <div class="sv-code"><code>git clone https://github.com/kkaan-42/Pytop-Html.git &amp;&amp; cd Pytop-Html</code><button type="button" class="sv-copy" aria-label="Komutu kopyala">Kopyala</button></div>
+                        </li>
+                        <li>
+                            <span class="sv-step-title">Servisi kurun ve başlatın</span>
+                            <div class="sv-code"><code>sudo ./install-server.sh</code><button type="button" class="sv-copy" aria-label="Komutu kopyala">Kopyala</button></div>
+                            <span class="sv-step-note">Python sanal ortamını kurar, <code>pytop-server</code> servisini etkinleştirir ve rastgele bir erişim tokeni üretir.</span>
+                        </li>
+                        <li>
+                            <span class="sv-step-title">Erişim tokenini görüntüleyin</span>
+                            <div class="sv-code"><code>sudo cat /opt/pytop-server/server.env</code><button type="button" class="sv-copy" aria-label="Komutu kopyala">Kopyala</button></div>
+                        </li>
+                        <li>
+                            <span class="sv-step-title">Bağlanın</span>
+                            <span class="sv-step-note"><strong>Kayıtlı sunucular</strong> bölümüne <code>http://SUNUCU_IP:5000</code> adresini ekleyip <strong>Bağlan</strong>'ı seçin ve tokeni girin. Günlükler: <code>sudo journalctl -u pytop-server -f</code></span>
+                        </li>
+                    </ol>
+                    <p class="sv-note">Sunucuyu internete doğrudan açmayın; 5000 numaralı portu güvenlik duvarında yalnızca kendi ağınıza izin verecek şekilde sınırlayın.</p>
+                </section>
             </div>
         </section>
 
@@ -1198,5 +1270,6 @@
 
     <script src="{{ url_for('static', filename='app.js') }}?v={{ sys.cache_bust }}"></script>
     <script src="{{ url_for('static', filename='system-map.js') }}?v={{ sys.cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='server-view.js') }}?v={{ sys.cache_bust }}"></script>
 </body>
 </html>
