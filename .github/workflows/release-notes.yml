@@ -1,0 +1,49 @@
+name: Update release notes
+
+# release-notes/<etiket>.md dosyası main'e eklendiğinde veya değiştiğinde,
+# o etiketin mevcut GitHub sürüm sayfasındaki açıklamayı günceller.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'release-notes/*.md'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Notları güncellenecek sürüm etiketi (ör. v2.5.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Apply notes to existing releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            files="release-notes/$INPUT_TAG.md"
+          elif [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            files=$(git diff --name-only "$BEFORE" HEAD -- 'release-notes/*.md')
+          else
+            files=$(git diff --name-only HEAD~1 HEAD -- 'release-notes/*.md')
+          fi
+          for f in $files; do
+            [ -f "$f" ] || continue
+            tag=$(basename "$f" .md)
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release edit "$tag" --notes-file "$f"
+              echo "Notes updated for $tag"
+            else
+              echo "No release for $tag yet; the release build will use $f."
+            fi
+          done

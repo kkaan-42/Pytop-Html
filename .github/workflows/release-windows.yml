@@ -106,17 +106,32 @@ jobs:
           pattern: '*-release'
           path: release-assets
           merge-multiple: true
+      - name: Prepare release notes
+        shell: bash
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          # release-notes/<tag>.md varsa onu kullan (önce etiketteki, sonra main'deki kopya);
+          # yoksa genel masaüstü sürüm metnine geri dön.
+          if [ -f "release-notes/$TAG.md" ]; then
+            cp "release-notes/$TAG.md" RELEASE_BODY.md
+          elif git fetch --depth=1 origin main && git show "FETCH_HEAD:release-notes/$TAG.md" > RELEASE_BODY.md 2>/dev/null; then
+            :
+          else
+            cat > RELEASE_BODY.md <<EOF
+          pyTOP $TAG masaüstü sürümü.
+
+          Windows: Electron NSIS kurulum dosyası ve güncelleme manifesti.
+          Linux: AppImage (x86_64, uygulama içi güncelleme destekli) ve Debian/Ubuntu \`.deb\` paketi.
+          Paketler Python kurulumu gerektirmez.
+          EOF
+          fi
       - name: Publish one cross-platform release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           name: pyTOP ${{ github.event.inputs.tag || github.ref_name }} — Windows & Linux
-          body: |
-            pyTOP ${{ github.event.inputs.tag || github.ref_name }} masaüstü sürümü.
-
-            Windows: Electron NSIS kurulum dosyası ve güncelleme manifesti.
-            Linux: AppImage (x86_64, uygulama içi güncelleme destekli) ve Debian/Ubuntu `.deb` paketi.
-            Uygulama logosu yenilendi. Paketler Python kurulumu gerektirmez.
+          body_path: RELEASE_BODY.md
           draft: false
           prerelease: false
           files: |
