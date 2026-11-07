@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="btop">
+<html lang="tr" data-theme="graphite">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ sys.cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='system-map.css') }}?v={{ sys.cache_bust }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme-graphite.css') }}?v={{ sys.cache_bust }}">
     <script>
         // PWA ve Service Worker kalıntılarını anında temizle
         if ('serviceWorker' in navigator) {
@@ -107,7 +108,8 @@
                 <div class="theme-control">
                     <label for="theme-select">THEME:</label>
                     <select id="theme-select">
-                        <option value="btop" selected>Btop Slate</option>
+                        <option value="graphite" selected>Grafit Gri</option>
+                        <option value="btop">Btop Slate</option>
                         <option value="htop">Htop Classic</option>
                         <option value="monokai">Monokai</option>
                         <option value="matrix">Matrix Green</option>

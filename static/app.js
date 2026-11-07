@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================================
     // 3. Tema ve Tam Ekran Yönetimi
     // ======================================================================
-    const savedTheme = localStorage.getItem('pytop_theme') || 'btop';
+    const savedTheme = localStorage.getItem('pytop_theme') || 'graphite';
     document.documentElement.setAttribute('data-theme', savedTheme);
     themeSelect.value = savedTheme;
 
@@ -611,9 +611,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const allValues = [...netHistory.rx, ...netHistory.tx];
         const maxVal = Math.max(10, ...allValues);
 
+        // Grafit gri temada çizgiler gri tonlarda; yükleme kesikli çizilerek ayırt edilir.
+        const graphite = document.documentElement.getAttribute('data-theme') === 'graphite';
+
         // Download Çizgisi (Yeşil)
         ctx.beginPath();
-        ctx.strokeStyle = '#4ade80';
+        ctx.setLineDash([]);
+        ctx.strokeStyle = graphite ? '#d4d4d8' : '#4ade80';
         ctx.lineWidth = 1.5;
         netHistory.rx.forEach((val, i) => {
             const x = (i / (netHistory.rx.length - 1)) * w;
@@ -625,7 +629,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Upload Çizgisi (Camgöbeği)
         ctx.beginPath();
-        ctx.strokeStyle = '#38bdf8';
+        ctx.setLineDash(graphite ? [4, 3] : []);
+        ctx.strokeStyle = graphite ? '#8b8b93' : '#38bdf8';
         ctx.lineWidth = 1.5;
         netHistory.tx.forEach((val, i) => {
             const x = (i / (netHistory.tx.length - 1)) * w;
@@ -1036,8 +1041,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function cycleTheme() {
-        const themes = ['btop', 'htop', 'monokai', 'matrix'];
-        const current = document.documentElement.getAttribute('data-theme') || 'btop';
+        const themes = ['graphite', 'btop', 'htop', 'monokai', 'matrix'];
+        const current = document.documentElement.getAttribute('data-theme') || 'graphite';
         const nextIdx = (themes.indexOf(current) + 1) % themes.length;
         const next = themes[nextIdx];
         document.documentElement.setAttribute('data-theme', next);

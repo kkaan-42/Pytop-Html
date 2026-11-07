@@ -1,0 +1,154 @@
+/* pyTOP Pro — "Grafit gri" teması.
+   Yalnızca <html data-theme="graphite"> iken etkindir; diğer temalara dokunmaz.
+   Nötr gri yüzeyler, açık gri veri çubukları; renk yalnızca durum (uyarı/kritik/çevrimiçi) için. */
+
+:root[data-theme="graphite"] {
+    --bg-root: #18181a;
+    --bg-surface: #202023;
+    --bg-surface-raised: #26262a;
+    --bg-surface-hover: #2e2e33;
+    --bg-surface-selected: #34343a;
+    --border-subtle: #2f2f33;
+    --border-strong: #3f3f45;
+
+    --c-text: #ececef;
+    --c-muted: #a1a1a8;
+    --c-green: #d4d4d8;   /* normal yük çubukları: açık gri */
+    --c-cyan: #c7cbd3;
+    --c-yellow: #e3c27a;
+    --c-red: #ef7d7d;
+    --c-purple: #c0b3d6;
+    --c-orange: #e3a857;
+
+    --gr-ok: #8fd1a8;     /* çevrimiçi / sağlıklı göstergeler */
+}
+
+/* Zemin ve kabuk */
+:root[data-theme="graphite"] body { background: #18181a; background-image: none; color: #ececef; }
+:root[data-theme="graphite"] .app-sidebar { background: #141416; border-right-color: #2a2a2e; color: #c4c4ca; }
+:root[data-theme="graphite"] .brand-mark { background: #222225; }
+:root[data-theme="graphite"] .sidebar-brand strong { color: #f4f4f5; }
+:root[data-theme="graphite"] .sidebar-brand small,
+:root[data-theme="graphite"] .sidebar-group-label { color: #a1a1a8; }
+:root[data-theme="graphite"] .sidebar-link { color: #b4b4bb; }
+:root[data-theme="graphite"] .sidebar-link:hover { color: #fafafa; background: #222225; }
+:root[data-theme="graphite"] .sidebar-link.active { color: #fafafa; background: #2a2a2e; border-color: #3a3a40; }
+:root[data-theme="graphite"] .nav-glyph { color: #d4d4d8; }
+:root[data-theme="graphite"] .sidebar-device { border-top-color: #2a2a2e; }
+:root[data-theme="graphite"] .device-icon { background: #222225; color: #d4d4d8; }
+:root[data-theme="graphite"] .sidebar-device strong { color: #ececef; }
+:root[data-theme="graphite"] .sidebar-device small { color: #a1a1a8; }
+:root[data-theme="graphite"] .device-online { background: var(--gr-ok); }
+
+/* Üst çubuk */
+:root[data-theme="graphite"] .top-bar { background: #1c1c1f; border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .app-tag { color: #d4d4d8; }
+:root[data-theme="graphite"] .bar-center { color: #a1a1a8; }
+:root[data-theme="graphite"] .tool-btn { color: #d4d4d8; background: #222225; border-color: #333337; }
+:root[data-theme="graphite"] .tool-btn:hover { color: #fafafa; background: #2a2a2e; border-color: #4a4a52; }
+:root[data-theme="graphite"] .status-badge { background: #26262a; border-color: #3a3a40; }
+:root[data-theme="graphite"] .status-dot { background: var(--gr-ok); }
+:root[data-theme="graphite"] .density-toggle { color: #d4d4d8; background: #222225; border-color: #3a3a40; }
+:root[data-theme="graphite"] .density-toggle[aria-pressed="true"] { color: #18181a; background: #d4d4d8; border-color: #d4d4d8; }
+:root[data-theme="graphite"] #theme-select { background: #222225; color: #ececef; border-color: #333337; }
+
+/* Giriş bölümü */
+:root[data-theme="graphite"] .dashboard-intro .eyebrow { color: #b4b4bb; }
+:root[data-theme="graphite"] .intro-live-dot { background: var(--gr-ok); }
+:root[data-theme="graphite"] .dashboard-intro h1 { color: #fafafa; }
+:root[data-theme="graphite"] .dashboard-intro p { color: #a1a1a8; }
+:root[data-theme="graphite"] .intro-meta { background: #202023; border-color: #2f2f33; }
+:root[data-theme="graphite"] .intro-host-mark { color: #d4d4d8; background: #2a2a2e; }
+:root[data-theme="graphite"] .intro-meta strong { color: #ececef; }
+:root[data-theme="graphite"] .intro-meta small { color: #a1a1a8; }
+
+/* Özet kartları */
+:root[data-theme="graphite"] .metric-card { background: #202023; border-color: #2f2f33; }
+:root[data-theme="graphite"] .metric-label { color: #c4c4ca; }
+:root[data-theme="graphite"] .metric-icon { color: #d4d4d8; border-color: #3f3f45; }
+:root[data-theme="graphite"] .metric-meta,
+:root[data-theme="graphite"] .metric-foot { color: #a1a1a8; }
+:root[data-theme="graphite"] .metric-value { color: #fafafa; }
+:root[data-theme="graphite"] .metric-spark,
+:root[data-theme="graphite"] .metric-network small { color: #c4c4ca; }
+
+/* Donanım panelleri */
+:root[data-theme="graphite"] .hw-box,
+:root[data-theme="graphite"] .processes-section { background: #202023; border-color: #2f2f33; }
+:root[data-theme="graphite"] .hw-box:hover { border-color: #45454c; }
+:root[data-theme="graphite"] .box-title { border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .widget-name { color: #d4d4d8; }
+:root[data-theme="graphite"] .title-right { color: #a1a1a8; }
+:root[data-theme="graphite"] .drag-handle { color: #8b8b93; }
+:root[data-theme="graphite"] .hw-box-body { color: #c4c4ca; }
+:root[data-theme="graphite"] .cpu-times-sub { color: #a1a1a8; }
+:root[data-theme="graphite"] .block-bar-track { background: #2a2a2e; }
+:root[data-theme="graphite"] .meter-block { border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .meter-label-line,
+:root[data-theme="graphite"] .meter-sub-line { color: #b4b4bb; }
+:root[data-theme="graphite"] .net-speed-card { background: #1a1a1d; border-color: #2a2a2e; }
+
+/* Süreç tablosu */
+:root[data-theme="graphite"] .proc-control-bar { background: #202023; border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .search-wrap label,
+:root[data-theme="graphite"] .sort-lbl { color: #a1a1a8; }
+:root[data-theme="graphite"] #proc-search { background: #1a1a1d; border-color: #333337; color: #ececef; }
+:root[data-theme="graphite"] #proc-search:focus { background: #1a1a1d; border-color: #8b8b93; box-shadow: 0 0 0 2px rgba(212, 212, 216, .12); }
+:root[data-theme="graphite"] .cat-btn,
+:root[data-theme="graphite"] .sort-key-btn { color: #a1a1a8; background: #1f1f22; border-color: #333337; }
+:root[data-theme="graphite"] .cat-btn.active,
+:root[data-theme="graphite"] .sort-key-btn.active { color: #fafafa; background: #2e2e33; border-color: #4a4a52; }
+:root[data-theme="graphite"] .term-dropdown,
+:root[data-theme="graphite"] .term-action-btn { color: #c4c4ca; background: #222225; border-color: #333337; }
+:root[data-theme="graphite"] .proc-table th { color: #a1a1a8; background: #1f1f22; border-bottom-color: #2f2f33; }
+:root[data-theme="graphite"] .proc-table td { color: #d4d4d8; border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .proc-table tr:hover td { background: #26262a; }
+:root[data-theme="graphite"] .bottom-fkeys { color: #b4b4bb; border-top-color: #2a2a2e; }
+
+/* Sistem haritası */
+:root[data-theme="graphite"] .smap-view { color: #ececef; }
+:root[data-theme="graphite"] .smap-eyebrow { color: #c4c4ca; }
+:root[data-theme="graphite"] .smap-live-dot { background: var(--gr-ok); box-shadow: 0 0 0 3px rgba(143, 209, 168, .18); }
+:root[data-theme="graphite"] .smap-heading h1 { color: #fafafa; }
+:root[data-theme="graphite"] .smap-heading p,
+:root[data-theme="graphite"] .smap-panel-head .smap-mono,
+:root[data-theme="graphite"] .smap-legend,
+:root[data-theme="graphite"] .smap-detail-kicker,
+:root[data-theme="graphite"] .smap-stats dt,
+:root[data-theme="graphite"] .smap-spark figcaption,
+:root[data-theme="graphite"] .smap-node-text small { color: #a1a1a8; }
+:root[data-theme="graphite"] .smap-segment,
+:root[data-theme="graphite"] .smap-btn,
+:root[data-theme="graphite"] .smap-icon-btn { background: #1f1f22; border-color: #333337; color: #d4d4d8; }
+:root[data-theme="graphite"] .smap-segment button { color: #a1a1a8; }
+:root[data-theme="graphite"] .smap-segment button[aria-pressed="true"] { background: #2e2e33; color: #fafafa; }
+:root[data-theme="graphite"] .smap-btn:hover,
+:root[data-theme="graphite"] .smap-icon-btn:hover { background: #2a2a2e; }
+:root[data-theme="graphite"] .smap-panel,
+:root[data-theme="graphite"] .smap-detail { background: #202023; border-color: #2f2f33; }
+:root[data-theme="graphite"] .smap-panel-head { color: #d4d4d8; border-bottom-color: #2a2a2e; }
+:root[data-theme="graphite"] .smap-legend { border-top-color: #2a2a2e; }
+:root[data-theme="graphite"] .smap-host { background-color: #1c1c1f; background-image: radial-gradient(#2e2e33 1px, transparent 1px); }
+:root[data-theme="graphite"] .smap-link { background: #45454c; }
+:root[data-theme="graphite"] .smap-node { background: #26262a; border-color: #3a3a40; color: #ececef; --smap-c: #d4d4d8; }
+:root[data-theme="graphite"] .smap-node:hover { background: #2e2e33; border-color: #55555d; }
+:root[data-theme="graphite"] .smap-node.is-warn { --smap-c: #e3a857; border-color: #6a5330; }
+:root[data-theme="graphite"] .smap-node.is-crit { --smap-c: #ef7d7d; border-color: #ef7d7d; }
+:root[data-theme="graphite"] .smap-node.is-off { --smap-c: #8b8b93; }
+:root[data-theme="graphite"] .smap-node.is-selected { background: #2e2e33; }
+:root[data-theme="graphite"] .smap-hub { background: #2e2e33; border-color: #55555d; --smap-c: #fafafa; }
+:root[data-theme="graphite"] .smap-hub .smap-hub-sub { color: #c4c4ca; }
+:root[data-theme="graphite"] .sw.ok { background: #d4d4d8; }
+:root[data-theme="graphite"] .smap-detail h2,
+:root[data-theme="graphite"] #smap-detail-value { color: #fafafa; }
+:root[data-theme="graphite"] .smap-pill { background: #2a2a2e; border-color: #3f3f45; color: #d4d4d8; }
+:root[data-theme="graphite"] .smap-spark svg,
+:root[data-theme="graphite"] .smap-stats div { background: #1a1a1d; border-color: #2a2a2e; }
+:root[data-theme="graphite"] .smap-spark .grid { stroke: #2a2a2e; }
+:root[data-theme="graphite"] .smap-top li { background: #26262a; }
+:root[data-theme="graphite"] .smap-top-title { color: #d4d4d8; }
+:root[data-theme="graphite"] .smap-primary { background: #e4e4e7; color: #18181a; }
+:root[data-theme="graphite"] .smap-primary:hover { background: #fafafa; }
+:root[data-theme="graphite"] .smap-secondary { border-color: #3f3f45; color: #ececef; }
+:root[data-theme="graphite"] .smap-secondary:hover { background: #2a2a2e; }
+:root[data-theme="graphite"] .smap-view button:focus-visible { outline-color: #d4d4d8; }

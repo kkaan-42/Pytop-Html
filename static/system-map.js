@@ -23,7 +23,11 @@
         bat: ['bot-trunk', 'bot-right', 'drop-bat'],
         host: []
     };
-    const STATUS_COLORS = { ok: '#77d5a7', warn: '#f5b45a', crit: '#f87171', off: '#7f9089', flow: '#6aa7d8', hub: '#9fd9bd' };
+    const BASE_STATUS_COLORS = { ok: '#77d5a7', warn: '#f5b45a', crit: '#f87171', off: '#7f9089', flow: '#6aa7d8', hub: '#9fd9bd' };
+    const GRAPHITE_STATUS_COLORS = { ok: '#d4d4d8', warn: '#e3a857', crit: '#ef7d7d', off: '#8b8b93', flow: '#9fb3c8', hub: '#e4e4e7' };
+    const STATUS_COLORS = new Proxy({}, {
+        get: (_, key) => (document.documentElement.getAttribute('data-theme') === 'graphite' ? GRAPHITE_STATUS_COLORS : BASE_STATUS_COLORS)[key]
+    });
     const STATUS_TEXT = { ok: 'Normal', warn: 'Yüksek', crit: 'Kritik', off: 'Veri yok', flow: 'Normal' };
 
     const host = document.getElementById('smap-host');
