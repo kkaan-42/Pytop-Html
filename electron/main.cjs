@@ -12,6 +12,9 @@ let stopping = false;
 let updateCheckInProgress = false;
 const trustedOrigins = new Set();
 
+// Yerel pencereler işletim sisteminin diline göre: Türkçe sistemde Türkçe, diğerlerinde İngilizce.
+const L = (tr, en) => (String(app.getLocale() || '').toLowerCase().startsWith('tr') ? tr : en);
+
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.allowPrerelease = false;
@@ -21,8 +24,9 @@ async function checkForUpdates(manual = false) {
   const supportsAutoUpdate = process.platform === 'win32' || (process.platform === 'linux' && Boolean(process.env.APPIMAGE));
   if (!app.isPackaged || !supportsAutoUpdate) {
     if (manual) await dialog.showMessageBox(windowRef, {
-      type: 'info', title: 'pyTOP Pro güncellemesi',
-      message: 'Otomatik güncelleme Windows ve AppImage paketlerinde kullanılabilir. Debian paketi için dağıtımınızın paket yöneticisini kullanın.'
+      type: 'info', title: L('pyTOP Pro güncellemesi', 'pyTOP Pro update'),
+      message: L('Otomatik güncelleme Windows ve AppImage paketlerinde kullanılabilir. Debian paketi için dağıtımınızın paket yöneticisini kullanın.',
+        'Automatic updates are available for the Windows and AppImage packages. For the Debian package, use your distribution\'s package manager.')
     });
     return { status: 'unsupported' };
   }
@@ -33,7 +37,8 @@ async function checkForUpdates(manual = false) {
     const result = await autoUpdater.checkForUpdates();
     if (!result?.isUpdateAvailable) {
       if (manual) await dialog.showMessageBox(windowRef, {
-        type: 'info', title: 'pyTOP Pro güncellemesi', message: `Uygulamanız güncel (v${app.getVersion()}).`
+        type: 'info', title: L('pyTOP Pro güncellemesi', 'pyTOP Pro update'),
+        message: L(`Uygulamanız güncel (v${app.getVersion()}).`, `You're up to date (v${app.getVersion()}).`)
       });
       return { status: 'current' };
     }
@@ -44,7 +49,8 @@ async function checkForUpdates(manual = false) {
   } catch (error) {
     console.error('pyTOP update check:', error);
     if (manual) await dialog.showMessageBox(windowRef, {
-      type: 'error', title: 'Güncelleme kontrolü başarısız', message: error.message || 'GitHub Release kontrol edilemedi.'
+      type: 'error', title: L('Güncelleme kontrolü başarısız', 'Update check failed'),
+      message: error.message || L('GitHub Release kontrol edilemedi.', 'Could not check GitHub Releases.')
     });
     return { status: 'error' };
   } finally {
@@ -122,10 +128,10 @@ function backendHealthy(port) {
 async function waitForBackend(port) {
   for (let attempt = 0; attempt < 80; attempt += 1) {
     if (await backendHealthy(port)) return;
-    if (!backend || backend.exitCode !== null) throw new Error('pyTOP servis süreci başlatılamadı.');
+    if (!backend || backend.exitCode !== null) throw new Error(L('pyTOP servis süreci başlatılamadı.', 'The pyTOP service process could not be started.'));
     await new Promise(resolve => setTimeout(resolve, 250));
   }
-  throw new Error('pyTOP servisi zamanında hazır olmadı.');
+  throw new Error(L('pyTOP servisi zamanında hazır olmadı.', 'The pyTOP service did not become ready in time.'));
 }
 
 function startBackend(port) {
@@ -197,7 +203,7 @@ app.whenReady().then(async () => {
     createWindow(`http://127.0.0.1:${port}/`);
     setTimeout(() => checkForUpdates(false), 10000);
   } catch (error) {
-    await dialog.showMessageBox({ type: 'error', title: 'pyTOP Pro başlatılamadı', message: error.message });
+    await dialog.showMessageBox({ type: 'error', title: L('pyTOP Pro başlatılamadı', 'pyTOP Pro could not start'), message: error.message });
     await stopBackend();
     app.quit();
   }
