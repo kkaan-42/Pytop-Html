@@ -1,0 +1,113 @@
+/* pyTOP Pro — Canlı Sistem Haritası */
+body.smap-active .terminal-root > :not(.top-bar):not(#system-map-view):not(.alert-banner):not(.bottom-fkeys) { display: none !important; }
+.smap-view[hidden] { display: none !important; }
+.smap-view { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; color: #dce5e1; font-family: Inter, system-ui, sans-serif; font-size: 13px; }
+.smap-mono { font-family: "JetBrains Mono", Consolas, monospace; }
+
+.smap-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.smap-heading { display: flex; flex-direction: column; gap: 6px; }
+.smap-eyebrow { display: flex; align-items: center; gap: 8px; color: #9fd9bd; font-size: 10px; font-weight: 700; letter-spacing: .14em; }
+.smap-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #77d5a7; box-shadow: 0 0 0 3px rgba(119,213,167,.18); }
+.smap-view.is-paused .smap-live-dot { background: #f5b45a; box-shadow: 0 0 0 3px rgba(245,180,90,.18); }
+.smap-heading h1 { margin: 0; color: #eef3f0; font-size: 26px; font-weight: 600; letter-spacing: -.02em; }
+.smap-heading p { margin: 0; color: #9aaba5; font-size: 13px; }
+
+.smap-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.smap-segment { display: flex; gap: 2px; padding: 3px; background: #121a1d; border: 1px solid #29383c; border-radius: 9px; }
+.smap-segment button { min-height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #a9b6b2; font: 500 12px Inter, sans-serif; cursor: pointer; }
+.smap-segment button:hover { color: #eef4f0; }
+.smap-segment button[aria-pressed="true"] { background: #1f302b; color: #e4f1ea; font-weight: 600; }
+.smap-btn { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid #29383c; border-radius: 9px; background: #121a1d; color: #dce5e1; font: 500 12px Inter, sans-serif; cursor: pointer; }
+.smap-btn[aria-pressed="true"] { border-color: #6b5430; color: #f5c27a; }
+.smap-zoom { display: flex; gap: 4px; }
+.smap-icon-btn { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #29383c; border-radius: 9px; background: #121a1d; color: #dce5e1; cursor: pointer; }
+.smap-btn:hover, .smap-icon-btn:hover { background: #17211f; }
+.smap-view button:focus-visible { outline: 2px solid #9fd9bd; outline-offset: 2px; }
+
+.smap-layout { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.smap-panel { flex: 999 1 560px; min-width: 0; border: 1px solid #29383c; border-radius: 12px; background: #11191c; overflow: hidden; }
+.smap-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #22302f; color: #c9d6d1; font-size: 12px; font-weight: 600; }
+.smap-panel-head .smap-mono { color: #9aaba5; font-size: 11px; font-weight: 400; }
+.smap-scroll { overflow: auto; padding: 8px; }
+.smap-stage { position: relative; width: 800px; height: 600px; margin: 0 auto; }
+.smap-host { position: absolute; left: 0; top: 0; width: 800px; height: 600px; transform-origin: 0 0; border-radius: 8px; background-color: #11191c; background-image: radial-gradient(#22302f 1px, transparent 1px); background-size: 24px 24px; }
+
+.smap-link { position: absolute; display: block; background: #3d5550; border-radius: 2px; transition: background .25s, box-shadow .25s, opacity .25s; }
+.smap-link.h { height: 2px; }
+.smap-link.v { width: 2px; }
+.smap-link.flow { background: repeating-linear-gradient(90deg, #6aa7d8 0 6px, transparent 6px 12px); background-size: 24px 2px; animation: smap-flow 1.2s linear infinite; }
+.smap-view.is-paused .smap-link.flow { animation-play-state: paused; }
+.smap-link.is-path { background: var(--smap-path, #f5b45a); box-shadow: 0 0 0 1px var(--smap-path, #f5b45a), 0 0 10px rgba(245,180,90,.35); }
+.smap-link.is-dim { opacity: .25; }
+@keyframes smap-flow { to { background-position: 24px 0; } }
+@media (prefers-reduced-motion: reduce) { .smap-link.flow { animation: none; } }
+.smap-flow-label { position: absolute; color: #9cc6e8; font: 11px/16px "JetBrains Mono", monospace; text-align: center; white-space: nowrap; }
+
+.smap-node { position: absolute; width: 176px; height: 88px; box-sizing: border-box; padding: 12px; display: flex; align-items: center; gap: 10px; text-align: left; background: #172125; border: 1px solid #2f4440; border-radius: 10px; color: #dce5e1; font: inherit; cursor: pointer; transition: border-color .2s, box-shadow .2s, opacity .2s, background .2s; }
+.smap-node:hover { background: #1b282b; border-color: #4f7a68; }
+.smap-node > svg { flex: 0 0 22px; width: 22px; height: 22px; fill: none; stroke: var(--smap-c, #77d5a7); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.smap-node-text { display: flex; flex-direction: column; min-width: 0; line-height: 18px; }
+.smap-node-name { overflow: hidden; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; }
+.smap-node-name em { color: var(--smap-c, #77d5a7); font-size: 11px; font-style: normal; font-weight: 600; }
+.smap-node-name em::before { content: "· "; }
+.smap-node-text strong { overflow: hidden; color: #f2f5f3; font: 600 18px/22px "JetBrains Mono", monospace; white-space: nowrap; text-overflow: ellipsis; }
+.smap-node-text small { overflow: hidden; color: #9aaba5; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+.smap-node.is-warn { --smap-c: #f5b45a; border-color: #5c4a2c; }
+.smap-node.is-crit { --smap-c: #f87171; border-color: #f87171; }
+.smap-node.is-off { --smap-c: #7f9089; }
+.smap-node.is-flow { --smap-c: #6aa7d8; }
+.smap-node.is-selected { background: #1d2a26; border: 2px solid var(--smap-c, #77d5a7); padding: 11px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--smap-c, #77d5a7) 18%, transparent); }
+.smap-node.is-dim { opacity: .35; }
+.smap-hub { width: 192px; justify-content: center; background: #1a2b26; border-color: #4f7a68; border-radius: 14px; --smap-c: #9fd9bd; }
+.smap-hub > svg { flex-basis: 24px; width: 24px; height: 24px; }
+.smap-hub .smap-hub-sub { color: #9fd9bd; }
+
+.smap-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 12px 16px; border-top: 1px solid #22302f; color: #9aaba5; font-size: 11px; }
+.smap-legend span { display: flex; align-items: center; gap: 6px; }
+.smap-legend .sw { display: inline-block; width: 10px; height: 10px; box-sizing: border-box; border-radius: 3px; }
+.sw.ok { background: #77d5a7; } .sw.warn { background: #f5b45a; } .sw.crit { border: 2px solid #f87171; }
+.sw.flow { width: 24px; height: 2px; border-radius: 0; background: repeating-linear-gradient(90deg, #6aa7d8 0 6px, transparent 6px 12px); }
+.smap-legend-end { margin-left: auto; }
+
+.smap-detail { flex: 1 1 300px; min-width: 0; max-width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 18px; border: 1px solid #29383c; border-radius: 12px; background: #141d20; }
+.smap-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.smap-detail-kicker { color: #9aaba5; font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.smap-detail h2 { margin: 4px 0 0; color: #eef3f0; font-size: 20px; font-weight: 600; }
+.smap-pill { padding: 5px 10px; border-radius: 999px; border: 1px solid #2d493d; background: rgba(119,213,167,.12); color: #9fd9bd; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.smap-pill.is-warn { border-color: #6b5430; background: rgba(245,180,90,.14); color: #f5c27a; }
+.smap-pill.is-crit { border-color: #7a3838; background: rgba(248,113,113,.14); color: #fca5a5; }
+.smap-pill.is-off { border-color: #34423f; background: transparent; color: #9aaba5; }
+.smap-detail-value { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+#smap-detail-value { color: #f2f5f3; font: 600 40px/1.05 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+#smap-detail-trend { color: #9aaba5; font-size: 12px; }
+#smap-detail-trend.up { color: #f5c27a; } #smap-detail-trend.down { color: #9fd9bd; }
+.smap-spark { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.smap-spark svg { display: block; width: 100%; height: 72px; background: #11191c; border: 1px solid #22302f; border-radius: 8px; }
+.smap-spark .grid { stroke: #1f2c2b; stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+#smap-spark-line { fill: none; stroke: var(--smap-c, #77d5a7); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.smap-spark figcaption { display: flex; justify-content: space-between; color: #9aaba5; font: 10px "JetBrains Mono", monospace; }
+.smap-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.smap-stats div { min-width: 0; padding: 10px; border: 1px solid #22302f; border-radius: 8px; background: #11191c; }
+.smap-stats dt { color: #9aaba5; font-size: 10px; }
+.smap-stats dd { margin: 4px 0 0; overflow: hidden; color: #eef3f0; font: 500 14px "JetBrains Mono", monospace; white-space: nowrap; text-overflow: ellipsis; }
+.smap-top { display: flex; flex-direction: column; gap: 8px; }
+.smap-top[hidden] { display: none; }
+.smap-top-title { color: #c9d6d1; font-size: 12px; font-weight: 600; }
+.smap-top ol { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; font: 12px "JetBrains Mono", monospace; }
+.smap-top li { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 7px; background: #1a2528; }
+.smap-top li span:first-child { overflow: hidden; color: #dce5e1; white-space: nowrap; text-overflow: ellipsis; }
+.smap-top li span:last-child { flex: 0 0 auto; color: #dce5e1; }
+.smap-top li:first-child span:last-child { color: #f5c27a; }
+.smap-top li.empty { color: #9aaba5; }
+.smap-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.smap-actions button { flex: 1 1 120px; min-height: 44px; border-radius: 9px; font: 600 12px Inter, sans-serif; cursor: pointer; }
+.smap-actions button[hidden] { display: none; }
+.smap-primary { border: 0; background: #77d5a7; color: #0d1316; }
+.smap-primary:hover { background: #8fe0b8; }
+.smap-secondary { border: 1px solid #2f4440; background: transparent; color: #dce5e1; font-weight: 500 !important; }
+.smap-secondary:hover { background: #17211f; }
+
+@media (max-width: 760px) {
+    .smap-heading h1 { font-size: 21px; }
+    .smap-legend-end { margin-left: 0; }
+}

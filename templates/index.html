@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ sys.cache_bust }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='system-map.css') }}?v={{ sys.cache_bust }}">
     <script>
         // PWA ve Service Worker kalıntılarını anında temizle
         if ('serviceWorker' in navigator) {
@@ -42,6 +43,7 @@
         <div class="sidebar-group-label">ÇALIŞMA ALANI</div>
         <nav class="sidebar-nav">
             <button type="button" class="sidebar-link active" data-sidebar-action="overview"><span class="nav-glyph">▦</span>Genel bakış</button>
+            <button type="button" class="sidebar-link" data-sidebar-action="system-map"><span class="nav-glyph">⌖</span>Sistem haritası</button>
             <button type="button" class="sidebar-link" data-sidebar-action="processes"><span class="nav-glyph">⌘</span>İşlemler</button>
             <button type="button" class="sidebar-link" data-sidebar-action="network"><span class="nav-glyph">⌁</span>Ağ</button>
             <button type="button" class="sidebar-link" data-sidebar-action="docker"><span class="nav-glyph">▣</span>Docker</button>
@@ -118,6 +120,138 @@
                 <button type="button" id="btn-fullscreen" class="tool-btn" title="Tam Ekran (F11)">[⛶]</button>
             </div>
         </header>
+
+        <!-- Canlı Sistem Haritası (sidebar: Sistem haritası) -->
+        <section id="system-map-view" class="smap-view" aria-labelledby="smap-title" hidden>
+            <header class="smap-header">
+                <div class="smap-heading">
+                    <span class="smap-eyebrow"><span class="smap-live-dot" id="smap-live-dot"></span> SİSTEM HARİTASI · <span id="smap-live-label">CANLI</span></span>
+                    <h1 id="smap-title">Canlı sistem haritası</h1>
+                    <p>Donanım, ağ, Docker ve işlemler arasındaki ilişki tek bir görünümde. Bir düğüme tıklayıp ayrıntısını açın.</p>
+                </div>
+                <div class="smap-toolbar" role="toolbar" aria-label="Harita denetimleri">
+                    <div class="smap-segment" role="group" aria-label="Filtre">
+                        <button type="button" data-smap-filter="all" aria-pressed="true">Tümü</button>
+                        <button type="button" data-smap-filter="hardware" aria-pressed="false">Donanım</button>
+                        <button type="button" data-smap-filter="processes" aria-pressed="false">İşlemler</button>
+                        <button type="button" data-smap-filter="docker" aria-pressed="false">Docker</button>
+                    </div>
+                    <button type="button" class="smap-btn" id="smap-pause" aria-pressed="false">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"></path></svg><span>Duraklat</span>
+                    </button>
+                    <div class="smap-zoom" role="group" aria-label="Yakınlaştırma">
+                        <button type="button" class="smap-icon-btn" data-smap-zoom="out" aria-label="Uzaklaştır"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+                        <button type="button" class="smap-icon-btn" data-smap-zoom="in" aria-label="Yakınlaştır"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+                        <button type="button" class="smap-icon-btn" data-smap-zoom="fit" aria-label="Ekrana sığdır"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="smap-layout">
+                <section class="smap-panel" aria-label="Sistem topolojisi">
+                    <div class="smap-panel-head">
+                        <span>Topoloji</span>
+                        <span class="smap-mono" id="smap-meta">9 düğüm · canlı</span>
+                    </div>
+                    <div class="smap-scroll" id="smap-scroll">
+                        <div class="smap-stage" id="smap-stage">
+                            <div class="smap-host" id="smap-host">
+                                <span class="smap-link v" data-link="top-trunk" style="left:399px;top:200px;height:56px"></span>
+                                <span class="smap-link h" data-link="top-left" style="left:128px;top:199px;width:272px"></span>
+                                <span class="smap-link h" data-link="top-right" style="left:400px;top:199px;width:272px"></span>
+                                <span class="smap-link v" data-link="drop-cpu" style="left:127px;top:144px;height:56px"></span>
+                                <span class="smap-link v" data-link="drop-mem" style="left:399px;top:144px;height:56px"></span>
+                                <span class="smap-link v" data-link="drop-gpu" style="left:671px;top:144px;height:56px"></span>
+                                <span class="smap-link v" data-link="bot-trunk" style="left:399px;top:344px;height:56px"></span>
+                                <span class="smap-link h" data-link="bot-left" style="left:128px;top:399px;width:272px"></span>
+                                <span class="smap-link h" data-link="bot-right" style="left:400px;top:399px;width:272px"></span>
+                                <span class="smap-link v" data-link="drop-docker" style="left:127px;top:400px;height:56px"></span>
+                                <span class="smap-link v" data-link="drop-proc" style="left:399px;top:400px;height:56px"></span>
+                                <span class="smap-link v" data-link="drop-bat" style="left:671px;top:400px;height:56px"></span>
+                                <span class="smap-link h flow" data-link="link-disk" style="left:216px;top:299px;width:88px"></span>
+                                <span class="smap-link h flow" data-link="link-net" style="left:496px;top:299px;width:88px"></span>
+                                <span class="smap-flow-label" id="smap-flow-disk" style="left:220px;top:272px;width:80px">—</span>
+                                <span class="smap-flow-label" id="smap-flow-net" style="left:500px;top:272px;width:80px">—</span>
+
+                                <button type="button" class="smap-node" data-node="cpu" data-group="hardware" style="left:40px;top:56px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"></rect><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">CPU <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="mem" data-group="hardware" style="left:312px;top:56px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="1.5"></rect><path d="M7 17v3M11 17v3M15 17v3M7 11h2M11 11h2M15 11h2"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">Bellek <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="gpu" data-group="hardware" style="left:584px;top:56px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="9" cy="12" r="3"></circle><path d="M15 10h4M15 14h4"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">GPU <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="disk" data-group="hardware" style="left:40px;top:256px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">Disk <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node smap-hub" data-node="host" data-group="all" style="left:304px;top:256px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">{{ sys.hostname }}</span><small class="smap-hub-sub">Bu makine · çevrimiçi</small><small class="smap-mono" data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="net" data-group="hardware" style="left:584px;top:256px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">Ağ <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="docker" data-group="docker" style="left:40px;top:456px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"></path><path d="M4 7.5l8 4.5 8-4.5M12 12v9"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">Docker <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="proc" data-group="processes" style="left:312px;top:456px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">İşlemler <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                                <button type="button" class="smap-node" data-node="bat" data-group="hardware" style="left:584px;top:456px">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="18" height="10" rx="2"></rect><path d="M22 11v2M6 10v4M10 10v4"></path></svg>
+                                    <span class="smap-node-text"><span class="smap-node-name">Batarya <em data-status>—</em></span><strong data-value>—</strong><small data-meta>—</small></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="smap-legend">
+                        <span><i class="sw ok"></i>Normal · %60 altı</span>
+                        <span><i class="sw warn"></i>Yüksek · %60–85</span>
+                        <span><i class="sw crit"></i>Kritik · %85 üstü</span>
+                        <span><i class="sw flow"></i>Veri akışı (G/Ç)</span>
+                        <span class="smap-legend-end">Kalın çizgi = seçili düğümün yolu</span>
+                    </div>
+                </section>
+
+                <aside class="smap-detail" aria-label="Seçili düğüm ayrıntısı" aria-live="polite">
+                    <div class="smap-detail-head">
+                        <div>
+                            <span class="smap-detail-kicker">SEÇİLİ DÜĞÜM</span>
+                            <h2 id="smap-detail-title">CPU</h2>
+                        </div>
+                        <span class="smap-pill" id="smap-detail-pill">—</span>
+                    </div>
+                    <div class="smap-detail-value">
+                        <span id="smap-detail-value">—</span>
+                        <span class="smap-mono" id="smap-detail-trend"></span>
+                    </div>
+                    <figure class="smap-spark">
+                        <svg id="smap-spark" role="img" aria-label="Son ölçümlerin geçmişi" viewBox="0 0 264 72" preserveAspectRatio="none">
+                            <path d="M0 54 H264 M0 36 H264 M0 18 H264" class="grid"></path>
+                            <polyline id="smap-spark-line" points=""></polyline>
+                        </svg>
+                        <figcaption><span>son 40 ölçüm</span><span>şimdi</span></figcaption>
+                    </figure>
+                    <dl class="smap-stats" id="smap-detail-stats"></dl>
+                    <div class="smap-top" id="smap-top-wrap">
+                        <span class="smap-top-title" id="smap-top-title">En çok CPU kullananlar</span>
+                        <ol id="smap-top-list"></ol>
+                    </div>
+                    <div class="smap-actions">
+                        <button type="button" class="smap-primary" id="smap-action-primary">İşlemlerde aç</button>
+                        <button type="button" class="smap-secondary" id="smap-action-alert">Uyarı kuralı ekle</button>
+                    </div>
+                </aside>
+            </div>
+        </section>
 
         <section class="dashboard-intro" aria-label="Gösterge paneli özeti">
             <div>
@@ -1061,5 +1195,6 @@
 
 
     <script src="{{ url_for('static', filename='app.js') }}?v={{ sys.cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='system-map.js') }}?v={{ sys.cache_bust }}"></script>
 </body>
 </html>

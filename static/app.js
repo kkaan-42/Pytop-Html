@@ -456,6 +456,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/stats');
             if (!res.ok) throw new Error('API Hatası');
             const data = await res.json();
+            // Sistem haritası gibi ek görünümler aynı veriyi ikinci kez istemeden kullanır.
+            window.dispatchEvent(new CustomEvent('pytop:stats', { detail: data }));
 
             // Genel Bilgiler
             valUptime.textContent = data.uptime;
@@ -654,6 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(url);
             if (!res.ok) throw new Error('Süreçler alınamadı');
             currentProcessList = await res.json();
+            window.dispatchEvent(new CustomEvent('pytop:processes', { detail: currentProcessList }));
 
             renderProcessTable(currentProcessList);
         } catch (err) {
